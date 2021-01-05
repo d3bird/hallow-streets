@@ -67,33 +67,40 @@ macro(makeLink src dest target)
 endmacro()
 
 
-file(GLOB_RECURSE SOURCE
-    "src/dawn/*.h"
-    "src/dawn/*.cpp"
-    "src/dawn/*.vs"
-    "src/dawn/*.fs"
-    "src/dawn/*.gs"
+set(CHAPTERS
+    engine
+    dialog
 )
 
-set(NAME "dawn")
+foreach(CHAPTER ${CHAPTERS})
+
+file(GLOB_RECURSE SOURCE
+    "src/${CHAPTER}/*.h"
+    "src/${CHAPTER}/*.cpp"
+    "src/${CHAPTER}/*.vs"
+    "src/${CHAPTER}/*.fs"
+    "src/${CHAPTER}/*.gs"
+)
+
+set(NAME "${CHAPTER}")
 add_executable(${NAME} ${SOURCE})
 target_link_libraries(${NAME} ${LIBS})
 if(WIN32)
-    set_target_properties(${NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/bin/dawn")
-    set_target_properties(${NAME} PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/bin/dawn/Debug")
+    set_target_properties(${NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/bin/${CHAPTER}")
+    set_target_properties(${NAME} PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/bin/${CHAPTER}/Debug")
 elseif(UNIX AND NOT APPLE)
-    set_target_properties(${NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/bin/dawn")
+    set_target_properties(${NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/bin/${CHAPTER}")
 elseif(APPLE)
-    set_target_properties(${NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/bin/dawn")
-    set_target_properties(${NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY_DEBUG "${CMAKE_SOURCE_DIR}/bin/dawn")
-    set_target_properties(${NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY_RELEASE "${CMAKE_SOURCE_DIR}/bin/dawn")
+    set_target_properties(${NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/bin/${CHAPTER}")
+    set_target_properties(${NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY_DEBUG "${CMAKE_SOURCE_DIR}/bin/${CHAPTER}")
+    set_target_properties(${NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY_RELEASE "${CMAKE_SOURCE_DIR}/bin/${CHAPTER}")
 endif(WIN32)
 
 # copy shader files to build directory
 file(GLOB_RECURSE SHADERS
-    "src/dawn/*.vs"
-    "src/dawn/*.fs"
-    "src/dawn/*.gs"
+    "src/${CHAPTER}/*.vs"
+    "src/${CHAPTER}/*.fs"
+    "src/${CHAPTER}/*.gs"
 )
 
 foreach(SHADER ${SHADERS})
@@ -133,5 +140,7 @@ if(MSVC_IDE)
 	# Run macro
 	GroupSources(src)
 endif()
+endforeach(CHAPTER)
+
 
 include_directories(${CMAKE_SOURCE_DIR}/includes)

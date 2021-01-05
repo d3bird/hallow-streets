@@ -1,3 +1,4 @@
 # ignores following folders
 bin/
 build/
+copy_folder/
