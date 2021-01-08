@@ -155,8 +155,8 @@ void city::init() {
 	}
 
 	city_info->print_layout();
-	city_info->print_expanded_layout();
-	print_map();
+	//city_info->print_expanded_layout();
+	//print_map();
 
 	// Source is the left-most bottom-most corner 
 	Pair src = make_pair(8, 0);

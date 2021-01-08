@@ -77,11 +77,6 @@ public:
 
 private:
 
-	void  updateBuffer_ter() {
-		glBindBuffer(GL_ARRAY_BUFFER, buffer);
-		glBufferData(GL_ARRAY_BUFFER, cube_amount * sizeof(glm::mat4), &cube_matrices[0], GL_STATIC_DRAW);
-	}
-
 	//check function to makesure that everything was inited
 	void check();
 

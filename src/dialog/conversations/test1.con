@@ -1,0 +1,45 @@
+data[
+title="test1";
+npc="1";
+]
+
+options[
+1-2-3;
+0;
+]
+
+0:{
+p_text="options 0";
+r_text="respounce 0";
+return=true;
+next_choices=[2];
+requires_prereq=true;
+prereq_index=none;
+}
+
+1:{
+p_text="options 1";
+r_text="respounce 1";
+return=false;
+next_choices=[2];
+requires_prereq=false;
+prereq_index=none;
+}
+
+2:{
+p_text="options 2";
+r_text="respounce 2";
+return=false;
+next_choices=[3];
+requires_prereq=false;
+prereq_index=none;
+}
+
+3:{
+p_text="options 3";
+r_text="respounce 3";
+return=true;
+next_choices=[3];
+requires_prereq=false;
+prereq_index=none;
+}
