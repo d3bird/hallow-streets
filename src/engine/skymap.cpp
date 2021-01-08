@@ -95,7 +95,7 @@ void skymap::init() {
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
 
-    std::vector<std::string> faces
+    std::vector<std::string> def
     {
        "resources/textures/skybox/right.jpg",
        "resources/textures/skybox/left.jpg",
@@ -104,7 +104,25 @@ void skymap::init() {
        "resources/textures/skybox/front.jpg",
        "resources/textures/skybox/back.jpg"
     };
-
+    std::vector<std::string> faces
+    {
+       "resources/textures/skybox/night_sky/right.png",
+       "resources/textures/skybox/night_sky/left.png",
+       "resources/textures/skybox/night_sky/top.png",
+       "resources/textures/skybox/night_sky/bottom.png",
+       "resources/textures/skybox/night_sky/front.png",
+       "resources/textures/skybox/night_sky/back.png"
+    };
+    std::vector<std::string> nebula
+    {
+       "resources/textures/skybox/nebula/nebula_right.jpg",
+       "resources/textures/skybox/nebula/nebula_left.jpg",
+       "resources/textures/skybox/nebula/nebula_top.jpg",
+       "resources/textures/skybox/nebula/nebula_bottom.jpg",
+       "resources/textures/skybox/nebula/nebula_front.jpg",
+       "resources/textures/skybox/nebula/nebula_back.jpg"
+    };
+    
     cubemapTexture = loadCubemap(faces);
 
     shader->use();
