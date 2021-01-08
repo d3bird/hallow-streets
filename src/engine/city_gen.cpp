@@ -9,6 +9,7 @@ city_gen::city_gen(){
 	block_width = 22;
 	block_height = 14;
 
+	key = 6;
 }
 
 city_gen::~city_gen(){
@@ -40,7 +41,23 @@ void city_gen::init() {
 		}
 	}
 
+	//create the expanded version of the layout
+	layout_e = new int * [block_height* key];
+	for (int i = 0; i < block_height* key; i++) {
+		layout_e[i] = new int[block_width* key];
+	}
+
+	for (int i = 0; i < block_height * key; i++) {
+		for (int h = 0; h < block_width * key; h++) {
+			layout_e[i][h] = 0;
+		}
+	}
+
 	create_city_block(1, 1, block_width-1, block_height-1);
+
+	layout[6][9] = open;//fix a error in the premade street layout
+
+	create_expanded_layout();
 
 	if (Time != NULL) {
 		deltatime = Time->get_time_change();
@@ -112,7 +129,6 @@ void city_gen::create_city_block(int x1, int y1, int x2, int y2) {
 
 }
 
-
 void city_gen::create_road(int x, int z, int direct, int mid, int dir_change) {
 	bool creating = true;
 	bool hit_mid = false;
@@ -162,6 +178,43 @@ void city_gen::create_road(int x, int z, int direct, int mid, int dir_change) {
 	}
 }
 
+void city_gen::create_expanded_layout() {
+
+	if (key < 1) {
+		std::cout << "the key to expand the layout was bellow 1" << std::endl;
+	}
+
+	int set = 0;
+	bool exp = true;
+	for (int i = 0; i < block_height; i++) {
+		for (int h = 0; h < block_width; h++) {
+			exp = true;
+			switch (layout[i][h]) {
+			case big_road:
+			case small_road:
+				set = 1;
+				break;
+			case open:
+			default:
+				set = 0;
+				break;
+			}
+			layout_e[i * key][h * key] = set;
+			if (key != 1) {
+
+				for (int x = 0; x < key; x++) {
+					for (int y = 0; y < key; y++) {
+						layout_e[(i * key) + x][(h * key) + y] = set;
+					}
+				}
+
+			}
+
+		}
+	}
+
+}
+
 void city_gen::print_layout() {
 	std::cout << "printing the city layout" << std::endl;
 
@@ -181,6 +234,18 @@ void city_gen::print_layout() {
 				std::cout << "- ";
 				break;
 			}
+		}
+		std::cout << std::endl;
+	}
+
+}
+
+void city_gen::print_expanded_layout() {
+	std::cout << "printing the expanded city layout" << std::endl;
+
+	for (int i = 0; i < block_height*key; i++) {
+		for (int h = 0; h < block_width * key; h++) {
+			std::cout << layout_e[i][h] << " ";
 		}
 		std::cout << std::endl;
 	}

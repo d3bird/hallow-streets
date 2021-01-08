@@ -49,5 +49,6 @@ private:
 
 	city* City;
 	sky* Sky;
+	glm::vec3 lighting_loc;
 };
 

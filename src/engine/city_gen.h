@@ -41,15 +41,20 @@ public:
 	int get_height() { return block_height; }
 
 	city_square** get_layout() { return layout; }
+	int** get_expanded_layout() { return layout_e; }
+
+	int get_expandion_key() { return key; }
 
 	//misc function
 	void print_layout();
+	void print_expanded_layout();
 
 private:
 
 	void create_city_block(int x1, int y1, int x2, int y2);
 	void create_road(int x, int z, int  direct, int mid, int dir_change);
 
+	void create_expanded_layout();
 
 	glm::mat4 view;
 	glm::mat4 projection;
@@ -57,6 +62,8 @@ private:
 	bool update_cam;
 
 	city_square** layout;
+	int key;
+	int** layout_e;
 
 	//for one city block
 	int block_width;//x

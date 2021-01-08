@@ -27,12 +27,24 @@ city::~city(){
 
 void city::draw() {
 
-	updateBuffer_ter();
-
+	//updateBuffer_ter();
+	//std::cout << "setting shaders" << std::endl;
 	cube_shader->use();
 	cube_shader->setMat4("projection", projection);
 	cube_shader->setMat4("view", view);
 	cube_shader->setInt("texture_diffuse1", 0);
+
+	/*std::cout << "setting buffers" << std::endl;
+	std::cout << "buffer = " << buffer << std::endl;
+	std::cout << "cube_amount = " << cube_amount << std::endl;
+	if (cube_matrices == NULL) {
+		std::cout << "cube_matrices was null" << std::endl;
+		while (true);
+	}*/
+	glBindBuffer(GL_ARRAY_BUFFER, buffer);
+	glBufferData(GL_ARRAY_BUFFER, cube_amount * sizeof(glm::mat4), &cube_matrices[0], GL_STATIC_DRAW);
+
+	//std::cout << "setting cube mesh buffers" << std::endl;
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, cube->textures_loaded[0].id);
 	for (unsigned int i = 0; i < cube->meshes.size(); i++)
@@ -41,7 +53,6 @@ void city::draw() {
 		glDrawElementsInstanced(GL_TRIANGLES, cube->meshes[i].indices.size(), GL_UNSIGNED_INT, 0, cube_amount);
 		glBindVertexArray(0);
 	}
-
 }
 
 void city::update() {
@@ -57,13 +68,21 @@ void city::init() {
 	city_info->init();
 
 	layout = city_info->get_layout();
+	int** layout_expanded = city_info->get_expanded_layout();
 
+	//x_width = 9;// ROW;//rows
+	//z_width = 10;//COL;//collums
+	int key = city_info->get_expandion_key();
+	x_width = city_info->get_height()* key;
+	z_width = city_info->get_width() * key;
+
+	//generate the mats from the layout
 	std::vector<glm::mat4> generated_mats;
+	for (int i = 0; i < x_width; i++) {
+		for (int h = 0; h < z_width; h++) {
 
-	for (int i = 0; i < city_info->get_height(); i++) {
-		for (int h = 0; h < city_info->get_width(); h++) {
-
-			if (layout[i][h] == small_road || layout[i][h] == big_road) {
+			//if (layout[i][h] == small_road || layout[i][h] == big_road) {
+			if(layout_expanded[i][h] == 1){
 				glm::mat4 temp = glm::mat4(1.0f);
 
 				temp = glm::translate(temp, glm::vec3(h * 2, 0, i * 2));
@@ -76,21 +95,6 @@ void city::init() {
 	std::cout << "done" << std::endl;
 	std::cout << "creating pathfinding data" << std::endl;
 
-	int grid[9][10] =
-	{
-		{ 1, 0, 1, 1, 1, 1, 0, 1, 1, 1 },
-		{ 1, 1, 1, 0, 1, 1, 1, 0, 1, 1 },
-		{ 1, 1, 1, 0, 1, 1, 0, 1, 0, 1 },
-		{ 0, 0, 1, 0, 1, 0, 0, 0, 0, 1 },
-		{ 1, 1, 1, 0, 1, 1, 1, 0, 1, 0 },
-		{ 1, 0, 1, 1, 1, 1, 0, 1, 0, 0 },
-		{ 1, 0, 0, 0, 0, 1, 0, 0, 0, 1 },
-		{ 1, 0, 1, 1, 1, 1, 0, 1, 1, 1 },
-		{ 1, 1, 1, 0, 0, 0, 1, 0, 0, 1 }
-	};
-
-	x_width = 9;// ROW;//rows
-	z_width = 10;//COL;//collums
 
 
 	 cube_amount = x_width * z_width;
@@ -134,7 +138,7 @@ void city::init() {
 
 	for (int x = 0; x < x_width; x++) {
 		for (int z = 0; z < z_width; z++) {
-			switch (grid[x][z])
+			switch (layout_expanded[x][z])
 			{
 			case 0:
 				terrian_map[x][z].blocked = true;
@@ -150,7 +154,10 @@ void city::init() {
 		}
 	}
 
+	city_info->print_layout();
+	city_info->print_expanded_layout();
 	print_map();
+
 	// Source is the left-most bottom-most corner 
 	Pair src = make_pair(8, 0);
 
@@ -177,7 +184,7 @@ void city::init() {
 	for (int i = 0; i < cube_amount; i++) {
 		cube_matrices[i] = generated_mats[i];
 	}
-
+	cube_amount++;
 	/*cube_amount = 1;
 	cube_matrices = new glm::mat4[cube_amount];
 	cube_matrices[0] = glm::mat4(1.0f);*/
@@ -187,8 +194,7 @@ void city::init() {
 	glBindBuffer(GL_ARRAY_BUFFER, buffer);
 	glBufferData(GL_ARRAY_BUFFER, cube_amount * sizeof(glm::mat4), &cube_matrices[0], GL_STATIC_DRAW);
 
-	for (unsigned int i = 0; i < cube->meshes.size(); i++)
-	{
+	for (unsigned int i = 0; i < cube->meshes.size(); i++){
 		unsigned int VAO = cube->meshes[i].VAO;
 		glBindVertexArray(VAO);
 		// set attribute pointers for matrix (4 times vec4)
@@ -212,6 +218,7 @@ void city::init() {
 	std::cout << "done" << std::endl;
 	std::cout << "done creating city" << std::endl;
 
+	glFlush();
 	check();
 	//while (true);
 }

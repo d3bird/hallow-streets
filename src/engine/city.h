@@ -60,7 +60,7 @@ public:
 	void aStarSearch(Pair src, Pair dest);
 
 	void tracePath(cell** cellDetails, Pair dest);
-void print_map();
+	void print_map();
 
 	//misc functions
 
@@ -77,7 +77,7 @@ void print_map();
 
 private:
 
-	void inline updateBuffer_ter() {
+	void  updateBuffer_ter() {
 		glBindBuffer(GL_ARRAY_BUFFER, buffer);
 		glBufferData(GL_ARRAY_BUFFER, cube_amount * sizeof(glm::mat4), &cube_matrices[0], GL_STATIC_DRAW);
 	}

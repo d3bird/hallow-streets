@@ -10,9 +10,11 @@ timing::timing(bool frames) {
 	draw_frame_rate = frames;
 	time_state = 1;
 	daytime = true;
+	passed_days = 0;
 	set_day();
 
 	set_timings();
+	check();
 }
 
 timing::~timing() {
@@ -49,10 +51,11 @@ void timing::set_night() {
 
 void timing::set_timings() {
 
-	 harvest_plant =1;
-	 till_soil = 5;
-	 tend_plant = 2;
-	 relax = 5;
-	 sacrifice = 2;
-	 sleep = 10;
+
+}
+
+void timing::check() {
+
+
+
 }

@@ -24,15 +24,10 @@ public:
 
 	void set_timings();
 
-	//getter functions
-
-	float get_harvest_plant_time() { return harvest_plant; }
-	float get_till_soil_time() { return till_soil; }
-	float get_relax_time() { return relax; }
-	float get_sacrifice_time() { return sacrifice; }
-	float get_sleep_time() { return sleep; }
-	float get_tend_plant_time() { return tend_plant; }
 private:
+
+	void check();
+
 	int time_state;//how fast time goes
 	bool daytime;
 	int passed_days;
@@ -46,13 +41,5 @@ private:
 	int nbFrames;
 	bool draw_frame_rate;
 
-	//how long each action takes
-
-	float harvest_plant;
-	float till_soil;
-	float tend_plant;
-	float relax;
-	float sacrifice;
-	float sleep;
 
 };

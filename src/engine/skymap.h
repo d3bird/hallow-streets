@@ -26,6 +26,8 @@ public:
 	void set_cam(glm::mat4 i) { view = i; }
 
 private:
+
+	void check();
 	
 	unsigned int loadCubemap(std::vector<std::string> faces);
 	unsigned int loadTexture(char const* path);

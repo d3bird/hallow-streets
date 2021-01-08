@@ -37,6 +37,7 @@ public:
 	void pause_time_at_noon();
 	void unpause() { paused = false; }
 private:
+
 	bool toggled_day;
 	bool toggled_night;
 	bool paused;
@@ -64,10 +65,6 @@ private:
 	timing* Time;
 	float* deltatime;
 
-	//weather data
-	Shader* rain;
-	float* rain_points;
-	unsigned int rain_VBO, rain_VAO;
-	bool raining;
+	
 };
 

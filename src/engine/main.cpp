@@ -91,14 +91,19 @@ int main() {
     glm::mat4 view = camera.GetViewMatrix();
 
     Time = new timing(false);
+
     deltaTime = Time->get_time_change_static();
 
-    bool drawsky = true ;
+    bool drawsky = true;
 
-    sky = new skymap();
-    sky->set_cam(view);
-    sky->set_projection(projection);
-    sky->init();
+    std::cout << "creating the objects" << std::endl;
+
+    if (drawsky) {
+        sky = new skymap();
+        sky->set_cam(view);
+        sky->set_projection(projection);
+        sky->init();
+    }
 
     World = new world();
     World->set_time(Time);

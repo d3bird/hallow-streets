@@ -2,7 +2,17 @@
 #include <stb_image.h>
 
 skymap::skymap() {
+    view = glm::mat4(1.0f);
+    projection = glm::mat4(1.0f);
+    update_projection = false;
+    update_cam = false;
 
+    shader = NULL;
+    skyboxShader = NULL;
+
+    skyboxVAO = 0;
+    skyboxVBO = 0;
+    cubemapTexture = 0;
 }
 
 skymap::~skymap() {
@@ -102,6 +112,7 @@ void skymap::init() {
 
     skyboxShader->use();
     skyboxShader->setInt("skybox", 0);
+    check();
     std::cout << "finished creating skymap" << std::endl;
 }
 
@@ -180,4 +191,57 @@ unsigned int skymap::loadCubemap(std::vector<std::string> faces)
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
 
     return textureID;
+}
+
+void skymap::check() {
+
+    bool errors = false;
+
+    if (view == glm::mat4(1.0f)) {
+        std::cout << "there was errors setting view" << std::endl;
+        errors = true;
+    }
+    if (projection == glm::mat4(1.0f)) {
+        std::cout << "there was errors setting projection" << std::endl;
+        errors = true;
+    }
+
+   /* if (update_projection == false) {
+        std::cout << "there was errors setting update_projection" << std::endl;
+        errors = true;
+    }
+    if (update_cam == false) {
+        std::cout << "there was errors setting update_cam" << std::endl;
+        errors = true;
+    }*/
+
+    if (shader == NULL) {
+        std::cout << "there was errors setting shader" << std::endl;
+        errors = true;
+    }
+    if (skyboxShader == NULL) {
+        std::cout << "there was errors setting skyboxShader" << std::endl;
+        errors = true;
+    }
+
+    if (skyboxVAO == 0) {
+        std::cout << "there was errors setting skyboxVAO" << std::endl;
+        errors = true;
+    }
+    if (skyboxVBO == 0) {
+        std::cout << "there was errors setting skyboxVBO" << std::endl;
+        errors = true;
+    }
+    if (cubemapTexture == 0) {
+        std::cout << "there was errors setting cubemapTexture" << std::endl;
+        errors = true;
+    }
+
+    if (errors) {
+        std::cout << "there was errors in inting the sky box" << std::endl;
+        while (true);
+    }
+    else {
+        std::cout << "passed all checks" << std::endl;
+    }
 }
