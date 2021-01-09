@@ -87,18 +87,88 @@ int main()
 
     // load models
     // -----------
-    Model backpack(("resources/objects/planet/planet.obj"));
-    std::vector<glm::vec3> objectPositions;
-    objectPositions.push_back(glm::vec3(-3.0,  -0.5, -3.0));
-    objectPositions.push_back(glm::vec3( 0.0,  -0.5, -3.0));
-    objectPositions.push_back(glm::vec3( 3.0,  -0.5, -3.0));
-    objectPositions.push_back(glm::vec3(-3.0,  -0.5,  0.0));
-    objectPositions.push_back(glm::vec3( 0.0,  -0.5,  0.0));
-    objectPositions.push_back(glm::vec3( 3.0,  -0.5,  0.0));
-    objectPositions.push_back(glm::vec3(-3.0,  -0.5,  3.0));
-    objectPositions.push_back(glm::vec3( 0.0,  -0.5,  3.0));
-    objectPositions.push_back(glm::vec3( 3.0,  -0.5,  3.0));
 
+    std::vector<glm::mat4> objectPositions;
+    glm::mat4 temp_mod = glm::mat4(1.0);
+    temp_mod = glm::translate(temp_mod, glm::vec3(-3.0, -0.5, -3.0));
+    temp_mod = glm::scale(temp_mod, glm::vec3(0.25f));
+    objectPositions.push_back(temp_mod);
+
+    temp_mod = glm::mat4(1.0);
+    temp_mod = glm::translate(temp_mod, glm::vec3(0.0, -0.5, -3.0));
+    temp_mod = glm::scale(temp_mod, glm::vec3(0.25f));
+    objectPositions.push_back(temp_mod);
+
+    temp_mod = glm::mat4(1.0);
+    temp_mod = glm::translate(temp_mod, glm::vec3(3.0, -0.5, -3.0));
+    temp_mod = glm::scale(temp_mod, glm::vec3(0.25f));
+    objectPositions.push_back(temp_mod);
+
+    temp_mod = glm::mat4(1.0);
+    temp_mod = glm::translate(temp_mod, glm::vec3(-3.0, -0.5, 0.0));
+    temp_mod = glm::scale(temp_mod, glm::vec3(0.25f));
+    objectPositions.push_back(temp_mod);
+
+    temp_mod = glm::mat4(1.0);
+    temp_mod = glm::translate(temp_mod, glm::vec3(0.0, -0.5, 0.0));
+    temp_mod = glm::scale(temp_mod, glm::vec3(0.25f));
+    objectPositions.push_back(temp_mod);
+
+    temp_mod = glm::mat4(1.0);
+    temp_mod = glm::translate(temp_mod, glm::vec3(3.0, -0.5, 0.0));
+    temp_mod = glm::scale(temp_mod, glm::vec3(0.25f));
+    objectPositions.push_back(temp_mod);
+
+    temp_mod = glm::mat4(1.0);
+    temp_mod = glm::translate(temp_mod, glm::vec3(-3.0, -0.5, 3.0));
+    temp_mod = glm::scale(temp_mod, glm::vec3(0.25f));
+    objectPositions.push_back(temp_mod);
+
+    temp_mod = glm::mat4(1.0);
+    temp_mod = glm::translate(temp_mod, glm::vec3(0.0, -0.5, 3.0));
+    temp_mod = glm::scale(temp_mod, glm::vec3(0.25f));
+    objectPositions.push_back(temp_mod);
+   
+    temp_mod = glm::mat4(1.0);
+    temp_mod = glm::translate(temp_mod, glm::vec3(3.0, -0.5, 3.0));
+    temp_mod = glm::scale(temp_mod, glm::vec3(0.25f));
+    objectPositions.push_back(temp_mod);
+
+
+    glm::mat4* modelMatrices = new glm::mat4[objectPositions.size()];
+
+    for (int i = 0; i < objectPositions.size(); i++) {
+        modelMatrices[i] = objectPositions[i];
+    }
+
+    Model* backpack = new Model(("resources/objects/planet/planet.obj"));
+    unsigned int mod_buffer;
+
+    glGenBuffers(1, &mod_buffer);
+    glBindBuffer(GL_ARRAY_BUFFER, mod_buffer);
+    glBufferData(GL_ARRAY_BUFFER, objectPositions.size() * sizeof(glm::mat4), &modelMatrices[0], GL_STATIC_DRAW);
+
+    for (unsigned int i = 0; i < backpack->meshes.size(); i++)
+    {
+        unsigned int VAO = backpack->meshes[i].VAO;
+        glBindVertexArray(VAO);
+        // set attribute pointers for matrix (4 times vec4)
+        glEnableVertexAttribArray(3);
+        glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)0);
+        glEnableVertexAttribArray(4);
+        glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(sizeof(glm::vec4)));
+        glEnableVertexAttribArray(5);
+        glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(2 * sizeof(glm::vec4)));
+        glEnableVertexAttribArray(6);
+        glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(3 * sizeof(glm::vec4)));
+
+        glVertexAttribDivisor(3, 1);
+        glVertexAttribDivisor(4, 1);
+        glVertexAttribDivisor(5, 1);
+        glVertexAttribDivisor(6, 1);
+
+        glBindVertexArray(0);
+    }
 
     // configure g-buffer framebuffer
     // ------------------------------
@@ -194,17 +264,22 @@ int main()
             glm::mat4 projection = glm::perspective(glm::radians(camera.get_zoom()), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
             glm::mat4 view = camera.GetViewMatrix();
             glm::mat4 model = glm::mat4(1.0f);
-            shaderGeometryPass->use();
+            shaderGeometryPass->use();  
             shaderGeometryPass->setMat4("projection", projection);
             shaderGeometryPass->setMat4("view", view);
-            for (unsigned int i = 0; i < objectPositions.size(); i++)
+
+            glBindBuffer(GL_ARRAY_BUFFER, mod_buffer);
+            glBufferData(GL_ARRAY_BUFFER, objectPositions.size() * sizeof(glm::mat4), &modelMatrices[0], GL_STATIC_DRAW);
+
+            glActiveTexture(GL_TEXTURE0);
+            glBindTexture(GL_TEXTURE_2D, backpack->textures_loaded[0].id);
+            for (unsigned int i = 0; i < backpack->meshes.size(); i++)
             {
-                model = glm::mat4(1.0f);
-                model = glm::translate(model, objectPositions[i]);
-                model = glm::scale(model, glm::vec3(0.5f));
-                shaderGeometryPass->setMat4("model", model);
-                backpack.Draw(shaderGeometryPass);
+                glBindVertexArray(backpack->meshes[i].VAO);
+                glDrawElementsInstanced(GL_TRIANGLES, backpack->meshes[i].indices.size(), GL_UNSIGNED_INT, 0, objectPositions.size());
+                glBindVertexArray(0);
             }
+
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
         // 2. lighting pass: calculate lighting by iterating over a screen filled quad pixel-by-pixel using the gbuffer's content.
