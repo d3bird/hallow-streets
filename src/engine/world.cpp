@@ -58,8 +58,15 @@ void world::init() {
 	std::cout << std::endl;
 }
 
+void world::lighting_init() {
+
+
+}
+
+
 void world::change_projection(glm::mat4 i) {
 	projection = i;
 	City->set_projection(projection);
 	Sky->set_projection(projection);
 }
+

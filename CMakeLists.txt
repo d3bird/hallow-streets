@@ -70,6 +70,7 @@ endmacro()
 set(CHAPTERS
     engine
     dialog
+    lighting_test
 )
 
 foreach(CHAPTER ${CHAPTERS})

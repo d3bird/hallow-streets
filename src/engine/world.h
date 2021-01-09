@@ -41,6 +41,9 @@ public:
 	void change_projection(glm::mat4 i);
 
 private:
+
+	void lighting_init();
+
 	glm::mat4 view;
 	glm::mat4 projection;
 	timing* Time;
