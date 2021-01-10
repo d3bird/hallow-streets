@@ -90,7 +90,7 @@ int main() {
     glm::mat4 projection = glm::perspective(glm::radians(45.0f), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 1000.0f);
     glm::mat4 view = camera.GetViewMatrix();
 
-    Time = new timing(false);
+    Time = new timing(true);
 
     deltaTime = Time->get_time_change_static();
 
@@ -123,7 +123,8 @@ int main() {
 
         glEnable(GL_CULL_FACE);
         World->set_cam(view);
-        World->draw();
+        World->set_cam_pos(camera.get_pos());
+        World->draw_deferred();
 
         if (drawsky) {
             sky->set_cam(view);

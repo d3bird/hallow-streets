@@ -59,6 +59,8 @@ public:
     void activate_free_Cam() { free_cam = true; }
     void deactivate_free_Cam() { free_cam = false; }
 
+    glm::vec3 get_pos() { return Position; }
+
 private:
     void updateCameraVectors();
 
