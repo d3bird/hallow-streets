@@ -125,6 +125,7 @@ int main() {
         World->set_cam(view);
         World->set_cam_pos(camera.get_pos());
         World->draw_deferred();
+        //World->draw_single();
 
         if (drawsky) {
             sky->set_cam(view);

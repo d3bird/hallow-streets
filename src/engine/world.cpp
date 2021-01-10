@@ -57,7 +57,6 @@ void world::draw_deferred() {
     City->set_cam(view);
     City->draw();
 
-
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
     // 2. lighting pass: calculate lighting by iterating over a screen filled quad pixel-by-pixel using the gbuffer's content.
@@ -76,13 +75,16 @@ void world::draw_deferred() {
         shaderLightingPass->setVec3("lights[" + std::to_string(i) + "].Position", lightPositions[i]);
         shaderLightingPass->setVec3("lights[" + std::to_string(i) + "].Color", lightColors[i]);
         // update attenuation parameters and calculate radius
-        //const float linear = 0.7;
-        const float linear = 1.7;
-        //const float quadratic = 1.8;
-        const float quadratic = 4.8;
+         float constant = 1.0; // note that we don't send this to the shader, we assume it is always 1.0 (in our case)
+         float linear = 0.22;
+         float quadratic = 0.2;
         shaderLightingPass->setFloat("lights[" + std::to_string(i) + "].Linear", linear);
         shaderLightingPass->setFloat("lights[" + std::to_string(i) + "].Quadratic", quadratic);
+        const float maxBrightness = std::fmaxf(std::fmaxf(lightColors[i].r, lightColors[i].g), lightColors[i].b);
+        float radius = (-linear + std::sqrt(linear * linear - 4 * quadratic * (constant - (256.0f / 5.0f) * maxBrightness))) / (2.0f * quadratic);
+        shaderLightingPass->setFloat("lights[" + std::to_string(i) + "].Radius", radius);
     }
+
     shaderLightingPass->setVec3("viewPos", cam_pos);
     // finally render quad
     renderQuad();
@@ -116,7 +118,6 @@ void world::draw_deferred() {
 
 }
 
-
 void world::update() {
 	Sky->update();
 }
@@ -137,7 +138,7 @@ void world::init() {
 	City->set_time(Time);
 	City->set_projection(projection);
 	City->set_cam(view);
-   // City->set_shader(lighting_in);
+    //City->set_shader(lighting_in);
     City->set_shader(shaderGeometryPass);
 	City->init();
 
@@ -156,9 +157,9 @@ void world::init() {
 
 void world::lighting_init() {
 
-     shaderGeometryPass = new Shader("g_buffer.vs", "g_buffer.fs");
-     shaderLightingPass = new Shader("deferred_shading.vs", "deferred_shading.fs");
-     shaderLightBox = new Shader("deferred_light_box.vs", "deferred_light_box.fs");
+    shaderGeometryPass = new Shader("g_buffer.vs", "g_buffer.fs");
+    shaderLightingPass = new Shader("deferred_shading.vs", "deferred_shading.fs");
+    shaderLightBox = new Shader("deferred_light_box.vs", "deferred_light_box.fs");
 
     // load models
     // -----------
@@ -209,14 +210,14 @@ void world::lighting_init() {
     objectPositions.push_back(temp_mod);
 
 
-     modelMatrices = new glm::mat4[objectPositions.size()];
+    modelMatrices = new glm::mat4[objectPositions.size()];
 
     for (int i = 0; i < objectPositions.size(); i++) {
         modelMatrices[i] = objectPositions[i];
     }
 
-     backpack = new Model(("resources/objects/planet/planet.obj"));
-  
+    backpack = new Model(("resources/objects/planet/planet.obj"));
+
 
     glGenBuffers(1, &mod_buffer);
     glBindBuffer(GL_ARRAY_BUFFER, mod_buffer);
@@ -298,10 +299,23 @@ void world::lighting_init() {
         float yPos = 4;
         float zPos = 1;
         lightPositions.push_back(glm::vec3(xPos, yPos, zPos));
+        float rColor;
+        float gColor;
+        float bColor;
+        if (i == 0) {
+            rColor = 1;
+            gColor = 1;
+            bColor = 1;
+
+        }
+        else {
+            rColor = ((rand() % 100) / 200.0f) + 0.5; // between 0.5 and 1.0
+            gColor = ((rand() % 100) / 200.0f) + 0.5; // between 0.5 and 1.0
+            bColor = ((rand() % 100) / 200.0f) + 0.5; // between 0.5 and 1.0
+        }
+
         // also calculate random color
-        float rColor = ((rand() % 100) / 200.0f) + 0.5; // between 0.5 and 1.0
-        float gColor = ((rand() % 100) / 200.0f) + 0.5; // between 0.5 and 1.0
-        float bColor = ((rand() % 100) / 200.0f) + 0.5; // between 0.5 and 1.0
+
         lightColors.push_back(glm::vec3(rColor, gColor, bColor));
     }
 
