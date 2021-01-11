@@ -42,18 +42,7 @@ void world::draw_deferred() {
     shaderGeometryPass->setMat4("projection", projection);
     shaderGeometryPass->setMat4("view", view);
 
-   /* glBindBuffer(GL_ARRAY_BUFFER, mod_buffer);
-    glBufferData(GL_ARRAY_BUFFER, objectPositions.size() * sizeof(glm::mat4), &modelMatrices[0], GL_STATIC_DRAW);
-
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, backpack->textures_loaded[0].id);
-    for (unsigned int i = 0; i < backpack->meshes.size(); i++)
-    {
-        glBindVertexArray(backpack->meshes[i].VAO);
-        glDrawElementsInstanced(GL_TRIANGLES, backpack->meshes[i].indices.size(), GL_UNSIGNED_INT, 0, objectPositions.size());
-        glBindVertexArray(0);
-    }*/
-
+    //draw the entire scene
     City->set_cam(view);
     City->draw();
 
@@ -303,8 +292,8 @@ void world::lighting_init() {
         float gColor;
         float bColor;
         if (i == 0) {
-            rColor = 1;
-            gColor = 1;
+            rColor = 0;
+            gColor = 0;
             bColor = 1;
 
         }
