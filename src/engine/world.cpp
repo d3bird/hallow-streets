@@ -105,6 +105,11 @@ void world::draw_deferred() {
         }
     }
 
+    //daw objects that need to be affected by blending
+    glEnable(GL_BLEND);
+    text_render->draw();
+    glDisable(GL_BLEND);
+
 }
 
 void world::update() {
@@ -122,6 +127,12 @@ void world::init() {
 	lighting_in = new Shader("lighting_instance.vs", "lighting_instance.fs");
 
 	lighting_init();
+
+    text_render = new text_engine();
+    text_render->set_time(Time);
+    text_render->set_projection(projection);
+    text_render->set_cam(view);
+    text_render->init();
 
 	City = new city();
 	City->set_time(Time);

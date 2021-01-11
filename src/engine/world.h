@@ -18,8 +18,9 @@
 #include "time.h"
 #include "city.h"
 #include "sky.h"
+#include "text_rendering.h"
 
-class world{
+class world {
 public:
 	world();
 	~world();
@@ -54,11 +55,12 @@ private:
 
 	city* City;
 	sky* Sky;
+	text_engine* text_render;
 
 	bool single;
 
 	//single source
-Shader* lighting_in;
+	Shader* lighting_in;
 	glm::vec3 lighting_loc;
 
 	//deferred shading
