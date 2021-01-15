@@ -9,7 +9,8 @@ city_gen::city_gen(){
 	block_width = 22;
 	block_height = 14;
 
-	key = 6;
+	premade = false;
+	key = 8;//do note that if this number is changed, the modles will also have to be changed  
 }
 
 city_gen::~city_gen(){
@@ -53,10 +54,14 @@ void city_gen::init() {
 		}
 	}
 
-	create_city_block(1, 1, block_width-1, block_height-1);
+	if (premade) {
+		use_premade_map();
+	}
+	else {
+		create_city_block(1, 1, block_width - 1, block_height - 1);
 
-	layout[6][9] = open;//fix a error in the premade street layout
-
+		layout[6][9] = open;//fix a error in the premade street layout
+	}
 	create_expanded_layout();
 
 	if (Time != NULL) {
@@ -127,6 +132,8 @@ void city_gen::create_city_block(int x1, int y1, int x2, int y2) {
 		}
 	}
 
+	create_buildings();
+
 }
 
 void city_gen::create_road(int x, int z, int direct, int mid, int dir_change) {
@@ -178,6 +185,50 @@ void city_gen::create_road(int x, int z, int direct, int mid, int dir_change) {
 	}
 }
 
+void city_gen::create_buildings() {
+	std::cout << "creating buildings" << std::endl;
+	//layout[1][5] = wall;
+	//layout[1][1] = wall_c;
+	//layout[2][1] = wall;
+
+	for (int i = 0; i < 6; i++) {
+		for (int h = 0; h < 6; h++) {
+			if (layout[i][h] == open) {
+				//check for cornners 
+				if ((layout[i - 1][h] == small_road || layout[i - 1][h] == big_road) && (layout[i][h - 1] == small_road || layout[i][h - 1] == big_road)) {
+					layout[i][h] = wall_c;
+				}else if ((layout[i + 1][h] == small_road || layout[i + 1][h] == big_road) && (layout[i][h - 1] == small_road || layout[i][h - 1] == big_road)) {
+					layout[i][h] = wall_c;
+				}
+				else if ((layout[i + 1][h] == small_road || layout[i + 1][h] == big_road) && (layout[i][h + 1] == small_road || layout[i][h + 1] == big_road)) {
+					layout[i][h] = wall_c;
+				}
+				else if ((layout[i - 1][h] == small_road || layout[i - 1][h] == big_road) && (layout[i][h + 1] == small_road || layout[i][h + 1] == big_road)) {
+					layout[i][h] = wall_c;
+				}
+				else {
+
+					//check for single roads
+					if (layout[i - 1][h] == small_road || layout[i - 1][h] == big_road) {
+						layout[i][h] = wall;
+					}
+					else if (layout[i + 1][h] == small_road || layout[i + 1][h] == big_road) {
+						layout[i][h] = wall;
+					}
+					else if (layout[i][h - 1] == small_road || layout[i][h - 1] == big_road) {
+						layout[i][h] = wall;
+					}
+					else if (layout[i][h + 1] == small_road || layout[i][h + 1] == big_road) {
+						layout[i][h] = wall;
+					}
+				}
+			}
+		}
+	}
+	//while (true);
+}
+
+
 void city_gen::create_expanded_layout() {
 
 	if (key < 1) {
@@ -186,30 +237,84 @@ void city_gen::create_expanded_layout() {
 
 	int set = 0;
 	bool exp = true;
+	bool walls = false;
+	bool corn = false;
 	for (int i = 0; i < block_height; i++) {
 		for (int h = 0; h < block_width; h++) {
 			exp = true;
+			walls = false;
+			corn = false;
 			switch (layout[i][h]) {
 			case big_road:
 			case small_road:
 				set = 1;
+				break;
+			case wall:
+			case wall_d:
+				walls = true;
+				set = 3;
+				break;
+			case wall_c:
+				walls = true;
+				if ((layout[i + 1][h] == small_road || layout[i + 1][h] == big_road) && (layout[i][h + 1] == small_road || layout[i][h + 1] == big_road)) {
+					corn = true;
+				}
+				set = 4;
 				break;
 			case open:
 			default:
 				set = 0;
 				break;
 			}
-			layout_e[i * key][h * key] = set;
-			if (key != 1) {
+			if (walls) {
 
-				for (int x = 0; x < key; x++) {
-					for (int y = 0; y < key; y++) {
-						layout_e[(i * key) + x][(h * key) + y] = set;
+				/*if (corn) {
+					if ((layout[i - 1][h] == small_road || layout[i - 1][h] == big_road) && (layout[i][h - 1] == small_road || layout[i][h - 1] == big_road)) {
+						std::cout << "corn 1" << std::endl;
+					}
+					else if ((layout[i + 1][h] == small_road || layout[i + 1][h] == big_road) && (layout[i][h - 1] == small_road || layout[i][h - 1] == big_road)) {
+						std::cout << "corn 2" << std::endl;
+
+					}
+					else if ((layout[i + 1][h] == small_road || layout[i + 1][h] == big_road) && (layout[i][h + 1] == small_road || layout[i][h + 1] == big_road)) {
+						std::cout << "corn 3" << std::endl;
+
+					}
+					else if ((layout[i - 1][h] == small_road || layout[i - 1][h] == big_road) && (layout[i][h + 1] == small_road || layout[i][h + 1] == big_road)) {
+						std::cout << "corn 4" << std::endl;
+
+					}
+					corn = false;
+				}*/
+
+				if (corn) {//catch if it was not the propoer corner
+					corn = false;
+					layout_e[(i * key) + key - 1][(h * key) + key - 1] = set;
+
+				}
+				else {
+					if (layout[i][h + 1] == small_road || layout[i][h + 1] == big_road) {
+						layout_e[i * key][(h * key) + key - 1] = set;
+					}
+					else if (layout[i + 1][h] == small_road || layout[i + 1][h] == big_road) {
+						layout_e[(i * key) + key - 1][h * key] = set;
+					}
+					else {
+						layout_e[i * key][h * key] = set;
 					}
 				}
 
 			}
-
+			else {
+				layout_e[i * key][h * key] = set;
+				if (key != 1) {
+					for (int x = 0; x < key; x++) {
+						for (int y = 0; y < key; y++) {
+							layout_e[(i * key) + x][(h * key) + y] = set;
+						}
+					}
+				}
+			}
 		}
 	}
 
@@ -226,6 +331,15 @@ void city_gen::print_layout() {
 				break;
 			case small_road:
 				std::cout << "r ";
+				break;
+			case wall:
+				std::cout << "w ";
+				break;
+			case wall_c:
+				std::cout << "c ";
+				break;
+			case wall_d:
+				std::cout << "d ";
 				break;
 			case open:
 				std::cout << ". ";
@@ -249,5 +363,9 @@ void city_gen::print_expanded_layout() {
 		}
 		std::cout << std::endl;
 	}
+
+}
+
+void city_gen::use_premade_map() {
 
 }

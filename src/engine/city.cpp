@@ -12,13 +12,23 @@ city::city() {
 	cube_amount = 0;//the amount of cubes that there are to display
 	buffer = 0;
 	cube = NULL;
-	 cube_matrices = NULL;//contains all the cubes mats
+	cube_matrices = NULL;//contains all the cubes mats
 	cube_shader = NULL;
 
+	wall = NULL;
+	wall_d = NULL;
+	wall_c = NULL;
+	
 	//path finding data
 	terrian_map = NULL;
 	x_width = 9;// ROW;//rows
 	z_width = 10;//COL;//collums
+
+	//debug information
+	draw_wall_c = true;
+	draw_wall = true;
+	draw_path_cubes = true;
+
 }
 
 city::~city(){
@@ -34,25 +44,51 @@ void city::draw() {
 	cube_shader->setMat4("view", view);
 	cube_shader->setInt("texture_diffuse1", 0);
 
-	/*std::cout << "setting buffers" << std::endl;
-	std::cout << "buffer = " << buffer << std::endl;
-	std::cout << "cube_amount = " << cube_amount << std::endl;
-	if (cube_matrices == NULL) {
-		std::cout << "cube_matrices was null" << std::endl;
-		while (true);
-	}*/
-	glBindBuffer(GL_ARRAY_BUFFER, buffer);
-	glBufferData(GL_ARRAY_BUFFER, cube_amount * sizeof(glm::mat4), &cube_matrices[0], GL_STATIC_DRAW);
+	//drawling the cubs
+	if (draw_path_cubes) {
+		glBindBuffer(GL_ARRAY_BUFFER, buffer);
+		glBufferData(GL_ARRAY_BUFFER, cube_amount * sizeof(glm::mat4), &cube_matrices[0], GL_STATIC_DRAW);
 
-	//std::cout << "setting cube mesh buffers" << std::endl;
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, cube->textures_loaded[0].id);
-	for (unsigned int i = 0; i < cube->meshes.size(); i++)
-	{
-		glBindVertexArray(cube->meshes[i].VAO);
-		glDrawElementsInstanced(GL_TRIANGLES, cube->meshes[i].indices.size(), GL_UNSIGNED_INT, 0, cube_amount);
-		glBindVertexArray(0);
+		//std::cout << "setting cube mesh buffers" << std::endl;
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, cube->textures_loaded[0].id);
+		for (unsigned int i = 0; i < cube->meshes.size(); i++)
+		{
+			glBindVertexArray(cube->meshes[i].VAO);
+			glDrawElementsInstanced(GL_TRIANGLES, cube->meshes[i].indices.size(), GL_UNSIGNED_INT, 0, cube_amount);
+			glBindVertexArray(0);
+		}
 	}
+	if(draw_wall){
+		//drawling walls
+
+		glBindBuffer(GL_ARRAY_BUFFER, wall_buffer);
+		glBufferData(GL_ARRAY_BUFFER, wall_amount * sizeof(glm::mat4), &wall_mats[0], GL_STATIC_DRAW);
+
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, wall->textures_loaded[0].id);
+		for (unsigned int i = 0; i < wall->meshes.size(); i++)
+		{
+			glBindVertexArray(wall->meshes[i].VAO);
+			glDrawElementsInstanced(GL_TRIANGLES, wall->meshes[i].indices.size(), GL_UNSIGNED_INT, 0, cube_amount);
+			glBindVertexArray(0);
+		}
+	}
+	if (draw_wall_c) {
+
+		glBindBuffer(GL_ARRAY_BUFFER, wall_c_buffer);
+		glBufferData(GL_ARRAY_BUFFER, wall_c_amount * sizeof(glm::mat4), &wall_c_mats[0], GL_STATIC_DRAW);
+
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, wall_c->textures_loaded[0].id);
+		for (unsigned int i = 0; i < wall_c->meshes.size(); i++)
+		{
+			glBindVertexArray(wall_c->meshes[i].VAO);
+			glDrawElementsInstanced(GL_TRIANGLES, wall_c->meshes[i].indices.size(), GL_UNSIGNED_INT, 0, cube_amount);
+			glBindVertexArray(0);
+		}
+	}
+
 }
 
 void city::update() {
@@ -77,7 +113,9 @@ void city::init() {
 	z_width = city_info->get_width() * key;
 
 	//generate the mats from the layout
-	std::vector<glm::mat4> generated_mats;
+	std::vector<glm::mat4> generated_mats_debug_cubes;
+	std::vector<glm::mat4> generated_mats_wall;
+	std::vector<glm::mat4> generated_mats_wall_c;
 	for (int i = 0; i < x_width; i++) {
 		for (int h = 0; h < z_width; h++) {
 
@@ -86,7 +124,43 @@ void city::init() {
 				glm::mat4 temp = glm::mat4(1.0f);
 
 				temp = glm::translate(temp, glm::vec3(h * 2, 0, i * 2));
-				generated_mats.push_back(temp);
+				generated_mats_debug_cubes.push_back(temp);
+			}
+			else if (layout_expanded[i][h] == 3) {//for a wall
+				//std::cout << "wall start found" << std::endl;
+				glm::mat4 temp = glm::mat4(1.0f);
+
+				temp = glm::translate(temp, glm::vec3(h * 2, 2, i * 2));
+				if (i - 1 >=0 && layout_expanded[i-1][h] != 0) {//if the topspot is a rode
+					temp = glm::rotate(temp, glm::radians(270.0f), glm::vec3(0.0, 1.0, 0.0));
+				}
+				else if (i + 1 < x_width && layout_expanded[i + 1][h] != 0) {
+					temp = glm::rotate(temp, glm::radians(270.0f), glm::vec3(0.0, 1.0, 0.0));
+				}
+				else {
+					temp = glm::rotate(temp, glm::radians(180.0f), glm::vec3(0.0, 1.0, 0.0));
+
+				}
+				generated_mats_wall.push_back(temp);
+			}
+			else if (layout_expanded[i][h] == 4) {//for a corner
+				//std::cout << "wall_c start found" << std::endl;
+				glm::mat4 temp = glm::mat4(1.0f);
+
+				temp = glm::translate(temp, glm::vec3(h * 2, 2, i * 2));
+				if (layout_expanded[i - 1][h] != 0 && layout_expanded[i][h-1] != 0) {
+					temp = glm::rotate(temp, glm::radians(180.0f), glm::vec3(0.0, 1.0, 0.0));//bottom left
+				}else if(layout_expanded[i + 1][h] != 0 && layout_expanded[i][h - 1] != 0) {
+					temp = glm::rotate(temp, glm::radians(270.0f), glm::vec3(0.0, 1.0, 0.0));//top left
+				}else if (layout_expanded[i - 1][h] != 0 && layout_expanded[i][h + 1] != 0) {
+					temp = glm::rotate(temp, glm::radians(90.0f), glm::vec3(0.0, 1.0, 0.0));//top right
+				}
+				else {//no need to rotate
+					//temp = glm::rotate(temp, glm::radians(180.0f), glm::vec3(0.0, 1.0, 0.0));//bottom right
+
+				}
+
+				generated_mats_wall_c.push_back(temp);
 			}
 
 		}
@@ -94,8 +168,6 @@ void city::init() {
 
 	std::cout << "done" << std::endl;
 	std::cout << "creating pathfinding data" << std::endl;
-
-
 
 	 cube_amount = x_width * z_width;
 
@@ -175,16 +247,88 @@ void city::init() {
 		std::cout << "using premade shader for the cubes" << std::endl;
 	}
 
+	//import models
 	cube = new Model("resources/objects/cube/cube.obj");
+	wall = new Model("resources/objects/building_parts/wall.obj");
+	wall_c = new Model("resources/objects/building_parts/corner.obj");
+	//wall_d = new Model("resources/objects/building_parts/wall_door.obj");
 
-	
-	cube_amount = generated_mats.size();
+	//generate buffers
+
+	wall_amount = generated_mats_wall.size();
+	wall_mats = new glm::mat4[wall_amount];
+	for (int i = 0; i < wall_amount; i++) {
+		wall_mats[i] = generated_mats_wall[i];
+	}
+
+	glGenBuffers(1, &wall_buffer);
+	glBindBuffer(GL_ARRAY_BUFFER, wall_buffer);
+	glBufferData(GL_ARRAY_BUFFER, wall_amount * sizeof(glm::mat4), &wall_mats[0], GL_STATIC_DRAW);
+
+
+	for (unsigned int i = 0; i < wall->meshes.size(); i++) {
+		unsigned int VAO = wall->meshes[i].VAO;
+		glBindVertexArray(VAO);
+		// set attribute pointers for matrix (4 times vec4)
+		glEnableVertexAttribArray(3);
+		glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)0);
+		glEnableVertexAttribArray(4);
+		glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(sizeof(glm::vec4)));
+		glEnableVertexAttribArray(5);
+		glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(2 * sizeof(glm::vec4)));
+		glEnableVertexAttribArray(6);
+		glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(3 * sizeof(glm::vec4)));
+
+		glVertexAttribDivisor(3, 1);
+		glVertexAttribDivisor(4, 1);
+		glVertexAttribDivisor(5, 1);
+		glVertexAttribDivisor(6, 1);
+
+		glBindVertexArray(0);
+	}
+	glFlush();
+
+
+	wall_c_amount = generated_mats_wall_c.size();
+	wall_c_mats = new glm::mat4[wall_c_amount];
+	for (int i = 0; i < wall_c_amount; i++) {
+		wall_c_mats[i] = generated_mats_wall_c[i];
+	}
+
+	glGenBuffers(1, &wall_c_buffer);
+	glBindBuffer(GL_ARRAY_BUFFER, wall_c_buffer);
+	glBufferData(GL_ARRAY_BUFFER, wall_c_amount * sizeof(glm::mat4), &wall_c_mats[0], GL_STATIC_DRAW);
+
+
+	for (unsigned int i = 0; i < wall_c->meshes.size(); i++) {
+		unsigned int VAO = wall_c->meshes[i].VAO;
+		glBindVertexArray(VAO);
+		// set attribute pointers for matrix (4 times vec4)
+		glEnableVertexAttribArray(3);
+		glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)0);
+		glEnableVertexAttribArray(4);
+		glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(sizeof(glm::vec4)));
+		glEnableVertexAttribArray(5);
+		glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(2 * sizeof(glm::vec4)));
+		glEnableVertexAttribArray(6);
+		glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(3 * sizeof(glm::vec4)));
+
+		glVertexAttribDivisor(3, 1);
+		glVertexAttribDivisor(4, 1);
+		glVertexAttribDivisor(5, 1);
+		glVertexAttribDivisor(6, 1);
+
+		glBindVertexArray(0);
+	}
+	glFlush();
+
+	cube_amount = generated_mats_debug_cubes.size();
 	cube_matrices = new glm::mat4[cube_amount];
 	std::cout << "buffer size = " << cube_amount << std::endl;
 	for (int i = 0; i < cube_amount; i++) {
-		cube_matrices[i] = generated_mats[i];
+		cube_matrices[i] = generated_mats_debug_cubes[i];
 	}
-	cube_amount++;
+	//cube_amount++;
 	/*cube_amount = 1;
 	cube_matrices = new glm::mat4[cube_amount];
 	cube_matrices[0] = glm::mat4(1.0f);*/

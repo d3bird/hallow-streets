@@ -4,6 +4,7 @@
 world::world(){
 	single = true;
     draw_lights_debug = true;
+    render_text = true;
 }
 
 world::~world(){
@@ -106,10 +107,11 @@ void world::draw_deferred() {
     }
 
     //daw objects that need to be affected by blending
-    glEnable(GL_BLEND);
-    text_render->draw();
-    glDisable(GL_BLEND);
-
+    if (render_text) {
+        glEnable(GL_BLEND);
+        text_render->draw();
+        glDisable(GL_BLEND);
+    }
 }
 
 void world::update() {
@@ -128,11 +130,13 @@ void world::init() {
 
 	lighting_init();
 
-    text_render = new text_engine();
-    text_render->set_time(Time);
-    text_render->set_projection(projection);
-    text_render->set_cam(view);
-    text_render->init();
+    if (render_text) {
+        text_render = new text_engine();
+        text_render->set_time(Time);
+        text_render->set_projection(projection);
+        text_render->set_cam(view);
+        text_render->init();
+    }
 
 	City = new city();
 	City->set_time(Time);

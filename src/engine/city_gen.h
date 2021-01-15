@@ -18,7 +18,7 @@
 #include "time.h"
 
 
-enum city_square { big_road= 0, small_road =1, open=2 };
+enum city_square { big_road= 0, small_road =1, open=2, wall=3, wall_d=4, wall_c=5 };
 
 class city_gen{
 public:
@@ -53,8 +53,14 @@ private:
 
 	void create_city_block(int x1, int y1, int x2, int y2);
 	void create_road(int x, int z, int  direct, int mid, int dir_change);
+	void create_buildings();
+
 
 	void create_expanded_layout();
+
+	bool premade;
+	void use_premade_map();
+
 
 	glm::mat4 view;
 	glm::mat4 projection;

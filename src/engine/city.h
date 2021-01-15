@@ -94,9 +94,27 @@ private:
 	city_gen* city_info;
 	city_square** layout;
 
+	bool draw_path_cubes;
 	unsigned int cube_amount;//the amount of cubes that there are to display
 	unsigned int buffer;
 	Model* cube;
+
+	unsigned int wall_amount;
+	unsigned int wall_buffer;
+	glm::mat4* wall_mats;
+
+	unsigned int wall_c_amount;
+	unsigned int wall_c_buffer;
+	glm::mat4* wall_c_mats;
+
+	Model* wall;
+	Model* wall_c;
+	Model* wall_d;
+
+	//city debug information
+	bool draw_wall;
+	bool draw_wall_c;
+
 	glm::mat4* cube_matrices;//contains all the cubes mats
 	Shader* cube_shader;
 

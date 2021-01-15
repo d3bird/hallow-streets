@@ -58,7 +58,7 @@ private:
 	text_engine* text_render;
 
 	bool single;
-
+	bool render_text;
 	//single source
 	Shader* lighting_in;
 	glm::vec3 lighting_loc;
