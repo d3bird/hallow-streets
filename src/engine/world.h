@@ -33,6 +33,8 @@ public:
 
 	//misc functions
 
+	void set_single_draw() { single = true; }
+
 	//getters
 
 	//setters

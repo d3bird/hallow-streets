@@ -44,6 +44,8 @@ void city::draw() {
 	cube_shader->setMat4("view", view);
 	cube_shader->setInt("texture_diffuse1", 0);
 
+	//std::cout << "drawling cubes" << std::endl;
+
 	//drawling the cubs
 	if (draw_path_cubes) {
 		glBindBuffer(GL_ARRAY_BUFFER, buffer);
@@ -59,6 +61,8 @@ void city::draw() {
 			glBindVertexArray(0);
 		}
 	}
+	//std::cout << "drawling wall" << std::endl;
+
 	if(draw_wall){
 		//drawling walls
 
@@ -74,19 +78,24 @@ void city::draw() {
 			glBindVertexArray(0);
 		}
 	}
+	//std::cout << "drawling corners "<< wall_c->meshes.size() << std::endl;
+
 	if (draw_wall_c) {
 
 		glBindBuffer(GL_ARRAY_BUFFER, wall_c_buffer);
 		glBufferData(GL_ARRAY_BUFFER, wall_c_amount * sizeof(glm::mat4), &wall_c_mats[0], GL_STATIC_DRAW);
+		//std::cout << "drawling corners 2" << wall_c->meshes.size() << std::endl;
 
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, wall_c->textures_loaded[0].id);
+		
 		for (unsigned int i = 0; i < wall_c->meshes.size(); i++)
 		{
 			glBindVertexArray(wall_c->meshes[i].VAO);
 			glDrawElementsInstanced(GL_TRIANGLES, wall_c->meshes[i].indices.size(), GL_UNSIGNED_INT, 0, cube_amount);
 			glBindVertexArray(0);
 		}
+		
 	}
 
 }
@@ -248,13 +257,17 @@ void city::init() {
 	}
 
 	//import models
+	std::cout << "importing models" << std::endl;
+	std::cout << "cube" << std::endl;
 	cube = new Model("resources/objects/cube/cube.obj");
+	std::cout << "wall" << std::endl;
 	wall = new Model("resources/objects/building_parts/wall.obj");
+	std::cout << "wall_c" << std::endl;
 	wall_c = new Model("resources/objects/building_parts/corner.obj");
 	//wall_d = new Model("resources/objects/building_parts/wall_door.obj");
 
 	//generate buffers
-
+	std::cout << "generating buffers" << std::endl;
 	wall_amount = generated_mats_wall.size();
 	wall_mats = new glm::mat4[wall_amount];
 	for (int i = 0; i < wall_amount; i++) {

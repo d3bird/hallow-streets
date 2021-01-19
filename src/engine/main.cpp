@@ -97,6 +97,7 @@ int main() {
     deltaTime = Time->get_time_change_static();
 
     bool drawsky = true;
+    bool sigle_light_soruce = false;
 
     std::cout << "creating the objects" << std::endl;
 
@@ -111,6 +112,9 @@ int main() {
     World->set_time(Time);
     World->set_cam(view);
     World->set_projection(projection);
+    if (sigle_light_soruce) {
+        World->set_single_draw();
+    }
     World->init();
 
     while (!glfwWindowShouldClose(window))
@@ -126,9 +130,12 @@ int main() {
         glEnable(GL_CULL_FACE);
         World->set_cam(view);
         World->set_cam_pos(camera.get_pos());
-        World->draw_deferred();
-        //World->draw_single();
-
+        if (!sigle_light_soruce) {
+            World->draw_deferred();
+        }
+        else {
+            World->draw_single();
+        }
         if (drawsky) {
             sky->set_cam(view);
             sky->set_projection(projection);

@@ -2,8 +2,8 @@
 
 
 world::world(){
-	single = true;
-    draw_lights_debug = true;
+	single = false;
+    draw_lights_debug = false;
     render_text = true;
 }
 
@@ -48,6 +48,8 @@ void world::draw_deferred() {
     City->draw();
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+  //  std::cout << "lighting tests" << std::endl;
 
     // 2. lighting pass: calculate lighting by iterating over a screen filled quad pixel-by-pixel using the gbuffer's content.
     // -----------------------------------------------------------------------------------------------------------------------
@@ -142,8 +144,12 @@ void world::init() {
 	City->set_time(Time);
 	City->set_projection(projection);
 	City->set_cam(view);
-    //City->set_shader(lighting_in);
-    City->set_shader(shaderGeometryPass);
+    if (single) {
+        City->set_shader(lighting_in);
+    }
+    else {
+        City->set_shader(shaderGeometryPass);
+    }
 	City->init();
 
 	Sky = new sky();
