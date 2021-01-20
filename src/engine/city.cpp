@@ -36,6 +36,38 @@ city::~city(){
 }
 
 void city::draw() {
+	//cube_shader->use();
+	//cube_shader->setMat4("projection", projection);
+	//cube_shader->setMat4("view", view);
+	//cube_shader->setInt("texture_diffuse1", 0);
+
+	Model* draw_model;
+	for (int i = 0; i < objects.size(); i++) {
+		if (objects[i]->draw) {
+			glBindBuffer(GL_ARRAY_BUFFER, objects[i]->buffer);
+
+			if (objects[i]->rebind_tans) {
+				glBufferData(GL_ARRAY_BUFFER, objects[i]->amount * sizeof(glm::mat4), &(objects[i]->trans)[0], GL_STATIC_DRAW);
+				objects[i]->rebind_tans = false;
+			}
+
+			draw_model = objects[i]->model;
+
+			glActiveTexture(GL_TEXTURE0);
+			glBindTexture(GL_TEXTURE_2D, draw_model->textures_loaded[0].id);
+			for (unsigned int i = 0; i < draw_model->meshes.size(); i++)
+			{
+				glBindVertexArray(draw_model->meshes[i].VAO);
+				glDrawElementsInstanced(GL_TRIANGLES, draw_model->meshes[i].indices.size(), GL_UNSIGNED_INT, 0, cube_amount);
+				glBindVertexArray(0);
+			}
+		}
+	}
+
+}
+
+//old way of drawling
+void city::draw_basline() {
 
 	//updateBuffer_ter();
 	//std::cout << "setting shaders" << std::endl;
@@ -118,7 +150,7 @@ void city::init() {
 	//x_width = 9;// ROW;//rows
 	//z_width = 10;//COL;//collums
 	int key = city_info->get_expandion_key();
-	x_width = city_info->get_height()* key;
+	x_width = city_info->get_height() * key;
 	z_width = city_info->get_width() * key;
 
 	//generate the mats from the layout
@@ -129,7 +161,7 @@ void city::init() {
 		for (int h = 0; h < z_width; h++) {
 
 			//if (layout[i][h] == small_road || layout[i][h] == big_road) {
-			if(layout_expanded[i][h] == 1){
+			if (layout_expanded[i][h] == 1) {
 				glm::mat4 temp = glm::mat4(1.0f);
 
 				temp = glm::translate(temp, glm::vec3(h * 2, 0, i * 2));
@@ -140,7 +172,7 @@ void city::init() {
 				glm::mat4 temp = glm::mat4(1.0f);
 
 				temp = glm::translate(temp, glm::vec3(h * 2, 2, i * 2));
-				if (i - 1 >=0 && layout_expanded[i-1][h] != 0) {//if the topspot is a rode
+				if (i - 1 >= 0 && layout_expanded[i - 1][h] != 0) {//if the topspot is a rode
 					temp = glm::rotate(temp, glm::radians(270.0f), glm::vec3(0.0, 1.0, 0.0));
 				}
 				else if (i + 1 < x_width && layout_expanded[i + 1][h] != 0) {
@@ -157,11 +189,13 @@ void city::init() {
 				glm::mat4 temp = glm::mat4(1.0f);
 
 				temp = glm::translate(temp, glm::vec3(h * 2, 2, i * 2));
-				if (layout_expanded[i - 1][h] != 0 && layout_expanded[i][h-1] != 0) {
+				if (layout_expanded[i - 1][h] != 0 && layout_expanded[i][h - 1] != 0) {
 					temp = glm::rotate(temp, glm::radians(180.0f), glm::vec3(0.0, 1.0, 0.0));//bottom left
-				}else if(layout_expanded[i + 1][h] != 0 && layout_expanded[i][h - 1] != 0) {
+				}
+				else if (layout_expanded[i + 1][h] != 0 && layout_expanded[i][h - 1] != 0) {
 					temp = glm::rotate(temp, glm::radians(270.0f), glm::vec3(0.0, 1.0, 0.0));//top left
-				}else if (layout_expanded[i - 1][h] != 0 && layout_expanded[i][h + 1] != 0) {
+				}
+				else if (layout_expanded[i - 1][h] != 0 && layout_expanded[i][h + 1] != 0) {
 					temp = glm::rotate(temp, glm::radians(90.0f), glm::vec3(0.0, 1.0, 0.0));//top right
 				}
 				else {//no need to rotate
@@ -178,7 +212,7 @@ void city::init() {
 	std::cout << "done" << std::endl;
 	std::cout << "creating pathfinding data" << std::endl;
 
-	 cube_amount = x_width * z_width;
+	cube_amount = x_width * z_width;
 
 	terrian_map = new map_tile * [x_width];
 	for (int i = 0; i < x_width; i++) {
@@ -351,7 +385,7 @@ void city::init() {
 	glBindBuffer(GL_ARRAY_BUFFER, buffer);
 	glBufferData(GL_ARRAY_BUFFER, cube_amount * sizeof(glm::mat4), &cube_matrices[0], GL_STATIC_DRAW);
 
-	for (unsigned int i = 0; i < cube->meshes.size(); i++){
+	for (unsigned int i = 0; i < cube->meshes.size(); i++) {
 		unsigned int VAO = cube->meshes[i].VAO;
 		glBindVertexArray(VAO);
 		// set attribute pointers for matrix (4 times vec4)
@@ -371,15 +405,54 @@ void city::init() {
 
 		glBindVertexArray(0);
 	}
-	
+
 	std::cout << "done" << std::endl;
 	std::cout << "done creating city" << std::endl;
 
 	glFlush();
+	
+	//craete the cube object rep
+	object* temp = new object;
+	temp->name = "cube";
+	temp->model = cube;
+	temp->trans = cube_matrices;
+	temp->amount = cube_amount;
+	temp->buffer = buffer;
+	temp->buffer_size = cube_amount;
+	temp->rebind_tans = true;
+	temp->draw = draw_path_cubes;
+
+	objects.push_back(temp);
+
+	//craete the wall object rep
+	temp = new object;
+	temp->name = "wall";
+	temp->model = wall;
+	temp->trans = wall_mats;
+	temp->amount = wall_amount;
+	temp->buffer = wall_buffer;
+	temp->buffer_size = wall_amount;
+	temp->rebind_tans = true;
+	temp->draw = draw_wall;
+
+	objects.push_back(temp);
+
+	//craete the wall object rep
+	temp = new object;
+	temp->name = "wall_c";
+	temp->model = wall_c;
+	temp->trans = wall_c_mats;
+	temp->amount = wall_c_amount;
+	temp->buffer = wall_c_buffer;
+	temp->buffer_size = wall_c_amount;
+	temp->rebind_tans = true;
+	temp->draw = draw_wall_c;
+
+	objects.push_back(temp);
+
 	check();
 	//while (true);
 }
-
 
 void city::check() {
 	std::cout << "checking to maksure that all vars were inited" << std::endl;

@@ -11,6 +11,7 @@
 #include <stack>
 #include <vector>
 #include <map>
+#include <string>
 #include <set>
 #include <random>
 
@@ -45,6 +46,18 @@ struct map_tile {
 	int g_cost;//move cost to move to this square
 };
 
+struct object {
+	std::string name;
+	Model* model;
+	glm::mat4* trans;
+	unsigned int amount;//the amount in the buffer
+	unsigned int buffer;//the buffer
+	unsigned int buffer_size;//max buffer size
+	bool rebind_tans;//if the mats changed and the mats need to be updated
+	bool draw; // if false then the program will not draw
+};
+
+
 class city
 {
 public:
@@ -52,6 +65,8 @@ public:
 	~city();
 
 	void draw();
+	void draw_basline();
+
 	void update();
 
 	void init();
@@ -77,6 +92,8 @@ public:
 
 private:
 
+	void init_objects();
+
 	//check function to makesure that everything was inited
 	void check();
 
@@ -91,10 +108,12 @@ private:
 	glm::mat4 projection;
 	timing* Time;
 
+	std::vector<object*> objects;
+
 	city_gen* city_info;
 	city_square** layout;
 
-	bool draw_path_cubes;
+
 	unsigned int cube_amount;//the amount of cubes that there are to display
 	unsigned int buffer;
 	Model* cube;
@@ -114,6 +133,7 @@ private:
 	//city debug information
 	bool draw_wall;
 	bool draw_wall_c;
+	bool draw_path_cubes;
 
 	glm::mat4* cube_matrices;//contains all the cubes mats
 	Shader* cube_shader;

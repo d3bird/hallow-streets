@@ -1,59 +1,18 @@
-#include "world.h"
+#include "lighting.h"
+
+lighting::lighting(){
 
 
-world::world(){
-	single = false;
-    draw_lights_debug = false;
-    render_text = true;
-    update_lights = true;
-}
-
-world::~world(){
-	delete City;
-}
-
-//draw with a single light source
-void world::draw_single() {
-
-	//std::cout << "drawling sky" << std::endl;
-	Sky->set_cam(view);
-	Sky->draw();
-
-	//std::cout << "setting lighting " << std::endl;
-	lighting_in->use();
-	lighting_in->setVec3("objectColor", 1.0f, 0.5f, 0.31f);
-	//lighting_in->setVec3("lightPos", Sky->get_light_loc());
-	lighting_in->setVec3("lightPos", glm::vec3(10,10,10));
-	//lighting_in->setVec3("lightColor", 0.0f, 1.0f, 1.0f);
-	lighting_in->setVec3("lightColor", 1.0f, 1.0f, 1.0f);
-
-	//std::cout << "drawling city" << std::endl;
-	City->set_cam(view);
-	City->draw();
 
 }
 
-//draw with deferred shadering
-void world::draw_deferred() {
+lighting::~lighting(){
 
-    glBindFramebuffer(GL_FRAMEBUFFER, gBuffer);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+}
 
-    glm::mat4 model = glm::mat4(1.0f);
-    shaderGeometryPass->use();
-    shaderGeometryPass->setMat4("projection", projection);
-    shaderGeometryPass->setMat4("view", view);
-
-    //draw the entire scene
-    //City->set_cam(view);
-    City->draw();
-
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-  //  std::cout << "lighting tests" << std::endl;
-
+void lighting::preform_lighting_calcs() {
     // 2. lighting pass: calculate lighting by iterating over a screen filled quad pixel-by-pixel using the gbuffer's content.
-    // -----------------------------------------------------------------------------------------------------------------------
+// -----------------------------------------------------------------------------------------------------------------------
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     shaderLightingPass->use();
     glActiveTexture(GL_TEXTURE0);
@@ -63,23 +22,21 @@ void world::draw_deferred() {
     glActiveTexture(GL_TEXTURE2);
     glBindTexture(GL_TEXTURE_2D, gAlbedoSpec);
     // send light relevant uniforms
-    if (update_lights) {
-        for (unsigned int i = 0; i < lightPositions.size(); i++)
-        {
-            shaderLightingPass->setVec3("lights[" + std::to_string(i) + "].Position", lightPositions[i]);
-            shaderLightingPass->setVec3("lights[" + std::to_string(i) + "].Color", lightColors[i]);
-            // update attenuation parameters and calculate radius
-            float constant = 1.0; // note that we don't send this to the shader, we assume it is always 1.0 (in our case)
-            float linear = 0.22;
-            float quadratic = 0.2;
-            shaderLightingPass->setFloat("lights[" + std::to_string(i) + "].Linear", linear);
-            shaderLightingPass->setFloat("lights[" + std::to_string(i) + "].Quadratic", quadratic);
-            const float maxBrightness = std::fmaxf(std::fmaxf(lightColors[i].r, lightColors[i].g), lightColors[i].b);
-            float radius = (-linear + std::sqrt(linear * linear - 4 * quadratic * (constant - (256.0f / 5.0f) * maxBrightness))) / (2.0f * quadratic);
-            shaderLightingPass->setFloat("lights[" + std::to_string(i) + "].Radius", radius);
-        }
-        update_lights = false;
+    for (unsigned int i = 0; i < lightPositions.size(); i++)
+    {
+        shaderLightingPass->setVec3("lights[" + std::to_string(i) + "].Position", lightPositions[i]);
+        shaderLightingPass->setVec3("lights[" + std::to_string(i) + "].Color", lightColors[i]);
+        // update attenuation parameters and calculate radius
+        float constant = 1.0; // note that we don't send this to the shader, we assume it is always 1.0 (in our case)
+        float linear = 0.22;
+        float quadratic = 0.2;
+        shaderLightingPass->setFloat("lights[" + std::to_string(i) + "].Linear", linear);
+        shaderLightingPass->setFloat("lights[" + std::to_string(i) + "].Quadratic", quadratic);
+        const float maxBrightness = std::fmaxf(std::fmaxf(lightColors[i].r, lightColors[i].g), lightColors[i].b);
+        float radius = (-linear + std::sqrt(linear * linear - 4 * quadratic * (constant - (256.0f / 5.0f) * maxBrightness))) / (2.0f * quadratic);
+        shaderLightingPass->setFloat("lights[" + std::to_string(i) + "].Radius", radius);
     }
+
     shaderLightingPass->setVec3("viewPos", cam_pos);
     // finally render quad
     renderQuad();
@@ -96,10 +53,11 @@ void world::draw_deferred() {
 
     // 3. render lights on top of scene
     // --------------------------------
-    if (draw_lights_debug) {
+    if (draw_light_cubes) {
         shaderLightBox->use();
         shaderLightBox->setMat4("projection", projection);
         shaderLightBox->setMat4("view", view);
+
         for (unsigned int i = 0; i < lightPositions.size(); i++)
         {
             model = glm::mat4(1.0f);
@@ -110,69 +68,17 @@ void world::draw_deferred() {
             renderCube();
         }
     }
-
-    //daw objects that need to be affected by blending
-    if (render_text) {
-        glEnable(GL_BLEND);
-        text_render->draw();
-        glDisable(GL_BLEND);
-    }
 }
 
-void world::update() {
-	Sky->update();
+void lighting::update() {
+
 }
 
-void world::change_projection(glm::mat4 i) {
-    projection = i;
-    City->set_projection(projection);
-    Sky->set_projection(projection);
-}
-
-void world::init() {
-
-	lighting_in = new Shader("lighting_instance.vs", "lighting_instance.fs");
-
-	lighting_init();
-
-    if (render_text) {
-        text_render = new text_engine();
-        text_render->set_time(Time);
-        text_render->set_projection(projection);
-        text_render->set_cam(view);
-        text_render->init();
-    }
-
-	City = new city();
-	City->set_time(Time);
-	City->set_projection(projection);
-	City->set_cam(view);
-    if (single) {
-        City->set_shader(lighting_in);
-    }
-    else {
-        City->set_shader(shaderGeometryPass);
-    }
-	City->init();
-
-	Sky = new sky();
-	Sky->set_projection(projection);
-	Sky->set_cam(view);
-	Sky->set_width(10, 10, 10);
-	Sky->set_time(Time);
-	Sky->init();
-
-	Sky->pause_time_at_noon();
-
-	std::cout << "finished initing objects" << std::endl;
-	std::cout << std::endl;
-}
-
-void world::lighting_init() {
-
+void lighting::init() {
     shaderGeometryPass = new Shader("g_buffer.vs", "g_buffer.fs");
     shaderLightingPass = new Shader("deferred_shading.vs", "deferred_shading.fs");
     shaderLightBox = new Shader("deferred_light_box.vs", "deferred_light_box.fs");
+
 
     // load models
     // -----------
@@ -343,7 +249,7 @@ void world::lighting_init() {
 }
 
 
-void world::renderQuad()
+void lighting::renderQuad()
 {
     if (quadVAO == 0)
     {
@@ -370,7 +276,7 @@ void world::renderQuad()
     glBindVertexArray(0);
 }
 
-void world::renderCube()
+void lighting::renderCube()
 {
     // initialize (if necessary)
     if (cubeVAO == 0)
@@ -440,4 +346,3 @@ void world::renderCube()
     glDrawArrays(GL_TRIANGLES, 0, 36);
     glBindVertexArray(0);
 }
-

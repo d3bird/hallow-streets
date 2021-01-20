@@ -8,34 +8,22 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include <iostream>
-#include <stack>
 #include <vector>
-#include <map>
-#include <set>
-#include <random>
 
+#include "model.h"
 #include "shader.h"
 #include "time.h"
-#include "city.h"
-#include "sky.h"
-#include "text_rendering.h"
 
-class world {
+class lighting{
 public:
-	world();
-	~world();
+	lighting();
+	~lighting();
 
-	void draw_deferred();
-	void draw_single();
+	void preform_lighting_calcs();
+
 	void update();
 
 	void init();
-
-	//misc functions
-
-	void set_single_draw() { single = true; }
-
-	//getters
 
 	//setters
 	void set_projection(glm::mat4 i) { projection = i; }
@@ -44,39 +32,33 @@ public:
 
 	void set_cam_pos(glm::vec3 i) { cam_pos = i; }
 
-	void change_projection(glm::mat4 i);
+	//getters
+	Shader* get_gem_shader() { return shaderGeometryPass; }
+	Shader* get_lighting_shader() { return shaderLightingPass; }
 
 private:
-
-	void lighting_init();
 
 	glm::mat4 view;
 	glm::mat4 projection;
 	glm::vec3 cam_pos;
 	timing* Time;
 
-	city* City;
-	sky* Sky;
-	text_engine* text_render;
+	bool draw_light_cubes;//the possition of the light sources
 
-	bool single;
-	bool render_text;
-	//single source
-	Shader* lighting_in;
-	glm::vec3 lighting_loc;
-
-	//deferred shading
-	bool draw_lights_debug;
-	bool update_lights;
-	Shader* shaderGeometryPass;
-	Shader* shaderLightingPass;
-	Shader* shaderLightBox;
+	bool update_light_info;
 
 	const unsigned int SCR_WIDTH = 800;
 	const unsigned int SCR_HEIGHT = 600;
 
+
+	//deffered lighting vars
+	Shader* shaderGeometryPass;
+	Shader* shaderLightingPass;
+	Shader* shaderLightBox;
+
 	std::vector<glm::mat4> objectPositions;
 	glm::mat4* modelMatrices;
+	glm::mat4 model;
 	Model* backpack;
 	unsigned int mod_buffer;
 	unsigned int gBuffer;
