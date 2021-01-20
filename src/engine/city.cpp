@@ -28,7 +28,7 @@ city::city() {
 	draw_wall_c = true;
 	draw_wall = true;
 	draw_path_cubes = true;
-
+	draw_light_posts = true;
 }
 
 city::~city(){
@@ -298,7 +298,10 @@ void city::init() {
 	wall = new Model("resources/objects/building_parts/wall.obj");
 	std::cout << "wall_c" << std::endl;
 	wall_c = new Model("resources/objects/building_parts/corner.obj");
+	//std::cout << "wall_d" << std::endl;
 	//wall_d = new Model("resources/objects/building_parts/wall_door.obj");
+	std::cout << "light_post" << std::endl;
+	Model* light_post = new Model("resources/objects/light_post/light post.obj");
 
 	//generate buffers
 	std::cout << "generating buffers" << std::endl;
@@ -406,11 +409,52 @@ void city::init() {
 		glBindVertexArray(0);
 	}
 
-	std::cout << "done" << std::endl;
-	std::cout << "done creating city" << std::endl;
 
 	glFlush();
 	
+	unsigned int light_post_amount;
+	unsigned int light_post_buffer;
+	glm::mat4* light_post_mats;
+
+	light_post_amount = 5;
+	light_post_mats = new glm::mat4[light_post_amount];
+
+	for (int i = 0; i < light_post_amount; i++) {
+		glm::mat4 trans = glm::mat4(1.0f);
+		trans = glm::translate(trans, glm::vec3((i * 2)*3, 2, 0));
+		trans = glm::rotate(trans, glm::radians(-90.0f), glm::vec3(0.0, 1.0, 0.0));//bottom left
+		light_post_mats[i] = trans;
+	}
+
+	glGenBuffers(1, &light_post_buffer);
+	glBindBuffer(GL_ARRAY_BUFFER, light_post_buffer);
+	glBufferData(GL_ARRAY_BUFFER, light_post_amount * sizeof(glm::mat4), &light_post_mats[0], GL_STATIC_DRAW);
+
+
+	for (unsigned int i = 0; i < light_post->meshes.size(); i++) {
+		unsigned int VAO = light_post->meshes[i].VAO;
+		glBindVertexArray(VAO);
+		// set attribute pointers for matrix (4 times vec4)
+		glEnableVertexAttribArray(3);
+		glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)0);
+		glEnableVertexAttribArray(4);
+		glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(sizeof(glm::vec4)));
+		glEnableVertexAttribArray(5);
+		glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(2 * sizeof(glm::vec4)));
+		glEnableVertexAttribArray(6);
+		glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(3 * sizeof(glm::vec4)));
+
+		glVertexAttribDivisor(3, 1);
+		glVertexAttribDivisor(4, 1);
+		glVertexAttribDivisor(5, 1);
+		glVertexAttribDivisor(6, 1);
+
+		glBindVertexArray(0);
+	}
+	glFlush();
+
+	std::cout << "creating object representations" << std::endl;
+
 	//craete the cube object rep
 	object* temp = new object;
 	temp->name = "cube";
@@ -437,7 +481,7 @@ void city::init() {
 
 	objects.push_back(temp);
 
-	//craete the wall object rep
+	//craete the wall corner object rep
 	temp = new object;
 	temp->name = "wall_c";
 	temp->model = wall_c;
@@ -449,6 +493,22 @@ void city::init() {
 	temp->draw = draw_wall_c;
 
 	objects.push_back(temp);
+
+	//craete the light post object rep
+	temp = new object;
+	temp->name = "light_post";
+	temp->model = light_post;
+	temp->trans = light_post_mats;
+	temp->amount = light_post_amount;
+	temp->buffer = light_post_buffer;
+	temp->buffer_size = light_post_amount;
+	temp->rebind_tans = true;
+	temp->draw = draw_light_posts;
+
+	objects.push_back(temp);
+
+	std::cout << "done" << std::endl;
+	std::cout << "done creating city" << std::endl;
 
 	check();
 	//while (true);

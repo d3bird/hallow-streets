@@ -134,6 +134,7 @@ private:
 	bool draw_wall;
 	bool draw_wall_c;
 	bool draw_path_cubes;
+	bool draw_light_posts;
 
 	glm::mat4* cube_matrices;//contains all the cubes mats
 	Shader* cube_shader;
