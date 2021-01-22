@@ -29,6 +29,7 @@ city::city() {
 	draw_wall = true;
 	draw_path_cubes = true;
 	draw_light_posts = true;
+	draw_sidewalk = true;
 }
 
 city::~city(){
@@ -302,6 +303,8 @@ void city::init() {
 	//wall_d = new Model("resources/objects/building_parts/wall_door.obj");
 	std::cout << "light_post" << std::endl;
 	Model* light_post = new Model("resources/objects/light_post/light post.obj");
+	std::cout << "sidewalk" << std::endl;
+	Model* sidewalk = new Model("resources/objects/sidewalk/sidewalk.obj");
 
 	//generate buffers
 	std::cout << "generating buffers" << std::endl;
@@ -412,6 +415,48 @@ void city::init() {
 
 	glFlush();
 	
+	unsigned int sidewalk_amount;
+	unsigned int sidewalk_buffer;
+	glm::mat4* sidewalk_mats;
+
+	sidewalk_amount = 1;
+	sidewalk_mats = new glm::mat4[sidewalk_amount];
+
+	for (int i = 0; i < sidewalk_amount; i++) {
+		glm::mat4 trans = glm::mat4(1.0f);
+		trans = glm::translate(trans, glm::vec3((i * 2)*3, 2, 0));
+		trans = glm::rotate(trans, glm::radians(180.0f), glm::vec3(0.0, 1.0, 0.0));//bottom left
+		sidewalk_mats[i] = trans;
+	}
+
+	glGenBuffers(1, &sidewalk_buffer);
+	glBindBuffer(GL_ARRAY_BUFFER, sidewalk_buffer);
+	glBufferData(GL_ARRAY_BUFFER, sidewalk_amount * sizeof(glm::mat4), &sidewalk_mats[0], GL_STATIC_DRAW);
+
+
+	for (unsigned int i = 0; i < sidewalk->meshes.size(); i++) {
+		unsigned int VAO = sidewalk->meshes[i].VAO;
+		glBindVertexArray(VAO);
+		// set attribute pointers for matrix (4 times vec4)
+		glEnableVertexAttribArray(3);
+		glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)0);
+		glEnableVertexAttribArray(4);
+		glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(sizeof(glm::vec4)));
+		glEnableVertexAttribArray(5);
+		glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(2 * sizeof(glm::vec4)));
+		glEnableVertexAttribArray(6);
+		glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(3 * sizeof(glm::vec4)));
+
+		glVertexAttribDivisor(3, 1);
+		glVertexAttribDivisor(4, 1);
+		glVertexAttribDivisor(5, 1);
+		glVertexAttribDivisor(6, 1);
+
+		glBindVertexArray(0);
+	}
+	glFlush();
+
+
 	unsigned int light_post_amount;
 	unsigned int light_post_buffer;
 	glm::mat4* light_post_mats;
@@ -421,7 +466,7 @@ void city::init() {
 
 	for (int i = 0; i < light_post_amount; i++) {
 		glm::mat4 trans = glm::mat4(1.0f);
-		trans = glm::translate(trans, glm::vec3((i * 2)*3, 2, 0));
+		trans = glm::translate(trans, glm::vec3((i * 2) * 3, 4, 0));
 		trans = glm::rotate(trans, glm::radians(-90.0f), glm::vec3(0.0, 1.0, 0.0));//bottom left
 		light_post_mats[i] = trans;
 	}
@@ -504,6 +549,19 @@ void city::init() {
 	temp->buffer_size = light_post_amount;
 	temp->rebind_tans = true;
 	temp->draw = draw_light_posts;
+
+	objects.push_back(temp);
+
+	//create the sidewalk
+	temp = new object;
+	temp->name = "sidwalk";
+	temp->model = sidewalk;
+	temp->trans = sidewalk_mats;
+	temp->amount = sidewalk_amount;
+	temp->buffer = sidewalk_buffer;
+	temp->buffer_size = sidewalk_amount;
+	temp->rebind_tans = true;
+	temp->draw = draw_sidewalk;
 
 	objects.push_back(temp);
 
