@@ -305,7 +305,7 @@ void city::init() {
 	Model* light_post = new Model("resources/objects/light_post/light post.obj");
 	std::cout << "sidewalk" << std::endl;
 	Model* sidewalk = new Model("resources/objects/sidewalk/sidewalk.obj");
-
+	//while (true);
 	//generate buffers
 	std::cout << "generating buffers" << std::endl;
 	wall_amount = generated_mats_wall.size();
@@ -419,12 +419,12 @@ void city::init() {
 	unsigned int sidewalk_buffer;
 	glm::mat4* sidewalk_mats;
 
-	sidewalk_amount = 1;
+	sidewalk_amount = 6;
 	sidewalk_mats = new glm::mat4[sidewalk_amount];
 
 	for (int i = 0; i < sidewalk_amount; i++) {
 		glm::mat4 trans = glm::mat4(1.0f);
-		trans = glm::translate(trans, glm::vec3((i * 2)*3, 2, 0));
+		trans = glm::translate(trans, glm::vec3((i * 16)+14, 2, 0));
 		trans = glm::rotate(trans, glm::radians(180.0f), glm::vec3(0.0, 1.0, 0.0));//bottom left
 		sidewalk_mats[i] = trans;
 	}

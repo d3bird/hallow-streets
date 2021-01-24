@@ -92,6 +92,8 @@ public:
 
 private:
 
+	bool objects_inited;
+	bool objects_representations_craeted;
 	void init_objects();
 
 	//check function to makesure that everything was inited
@@ -129,6 +131,8 @@ private:
 	Model* wall;
 	Model* wall_c;
 	Model* wall_d;
+	Model* light_post;
+	Model* sidewalk;
 
 	//city debug information
 	bool draw_wall;
