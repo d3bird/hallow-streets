@@ -1,10 +1,10 @@
-# Fallen-Sun
+# Hallow-Streets
 
+
+# Installation
 This project is meant to be ready to use upon cloning/downloading so it has all the libs and include files required to run. 
 
-
-The Dawn-of-the-Second-Sun (D.O.T.S.) engine is ment to simulate a society full of people moving from job to job. 
-This project is based off of the DOTS engine from the 1a09261c69fc48a9636089977fc02565c9f45214 commit
+Once the repo is cloned, create a build folder and type cmake .. from that build folder or use the cmake GUI to build to a specific location
 
 # libs used
 freetype
@@ -13,3 +13,5 @@ glad
 GLFW
 stb_image.h
 glm
+assimp
+irrKlang
