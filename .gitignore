@@ -3,4 +3,15 @@ bin/
 build/
 copy_folder/
 
-mass_rendering_system/shaders
+
+src/mass_rendering_system/camera.*
+src/mass_rendering_system/city_gen.*
+src/mass_rendering_system/lighting.*
+src/mass_rendering_system/mesh.*
+src/mass_rendering_system/model.*
+src/mass_rendering_system/shader.*
+src/mass_rendering_system/shaders
+src/mass_rendering_system/sky.*
+src/mass_rendering_system/skymap.*
+src/mass_rendering_system/text_rendering.*
+src/mass_rendering_system/time.*
