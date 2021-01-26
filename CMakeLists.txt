@@ -71,6 +71,7 @@ set(CHAPTERS
     engine
     dialog
     lighting_test
+    mass_rendering_system
 )
 
 foreach(CHAPTER ${CHAPTERS})

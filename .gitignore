@@ -2,3 +2,5 @@
 bin/
 build/
 copy_folder/
+
+mass_rendering_system/shaders
