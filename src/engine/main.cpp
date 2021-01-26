@@ -84,9 +84,9 @@ int main() {
     glEnable(GL_DEPTH_TEST);
 
 
-   // glEnable(GL_BLEND);
-   // glCullFace(GL_BACK);
-    //glEnable(GL_MULTISAMPLE);
+    // glEnable(GL_BLEND);
+    // glCullFace(GL_BACK);
+     //glEnable(GL_MULTISAMPLE);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     glm::mat4 projection = glm::perspective(glm::radians(45.0f), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 1000.0f);
@@ -136,6 +136,7 @@ int main() {
         else {
             World->draw_single();
         }
+
         if (drawsky) {
             sky->set_cam(view);
             sky->set_projection(projection);

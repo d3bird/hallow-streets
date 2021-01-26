@@ -19,6 +19,7 @@
 #include "city.h"
 #include "sky.h"
 #include "text_rendering.h"
+#include "object_manger.h"
 
 class world {
 public:
@@ -28,6 +29,8 @@ public:
 	void draw_deferred();
 	void draw_single();
 	void update();
+
+	void draw_objects();
 
 	void init();
 
@@ -58,6 +61,9 @@ private:
 	city* City;
 	sky* Sky;
 	text_engine* text_render;
+
+
+	object_manger* OBJM;
 
 	bool single;
 	bool render_text;

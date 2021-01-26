@@ -11,6 +11,8 @@ city_gen::city_gen(){
 
 	premade = false;
 	key = 8;//do note that if this number is changed, the modles will also have to be changed  
+
+	max_cubes = block_width * block_height * key * key;
 }
 
 city_gen::~city_gen(){
@@ -232,8 +234,20 @@ void city_gen::create_buildings() {
 void city_gen::create_expanded_layout() {
 
 	if (key < 1) {
-		std::cout << "the key to expand the layout was bellow 1" << std::endl;
+		std::cout << "the key to expand the layout was bellow 1, problems may arise" << std::endl;
 	}
+	/* key for what the set numbers mean
+	 * 1:  place road
+	 * 2:  place wall
+	 * 3:  place wall_d
+	 * 4:  place wall_c
+	 * 5:  place light post
+	 * 6:  place 
+	 * 7:  place 
+	 * 8:  place 
+	 * 9:  place 
+	 * 10: place 
+	*/
 
 	int set = 0;
 	bool exp = true;
@@ -268,25 +282,6 @@ void city_gen::create_expanded_layout() {
 			}
 			if (walls) {
 
-				/*if (corn) {
-					if ((layout[i - 1][h] == small_road || layout[i - 1][h] == big_road) && (layout[i][h - 1] == small_road || layout[i][h - 1] == big_road)) {
-						std::cout << "corn 1" << std::endl;
-					}
-					else if ((layout[i + 1][h] == small_road || layout[i + 1][h] == big_road) && (layout[i][h - 1] == small_road || layout[i][h - 1] == big_road)) {
-						std::cout << "corn 2" << std::endl;
-
-					}
-					else if ((layout[i + 1][h] == small_road || layout[i + 1][h] == big_road) && (layout[i][h + 1] == small_road || layout[i][h + 1] == big_road)) {
-						std::cout << "corn 3" << std::endl;
-
-					}
-					else if ((layout[i - 1][h] == small_road || layout[i - 1][h] == big_road) && (layout[i][h + 1] == small_road || layout[i][h + 1] == big_road)) {
-						std::cout << "corn 4" << std::endl;
-
-					}
-					corn = false;
-				}*/
-
 				if (corn) {//catch if it was not the propoer corner
 					corn = false;
 					layout_e[(i * key) + key - 1][(h * key) + key - 1] = set;
@@ -319,6 +314,22 @@ void city_gen::create_expanded_layout() {
 	}
 
 }
+
+void city_gen::create_road_tile(int start_x, int start_y) {
+
+
+}
+
+void city_gen::create_wall_tile(int start_x, int start_y) {
+
+	
+}
+
+void city_gen::create_empty_tile(int start_x, int start_y) {
+
+
+}
+
 
 void city_gen::print_layout() {
 	std::cout << "printing the city layout" << std::endl;

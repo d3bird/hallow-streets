@@ -28,9 +28,11 @@ void world::draw_single() {
 	lighting_in->setVec3("lightColor", 1.0f, 1.0f, 1.0f);
 
 	//std::cout << "drawling city" << std::endl;
-	City->set_cam(view);
-	City->draw();
+	//City->set_cam(view);
+	//City->draw();
 
+    OBJM->set_cam(view);
+    OBJM->draw();
 }
 
 //draw with deferred shadering
@@ -46,8 +48,9 @@ void world::draw_deferred() {
 
     //draw the entire scene
     //City->set_cam(view);
-    City->draw();
-
+    //City->draw();
+    OBJM->set_cam(view);
+    OBJM->draw();
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
   //  std::cout << "lighting tests" << std::endl;
@@ -119,6 +122,19 @@ void world::draw_deferred() {
     }
 }
 
+void world::draw_objects() {
+    lighting_in->use();
+    lighting_in->setVec3("objectColor", 1.0f, 0.5f, 0.31f);
+    //lighting_in->setVec3("lightPos", Sky->get_light_loc());
+    lighting_in->setVec3("lightPos", glm::vec3(10, 10, 10));
+    //lighting_in->setVec3("lightColor", 0.0f, 1.0f, 1.0f);
+    lighting_in->setVec3("lightColor", 1.0f, 1.0f, 1.0f);
+   // lighting_in->setMat4()
+    OBJM->set_cam(view);
+    OBJM->draw();
+}
+
+
 void world::update() {
 	Sky->update();
 }
@@ -131,8 +147,9 @@ void world::change_projection(glm::mat4 i) {
 
 void world::init() {
 
-	lighting_in = new Shader("lighting_instance.vs", "lighting_instance.fs");
-
+   // lighting_in = new Shader("lighting_instance.vs", "lighting_instance.fs");
+    lighting_in = new Shader("lighting_instances.vs", "lighting_instances.fs");
+    
 	lighting_init();
 
     if (render_text) {
@@ -143,7 +160,32 @@ void world::init() {
         text_render->init();
     }
 
-	City = new city();
+    City = new city();
+
+    OBJM = new object_manger();
+    OBJM->set_projection(projection);
+    OBJM->set_cam(view);
+    if (single) {
+        OBJM->set_standered_shader(lighting_in);
+    }
+    else {
+        OBJM->set_standered_shader(shaderGeometryPass);
+    }
+
+    OBJM->set_time(Time);
+    OBJM->set_max_cubes(City->get_max_cubes());
+    OBJM->init();
+
+    OBJM->spawn_item(CUBE_T, 7, 0);
+    OBJM->spawn_item(CUBE_T, 8, 0);
+    OBJM->spawn_item(CUBE_T, 9, 0);
+
+    OBJM->spawn_item(CUBE_T, 10, 0);
+    OBJM->spawn_item(CUBE_T, 10, 1);
+    OBJM->spawn_item(CUBE_T, 10, 2);
+    OBJM->spawn_item(CUBE_T, 10, 3);
+
+	
 	City->set_time(Time);
 	City->set_projection(projection);
 	City->set_cam(view);
@@ -153,7 +195,7 @@ void world::init() {
     else {
         City->set_shader(shaderGeometryPass);
     }
-	City->init();
+	City->init(OBJM);
 
 	Sky = new sky();
 	Sky->set_projection(projection);

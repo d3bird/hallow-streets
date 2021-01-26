@@ -39,6 +39,7 @@ public:
 	//getters
 	int get_width() { return block_width; }
 	int get_height() { return block_height; }
+	int get_max_cubes() { return max_cubes; }
 
 	city_square** get_layout() { return layout; }
 	int** get_expanded_layout() { return layout_e; }
@@ -55,8 +56,12 @@ private:
 	void create_road(int x, int z, int  direct, int mid, int dir_change);
 	void create_buildings();
 
-
+	//creates the city layout using the layout
 	void create_expanded_layout();
+
+	void create_road_tile(int start_x, int start_y);
+	void create_wall_tile(int start_x, int start_y);
+	void create_empty_tile(int start_x, int start_y);
 
 	bool premade;
 	void use_premade_map();
@@ -74,6 +79,8 @@ private:
 	//for one city block
 	int block_width;//x
 	int block_height;//y
+
+	int max_cubes;
 
 	timing* Time;
 	float* deltatime;

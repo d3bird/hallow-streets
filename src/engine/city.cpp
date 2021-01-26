@@ -24,6 +24,7 @@ city::city() {
 	x_width = 9;// ROW;//rows
 	z_width = 10;//COL;//collums
 
+
 	//debug information
 	draw_wall_c = true;
 	draw_wall = true;
@@ -137,10 +138,14 @@ void city::update() {
 
 }
 
-void city::init() {
+void city::init(object_manger* OBJM) {
 	std::cout << "creating city" << std::endl;
 	std::cout << "creating city info" << std::endl;
-	city_info = new city_gen();
+
+	if (city_info == NULL) {
+		city_info = new city_gen();
+	}
+
 	city_info->set_time(Time);
 	city_info->set_projection(projection);
 	city_info->init();
@@ -158,6 +163,7 @@ void city::init() {
 	std::vector<glm::mat4> generated_mats_debug_cubes;
 	std::vector<glm::mat4> generated_mats_wall;
 	std::vector<glm::mat4> generated_mats_wall_c;
+
 	for (int i = 0; i < x_width; i++) {
 		for (int h = 0; h < z_width; h++) {
 
@@ -291,130 +297,37 @@ void city::init() {
 		std::cout << "using premade shader for the cubes" << std::endl;
 	}
 
-	//import models
-	std::cout << "importing models" << std::endl;
-	std::cout << "cube" << std::endl;
-	cube = new Model("resources/objects/cube/cube.obj");
-	std::cout << "wall" << std::endl;
-	wall = new Model("resources/objects/building_parts/wall.obj");
-	std::cout << "wall_c" << std::endl;
-	wall_c = new Model("resources/objects/building_parts/corner.obj");
-	//std::cout << "wall_d" << std::endl;
-	//wall_d = new Model("resources/objects/building_parts/wall_door.obj");
-	std::cout << "light_post" << std::endl;
-	Model* light_post = new Model("resources/objects/light_post/light post.obj");
-	std::cout << "sidewalk" << std::endl;
-	Model* sidewalk = new Model("resources/objects/sidewalk/sidewalk.obj");
-	//while (true);
-	//generate buffers
-	std::cout << "generating buffers" << std::endl;
+	std::cout << "spawning objects" << std::endl;
+	std::cout << "spawning wall" << std::endl;
+
 	wall_amount = generated_mats_wall.size();
 	wall_mats = new glm::mat4[wall_amount];
 	for (int i = 0; i < wall_amount; i++) {
 		wall_mats[i] = generated_mats_wall[i];
+		OBJM->spawn_item(WALL_T, -1, -1, wall_mats[i]);
+
 	}
-
-	glGenBuffers(1, &wall_buffer);
-	glBindBuffer(GL_ARRAY_BUFFER, wall_buffer);
-	glBufferData(GL_ARRAY_BUFFER, wall_amount * sizeof(glm::mat4), &wall_mats[0], GL_STATIC_DRAW);
-
-
-	for (unsigned int i = 0; i < wall->meshes.size(); i++) {
-		unsigned int VAO = wall->meshes[i].VAO;
-		glBindVertexArray(VAO);
-		// set attribute pointers for matrix (4 times vec4)
-		glEnableVertexAttribArray(3);
-		glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)0);
-		glEnableVertexAttribArray(4);
-		glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(sizeof(glm::vec4)));
-		glEnableVertexAttribArray(5);
-		glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(2 * sizeof(glm::vec4)));
-		glEnableVertexAttribArray(6);
-		glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(3 * sizeof(glm::vec4)));
-
-		glVertexAttribDivisor(3, 1);
-		glVertexAttribDivisor(4, 1);
-		glVertexAttribDivisor(5, 1);
-		glVertexAttribDivisor(6, 1);
-
-		glBindVertexArray(0);
-	}
-	glFlush();
-
-
+	std::cout << "spawning wall_c" << std::endl;
+	
 	wall_c_amount = generated_mats_wall_c.size();
 	wall_c_mats = new glm::mat4[wall_c_amount];
 	for (int i = 0; i < wall_c_amount; i++) {
 		wall_c_mats[i] = generated_mats_wall_c[i];
+		OBJM->spawn_item(WALL_C_T, -1, -1, wall_c_mats[i]);
 	}
-
-	glGenBuffers(1, &wall_c_buffer);
-	glBindBuffer(GL_ARRAY_BUFFER, wall_c_buffer);
-	glBufferData(GL_ARRAY_BUFFER, wall_c_amount * sizeof(glm::mat4), &wall_c_mats[0], GL_STATIC_DRAW);
-
-
-	for (unsigned int i = 0; i < wall_c->meshes.size(); i++) {
-		unsigned int VAO = wall_c->meshes[i].VAO;
-		glBindVertexArray(VAO);
-		// set attribute pointers for matrix (4 times vec4)
-		glEnableVertexAttribArray(3);
-		glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)0);
-		glEnableVertexAttribArray(4);
-		glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(sizeof(glm::vec4)));
-		glEnableVertexAttribArray(5);
-		glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(2 * sizeof(glm::vec4)));
-		glEnableVertexAttribArray(6);
-		glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(3 * sizeof(glm::vec4)));
-
-		glVertexAttribDivisor(3, 1);
-		glVertexAttribDivisor(4, 1);
-		glVertexAttribDivisor(5, 1);
-		glVertexAttribDivisor(6, 1);
-
-		glBindVertexArray(0);
-	}
-	glFlush();
+	
+	std::cout << "spawning cubes" << std::endl;
 
 	cube_amount = generated_mats_debug_cubes.size();
 	cube_matrices = new glm::mat4[cube_amount];
-	std::cout << "buffer size = " << cube_amount << std::endl;
+
 	for (int i = 0; i < cube_amount; i++) {
 		cube_matrices[i] = generated_mats_debug_cubes[i];
-	}
-	//cube_amount++;
-	/*cube_amount = 1;
-	cube_matrices = new glm::mat4[cube_amount];
-	cube_matrices[0] = glm::mat4(1.0f);*/
-
-
-	glGenBuffers(1, &buffer);
-	glBindBuffer(GL_ARRAY_BUFFER, buffer);
-	glBufferData(GL_ARRAY_BUFFER, cube_amount * sizeof(glm::mat4), &cube_matrices[0], GL_STATIC_DRAW);
-
-	for (unsigned int i = 0; i < cube->meshes.size(); i++) {
-		unsigned int VAO = cube->meshes[i].VAO;
-		glBindVertexArray(VAO);
-		// set attribute pointers for matrix (4 times vec4)
-		glEnableVertexAttribArray(3);
-		glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)0);
-		glEnableVertexAttribArray(4);
-		glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(sizeof(glm::vec4)));
-		glEnableVertexAttribArray(5);
-		glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(2 * sizeof(glm::vec4)));
-		glEnableVertexAttribArray(6);
-		glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(3 * sizeof(glm::vec4)));
-
-		glVertexAttribDivisor(3, 1);
-		glVertexAttribDivisor(4, 1);
-		glVertexAttribDivisor(5, 1);
-		glVertexAttribDivisor(6, 1);
-
-		glBindVertexArray(0);
+		OBJM->spawn_item(CUBE_T, -1, -1, cube_matrices[i]);
 	}
 
+	std::cout << "spawning sidewalks" << std::endl;
 
-	glFlush();
-	
 	unsigned int sidewalk_amount;
 	unsigned int sidewalk_buffer;
 	glm::mat4* sidewalk_mats;
@@ -427,34 +340,10 @@ void city::init() {
 		trans = glm::translate(trans, glm::vec3((i * 16)+14, 2, 0));
 		trans = glm::rotate(trans, glm::radians(180.0f), glm::vec3(0.0, 1.0, 0.0));//bottom left
 		sidewalk_mats[i] = trans;
+		OBJM->spawn_item(SIDEWALK_T, -1, -1, sidewalk_mats[i]);
 	}
 
-	glGenBuffers(1, &sidewalk_buffer);
-	glBindBuffer(GL_ARRAY_BUFFER, sidewalk_buffer);
-	glBufferData(GL_ARRAY_BUFFER, sidewalk_amount * sizeof(glm::mat4), &sidewalk_mats[0], GL_STATIC_DRAW);
-
-
-	for (unsigned int i = 0; i < sidewalk->meshes.size(); i++) {
-		unsigned int VAO = sidewalk->meshes[i].VAO;
-		glBindVertexArray(VAO);
-		// set attribute pointers for matrix (4 times vec4)
-		glEnableVertexAttribArray(3);
-		glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)0);
-		glEnableVertexAttribArray(4);
-		glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(sizeof(glm::vec4)));
-		glEnableVertexAttribArray(5);
-		glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(2 * sizeof(glm::vec4)));
-		glEnableVertexAttribArray(6);
-		glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(3 * sizeof(glm::vec4)));
-
-		glVertexAttribDivisor(3, 1);
-		glVertexAttribDivisor(4, 1);
-		glVertexAttribDivisor(5, 1);
-		glVertexAttribDivisor(6, 1);
-
-		glBindVertexArray(0);
-	}
-	glFlush();
+	std::cout << "spawning lightposts" << std::endl;
 
 
 	unsigned int light_post_amount;
@@ -469,101 +358,11 @@ void city::init() {
 		trans = glm::translate(trans, glm::vec3((i * 2) * 3, 4, 0));
 		trans = glm::rotate(trans, glm::radians(-90.0f), glm::vec3(0.0, 1.0, 0.0));//bottom left
 		light_post_mats[i] = trans;
+		OBJM->spawn_item(LIGHT_POST_T, -1, -1, light_post_mats[i]);
+
 	}
 
-	glGenBuffers(1, &light_post_buffer);
-	glBindBuffer(GL_ARRAY_BUFFER, light_post_buffer);
-	glBufferData(GL_ARRAY_BUFFER, light_post_amount * sizeof(glm::mat4), &light_post_mats[0], GL_STATIC_DRAW);
-
-
-	for (unsigned int i = 0; i < light_post->meshes.size(); i++) {
-		unsigned int VAO = light_post->meshes[i].VAO;
-		glBindVertexArray(VAO);
-		// set attribute pointers for matrix (4 times vec4)
-		glEnableVertexAttribArray(3);
-		glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)0);
-		glEnableVertexAttribArray(4);
-		glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(sizeof(glm::vec4)));
-		glEnableVertexAttribArray(5);
-		glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(2 * sizeof(glm::vec4)));
-		glEnableVertexAttribArray(6);
-		glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(3 * sizeof(glm::vec4)));
-
-		glVertexAttribDivisor(3, 1);
-		glVertexAttribDivisor(4, 1);
-		glVertexAttribDivisor(5, 1);
-		glVertexAttribDivisor(6, 1);
-
-		glBindVertexArray(0);
-	}
-	glFlush();
-
-	std::cout << "creating object representations" << std::endl;
-
-	//craete the cube object rep
-	object* temp = new object;
-	temp->name = "cube";
-	temp->model = cube;
-	temp->trans = cube_matrices;
-	temp->amount = cube_amount;
-	temp->buffer = buffer;
-	temp->buffer_size = cube_amount;
-	temp->rebind_tans = true;
-	temp->draw = draw_path_cubes;
-
-	objects.push_back(temp);
-
-	//craete the wall object rep
-	temp = new object;
-	temp->name = "wall";
-	temp->model = wall;
-	temp->trans = wall_mats;
-	temp->amount = wall_amount;
-	temp->buffer = wall_buffer;
-	temp->buffer_size = wall_amount;
-	temp->rebind_tans = true;
-	temp->draw = draw_wall;
-
-	objects.push_back(temp);
-
-	//craete the wall corner object rep
-	temp = new object;
-	temp->name = "wall_c";
-	temp->model = wall_c;
-	temp->trans = wall_c_mats;
-	temp->amount = wall_c_amount;
-	temp->buffer = wall_c_buffer;
-	temp->buffer_size = wall_c_amount;
-	temp->rebind_tans = true;
-	temp->draw = draw_wall_c;
-
-	objects.push_back(temp);
-
-	//craete the light post object rep
-	temp = new object;
-	temp->name = "light_post";
-	temp->model = light_post;
-	temp->trans = light_post_mats;
-	temp->amount = light_post_amount;
-	temp->buffer = light_post_buffer;
-	temp->buffer_size = light_post_amount;
-	temp->rebind_tans = true;
-	temp->draw = draw_light_posts;
-
-	objects.push_back(temp);
-
-	//create the sidewalk
-	temp = new object;
-	temp->name = "sidwalk";
-	temp->model = sidewalk;
-	temp->trans = sidewalk_mats;
-	temp->amount = sidewalk_amount;
-	temp->buffer = sidewalk_buffer;
-	temp->buffer_size = sidewalk_amount;
-	temp->rebind_tans = true;
-	temp->draw = draw_sidewalk;
-
-	objects.push_back(temp);
+	
 
 	std::cout << "done" << std::endl;
 	std::cout << "done creating city" << std::endl;
@@ -571,6 +370,16 @@ void city::init() {
 	check();
 	//while (true);
 }
+
+void city::spawn_objects(object_manger* OBJM) {
+	if (OBJM == NULL) {
+		std::cout << "can not spawn items because the object manager was not created" << std::endl;
+	}
+
+
+
+}
+
 
 void city::check() {
 	std::cout << "checking to maksure that all vars were inited" << std::endl;

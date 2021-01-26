@@ -19,7 +19,7 @@
 #include "shader.h"
 #include "time.h"
 #include "city_gen.h"
-
+#include "object_manger.h"
 
 using namespace std;
 
@@ -69,7 +69,7 @@ public:
 
 	void update();
 
-	void init();
+	void init(object_manger* OBJM);
 
 	//path finding function
 	void aStarSearch(Pair src, Pair dest);
@@ -78,11 +78,21 @@ public:
 	void print_map();
 
 	//misc functions
+	void spawn_objects(object_manger* OBJM);
 
 	//getters
 	int get_x_width() { return x_width; }
 	int get_y_width() { return 0; }
 	int get_z_width() { return z_width; }
+	int get_max_cubes() {
+		if (city_info == NULL) {
+			city_info = new city_gen();
+			return city_info->get_max_cubes();
+		}
+		else {
+			return city_info->get_max_cubes();
+		}
+	}
 
 	//setters
 	void set_projection(glm::mat4 i) { projection = i; }
