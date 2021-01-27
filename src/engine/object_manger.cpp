@@ -184,7 +184,7 @@ void object_manger::create_sidewalk_objects() {
 
 	//creating the alter object
 	buffer = 0;
-	buffer_size = 100;
+	buffer_size = 200;
 	amount = 0;
 	modelMatrices = new glm::mat4[buffer_size];
 	custom_shader = NULL;

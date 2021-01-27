@@ -51,6 +51,7 @@ void world::draw_deferred() {
     //City->draw();
     OBJM->set_cam(view);
     OBJM->draw();
+
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
   //  std::cout << "lighting tests" << std::endl;

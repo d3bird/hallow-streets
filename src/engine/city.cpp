@@ -72,7 +72,7 @@ void city::init(object_manger* OBJM) {
 	for (int i = 0; i < x_width; i++) {
 		for (int h = 0; h < z_width; h++) {
 
-			//if (layout[i][h] == small_road || layout[i][h] == big_road) {
+			//if (layout[i][h] == small_road || layout[i][h] == road_top) {
 			if (layout_expanded[i][h] == 1) {
 				glm::mat4 temp = glm::mat4(1.0f);
 
@@ -117,15 +117,40 @@ void city::init(object_manger* OBJM) {
 
 				generated_mats_wall_c.push_back(temp);
 			}
-			else if (layout_expanded[i][h] == 6) {
+			else if (layout_expanded[i][h] >= 6 && layout_expanded[i][h] <= 10) {//placing sidewalks
 
 				glm::mat4 trans = glm::mat4(1.0f);
-				trans = glm::translate(trans, glm::vec3((h * 2)+14, 2, i*2));
-				trans = glm::rotate(trans, glm::radians(180.0f), glm::vec3(0.0, 1.0, 0.0));//bottom left
+				
+				
+				std::cout << layout_expanded[i][h]<< " ";;
+				
+				switch (layout_expanded[i][h]){
+				case 6://sidewalk top
+					trans = glm::translate(trans, glm::vec3((h * 2) + 14, 2, i * 2));
+					trans = glm::rotate(trans, glm::radians(180.0f), glm::vec3(0.0, 1.0, 0.0));
+					break;
+				case 7://sidewalk bottom
+					trans = glm::translate(trans, glm::vec3((h * 2), 2, (i * 2)+14 ));
+					//trans = glm::rotate(trans, glm::radians(90.0f), glm::vec3(0.0, 1.0, 0.0));
+					break;
+				case 8://sidewalk left
+					trans = glm::translate(trans, glm::vec3((h * 2), 2, i * 2));
+					trans = glm::rotate(trans, glm::radians(270.0f), glm::vec3(0.0, 1.0, 0.0));
+					break;
+				case 9://sidewalk right
+					trans = glm::translate(trans, glm::vec3((h * 2) + 14, 2, (i * 2)+14));
+					trans = glm::rotate(trans, glm::radians(90.0f), glm::vec3(0.0, 1.0, 0.0));
+					break;
+				default:
+					break;
+				}
+				
 				generated_mats_sidewalk.push_back(trans);
 			}
 		}
 	}
+
+	std::cout<< std::endl;
 
 	std::cout << "done "<< generated_mats_sidewalk.size() << std::endl;
 	std::cout << "creating pathfinding data" << std::endl;
@@ -147,6 +172,7 @@ void city::init(object_manger* OBJM) {
 	int xloc = 0;
 	int zloc = 0;
 
+	//generate the pathfinding data structure
 	for (unsigned int i = 0; i < cube_amount; i++) {
 		map_tile temp;
 		temp.x = x;
@@ -169,6 +195,7 @@ void city::init(object_manger* OBJM) {
 
 	}
 
+	//generate the complete path finding refference map
 	for (int x = 0; x < x_width; x++) {
 		for (int z = 0; z < z_width; z++) {
 			switch (layout_expanded[x][z])

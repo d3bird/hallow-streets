@@ -17,8 +17,17 @@
 #include "shader.h"
 #include "time.h"
 
+/*
+* the city_square is used to define sections of the city
+* since the sidewalk is only on one side of the road the layout has to specify which road to place
 
-enum city_square { big_road= 0, small_road =1, open=2, wall=3, wall_d=4, wall_c=5 };
+*/
+
+enum city_square {  small_road =1, open=2, wall=3, wall_d=4, wall_c=5, 
+	road_top= 0 ,road_bot =6, road_left = 7, road_right = 8, road_turn = 9, road_open = 10, road_curve = 11, road_inside_curve = 12
+};  //large roads
+
+
 
 class city_gen{
 public:
@@ -59,7 +68,7 @@ private:
 	//creates the city layout using the layout
 	void create_expanded_layout();
 
-	void create_road_tile(int start_x, int start_y);
+	void create_road_tile(int start_x, int start_y, int set);
 	void create_wall_tile(int start_x, int start_y);
 	void create_empty_tile(int start_x, int start_y);
 

@@ -27,7 +27,7 @@ void Camera::ProcessKeyboard(Camera_Movement direction, float deltaTime){
             Position += Right * velocity;
     }
     else {
-        velocity *= 2;
+        velocity *= 6;
         if (direction == FORWARD)
             Position.z -=  velocity;
         if (direction == BACKWARD)
