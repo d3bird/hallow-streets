@@ -237,12 +237,12 @@ void city_gen::create_expanded_layout() {
 		std::cout << "the key to expand the layout was bellow 1, problems may arise" << std::endl;
 	}
 	/* key for what the set numbers mean
-	 * 1:  place road
+	 * 1:  place cube
 	 * 2:  place wall
 	 * 3:  place wall_d
 	 * 4:  place wall_c
 	 * 5:  place light post
-	 * 6:  place 
+	 * 6:  place road
 	 * 7:  place 
 	 * 8:  place 
 	 * 9:  place 
@@ -253,15 +253,20 @@ void city_gen::create_expanded_layout() {
 	bool exp = true;
 	bool walls = false;
 	bool corn = false;
+	bool road = false;
+	bool open_s = false;
 	for (int i = 0; i < block_height; i++) {
 		for (int h = 0; h < block_width; h++) {
 			exp = true;
 			walls = false;
 			corn = false;
+			road = false;
+			open_s = false;
 			switch (layout[i][h]) {
 			case big_road:
 			case small_road:
 				set = 1;
+				road = true;
 				break;
 			case wall:
 			case wall_d:
@@ -299,6 +304,9 @@ void city_gen::create_expanded_layout() {
 					}
 				}
 
+			}else if (road) {
+				create_road_tile(i, h);
+
 			}
 			else {
 				layout_e[i * key][h * key] = set;
@@ -316,7 +324,22 @@ void city_gen::create_expanded_layout() {
 }
 
 void city_gen::create_road_tile(int start_x, int start_y) {
-
+	int set = 1;
+	int i = start_x;
+	int h = start_y;
+	layout_e[i * key][h * key] = set;
+	if (key != 1) {
+		for (int x = 0; x < key; x++) {
+			for (int y = 0; y < key; y++) {
+				if (x == 0 && y == 0) {
+					layout_e[(i * key) + x][(h * key) + y] = 6;
+				}
+				else {
+					layout_e[(i * key) + x][(h * key) + y] = set;
+				}
+			}
+		}
+	}
 
 }
 

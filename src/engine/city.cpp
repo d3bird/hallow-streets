@@ -9,9 +9,6 @@ city::city() {
 	city_info = NULL;
 	layout = NULL;
 
-	cube_amount = 0;//the amount of cubes that there are to display
-	buffer = 0;
-	cube = NULL;
 	cube_matrices = NULL;//contains all the cubes mats
 	cube_shader = NULL;
 
@@ -38,99 +35,6 @@ city::~city(){
 }
 
 void city::draw() {
-	//cube_shader->use();
-	//cube_shader->setMat4("projection", projection);
-	//cube_shader->setMat4("view", view);
-	//cube_shader->setInt("texture_diffuse1", 0);
-
-	Model* draw_model;
-	for (int i = 0; i < objects.size(); i++) {
-		if (objects[i]->draw) {
-			glBindBuffer(GL_ARRAY_BUFFER, objects[i]->buffer);
-
-			if (objects[i]->rebind_tans) {
-				glBufferData(GL_ARRAY_BUFFER, objects[i]->amount * sizeof(glm::mat4), &(objects[i]->trans)[0], GL_STATIC_DRAW);
-				objects[i]->rebind_tans = false;
-			}
-
-			draw_model = objects[i]->model;
-
-			glActiveTexture(GL_TEXTURE0);
-			glBindTexture(GL_TEXTURE_2D, draw_model->textures_loaded[0].id);
-			for (unsigned int i = 0; i < draw_model->meshes.size(); i++)
-			{
-				glBindVertexArray(draw_model->meshes[i].VAO);
-				glDrawElementsInstanced(GL_TRIANGLES, draw_model->meshes[i].indices.size(), GL_UNSIGNED_INT, 0, cube_amount);
-				glBindVertexArray(0);
-			}
-		}
-	}
-
-}
-
-//old way of drawling
-void city::draw_basline() {
-
-	//updateBuffer_ter();
-	//std::cout << "setting shaders" << std::endl;
-	cube_shader->use();
-	cube_shader->setMat4("projection", projection);
-	cube_shader->setMat4("view", view);
-	cube_shader->setInt("texture_diffuse1", 0);
-
-	//std::cout << "drawling cubes" << std::endl;
-
-	//drawling the cubs
-	if (draw_path_cubes) {
-		glBindBuffer(GL_ARRAY_BUFFER, buffer);
-		glBufferData(GL_ARRAY_BUFFER, cube_amount * sizeof(glm::mat4), &cube_matrices[0], GL_STATIC_DRAW);
-
-		//std::cout << "setting cube mesh buffers" << std::endl;
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, cube->textures_loaded[0].id);
-		for (unsigned int i = 0; i < cube->meshes.size(); i++)
-		{
-			glBindVertexArray(cube->meshes[i].VAO);
-			glDrawElementsInstanced(GL_TRIANGLES, cube->meshes[i].indices.size(), GL_UNSIGNED_INT, 0, cube_amount);
-			glBindVertexArray(0);
-		}
-	}
-	//std::cout << "drawling wall" << std::endl;
-
-	if(draw_wall){
-		//drawling walls
-
-		glBindBuffer(GL_ARRAY_BUFFER, wall_buffer);
-		glBufferData(GL_ARRAY_BUFFER, wall_amount * sizeof(glm::mat4), &wall_mats[0], GL_STATIC_DRAW);
-
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, wall->textures_loaded[0].id);
-		for (unsigned int i = 0; i < wall->meshes.size(); i++)
-		{
-			glBindVertexArray(wall->meshes[i].VAO);
-			glDrawElementsInstanced(GL_TRIANGLES, wall->meshes[i].indices.size(), GL_UNSIGNED_INT, 0, cube_amount);
-			glBindVertexArray(0);
-		}
-	}
-	//std::cout << "drawling corners "<< wall_c->meshes.size() << std::endl;
-
-	if (draw_wall_c) {
-
-		glBindBuffer(GL_ARRAY_BUFFER, wall_c_buffer);
-		glBufferData(GL_ARRAY_BUFFER, wall_c_amount * sizeof(glm::mat4), &wall_c_mats[0], GL_STATIC_DRAW);
-		//std::cout << "drawling corners 2" << wall_c->meshes.size() << std::endl;
-
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, wall_c->textures_loaded[0].id);
-		
-		for (unsigned int i = 0; i < wall_c->meshes.size(); i++)
-		{
-			glBindVertexArray(wall_c->meshes[i].VAO);
-			glDrawElementsInstanced(GL_TRIANGLES, wall_c->meshes[i].indices.size(), GL_UNSIGNED_INT, 0, cube_amount);
-			glBindVertexArray(0);
-		}
-		
-	}
 
 }
 
@@ -163,6 +67,7 @@ void city::init(object_manger* OBJM) {
 	std::vector<glm::mat4> generated_mats_debug_cubes;
 	std::vector<glm::mat4> generated_mats_wall;
 	std::vector<glm::mat4> generated_mats_wall_c;
+	std::vector<glm::mat4> generated_mats_sidewalk;
 
 	for (int i = 0; i < x_width; i++) {
 		for (int h = 0; h < z_width; h++) {
@@ -212,11 +117,17 @@ void city::init(object_manger* OBJM) {
 
 				generated_mats_wall_c.push_back(temp);
 			}
+			else if (layout_expanded[i][h] == 6) {
 
+				glm::mat4 trans = glm::mat4(1.0f);
+				trans = glm::translate(trans, glm::vec3((h * 2)+14, 2, i*2));
+				trans = glm::rotate(trans, glm::radians(180.0f), glm::vec3(0.0, 1.0, 0.0));//bottom left
+				generated_mats_sidewalk.push_back(trans);
+			}
 		}
 	}
 
-	std::cout << "done" << std::endl;
+	std::cout << "done "<< generated_mats_sidewalk.size() << std::endl;
 	std::cout << "creating pathfinding data" << std::endl;
 
 	cube_amount = x_width * z_width;
@@ -300,47 +211,27 @@ void city::init(object_manger* OBJM) {
 	std::cout << "spawning objects" << std::endl;
 	std::cout << "spawning wall" << std::endl;
 
-	wall_amount = generated_mats_wall.size();
-	wall_mats = new glm::mat4[wall_amount];
-	for (int i = 0; i < wall_amount; i++) {
-		wall_mats[i] = generated_mats_wall[i];
-		OBJM->spawn_item(WALL_T, -1, -1, wall_mats[i]);
-
+	
+	for (int i = 0; i < generated_mats_wall.size(); i++) {
+		OBJM->spawn_item(WALL_T, -1, -1, generated_mats_wall[i]);
 	}
+
 	std::cout << "spawning wall_c" << std::endl;
 	
-	wall_c_amount = generated_mats_wall_c.size();
-	wall_c_mats = new glm::mat4[wall_c_amount];
-	for (int i = 0; i < wall_c_amount; i++) {
-		wall_c_mats[i] = generated_mats_wall_c[i];
-		OBJM->spawn_item(WALL_C_T, -1, -1, wall_c_mats[i]);
+	for (int i = 0; i < generated_mats_wall_c.size(); i++) {
+		OBJM->spawn_item(WALL_C_T, -1, -1, generated_mats_wall_c[i]);
 	}
 	
 	std::cout << "spawning cubes" << std::endl;
 
-	cube_amount = generated_mats_debug_cubes.size();
-	cube_matrices = new glm::mat4[cube_amount];
-
-	for (int i = 0; i < cube_amount; i++) {
-		cube_matrices[i] = generated_mats_debug_cubes[i];
-		OBJM->spawn_item(CUBE_T, -1, -1, cube_matrices[i]);
+	for (int i = 0; i < generated_mats_debug_cubes.size(); i++) {
+		OBJM->spawn_item(CUBE_T, -1, -1, generated_mats_debug_cubes[i]);
 	}
 
 	std::cout << "spawning sidewalks" << std::endl;
 
-	unsigned int sidewalk_amount;
-	unsigned int sidewalk_buffer;
-	glm::mat4* sidewalk_mats;
-
-	sidewalk_amount = 6;
-	sidewalk_mats = new glm::mat4[sidewalk_amount];
-
-	for (int i = 0; i < sidewalk_amount; i++) {
-		glm::mat4 trans = glm::mat4(1.0f);
-		trans = glm::translate(trans, glm::vec3((i * 16)+14, 2, 0));
-		trans = glm::rotate(trans, glm::radians(180.0f), glm::vec3(0.0, 1.0, 0.0));//bottom left
-		sidewalk_mats[i] = trans;
-		OBJM->spawn_item(SIDEWALK_T, -1, -1, sidewalk_mats[i]);
+	for (int i = 0; i < generated_mats_sidewalk.size(); i++) {
+		OBJM->spawn_item(SIDEWALK_T, -1, -1, generated_mats_sidewalk[i]);
 	}
 
 	std::cout << "spawning lightposts" << std::endl;
@@ -363,7 +254,6 @@ void city::init(object_manger* OBJM) {
 	}
 
 	
-
 	std::cout << "done" << std::endl;
 	std::cout << "done creating city" << std::endl;
 
@@ -371,14 +261,6 @@ void city::init(object_manger* OBJM) {
 	//while (true);
 }
 
-void city::spawn_objects(object_manger* OBJM) {
-	if (OBJM == NULL) {
-		std::cout << "can not spawn items because the object manager was not created" << std::endl;
-	}
-
-
-
-}
 
 
 void city::check() {
@@ -402,12 +284,6 @@ void city::check() {
 	}
 	if (cube_amount == 0) {
 		std::cout << "cube_amount was never inited" << std::endl;
-	}
-	if (buffer == 0) {
-		std::cout << "buffer was never inited" << std::endl;
-	}
-	if (cube == NULL) {
-		std::cout << "cube was never inited" << std::endl;
 	}
 	if (cube_matrices == NULL) {
 		std::cout << "cube_matrices was never inited" << std::endl;

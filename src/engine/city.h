@@ -78,7 +78,6 @@ public:
 	void print_map();
 
 	//misc functions
-	void spawn_objects(object_manger* OBJM);
 
 	//getters
 	int get_x_width() { return x_width; }
@@ -104,7 +103,6 @@ private:
 
 	bool objects_inited;
 	bool objects_representations_craeted;
-	void init_objects();
 
 	//check function to makesure that everything was inited
 	void check();
@@ -127,16 +125,6 @@ private:
 
 
 	unsigned int cube_amount;//the amount of cubes that there are to display
-	unsigned int buffer;
-	Model* cube;
-
-	unsigned int wall_amount;
-	unsigned int wall_buffer;
-	glm::mat4* wall_mats;
-
-	unsigned int wall_c_amount;
-	unsigned int wall_c_buffer;
-	glm::mat4* wall_c_mats;
 
 	Model* wall;
 	Model* wall_c;

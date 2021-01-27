@@ -716,7 +716,7 @@ item_info* object_manger::spawn_item(item_type type, int x, int z, glm::mat4 giv
 		break;
 	case WALL_T:
 		if (items[3]->amount >= items[3]->buffer_size) {
-			std::cout << "there are too many fruits_plants" << std::endl;
+			std::cout << "there are too many walls" << std::endl;
 			return NULL;
 		}
 		item_id = 3;
@@ -729,7 +729,7 @@ item_info* object_manger::spawn_item(item_type type, int x, int z, glm::mat4 giv
 
 	case WALL_C_T:
 		if (items[4]->amount >= items[4]->buffer_size) {
-			std::cout << "there are too many beds" << std::endl;
+			std::cout << "there are too many wall_c" << std::endl;
 			return NULL;
 		}
 		item_id = 4;
