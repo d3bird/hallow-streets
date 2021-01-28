@@ -63,7 +63,9 @@ private:
 
 	void create_city_block(int x1, int y1, int x2, int y2);
 	void create_road(int x, int z, int  direct, int mid, int dir_change);
-	void create_buildings();
+	void create_buildings(int i_start, int h_start, int i_max, int h_max);
+
+	bool is_road(int i, int h);
 
 	//creates the city layout using the layout
 	void create_expanded_layout();

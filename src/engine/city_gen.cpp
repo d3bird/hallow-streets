@@ -92,7 +92,7 @@ void city_gen::init() {
 		use_premade_map();
 	}
 	else {
-		//create_city_block(2, 2, block_width - 2, block_height - 2);
+		create_city_block(2, 2, block_width - 2, block_height - 2);
 
 		layout[6][9] = open;//fix a error in the premade street layout
 	}
@@ -132,41 +132,22 @@ void city_gen::create_city_block(int x1, int y1, int x2, int y2) {
 	bool creating = true;
 	int direct = 0;
 
-	//create the roads from the top
+
+
 	int top_start = width / 2;
 	int parts = top_start;
 	int z = top_start;
 	int x = 0;
 
-	std::cout << width << " " << top_start << std::endl;
-	//create the top road
-	for (int i = 1; i < parts; i++) {
-		z = top_start * i;
-		if (i % 2 == 0) {
-			create_road(x, z, direct, width / 2, 3);
-		}
-		else {
-			create_road(x, z, direct, width / 2, 2);
-		}
-	}
+	create_road(1, 5, direct, width / 2, 2);
 
-	//ceate the bottom roads
-	direct = 1;
-	x = width+1;
-	top_start = width / 3;
-	z = top_start;
-	parts = top_start;
-	for (int i = 1; i < parts; i++) {
-		z = top_start * i;
-		if (i % 2 == 0) {
-			create_road(x, z, direct, width / 2, 3);
-		}
-		else {
-			create_road(x, z, direct, width / 2, 2);
-		}
-	}
+	create_road(1, 8, direct, width /2, 2);
 
-	create_buildings();
+	create_road(1, 14, direct, width /2, 3);
+
+	
+
+	create_buildings(x1,y1, x2, y2);
 
 }
 
@@ -210,7 +191,7 @@ void city_gen::create_road(int x, int z, int direct, int mid, int dir_change) {
 			break;
 		}
 
-		if (layout[x][z] == road_top || layout[x][z] == small_road) {
+		if (is_road(x,z)) {
 			creating = false;
 		}
 		else {
@@ -219,40 +200,55 @@ void city_gen::create_road(int x, int z, int direct, int mid, int dir_change) {
 	}
 }
 
-void city_gen::create_buildings() {
-	std::cout << "creating buildings" << std::endl;
-	//layout[1][5] = wall;
-	//layout[1][1] = wall_c;
-	//layout[2][1] = wall;
+bool city_gen::is_road(int i, int h) {
 
-	for (int i = 0; i < 6; i++) {
-		for (int h = 0; h < 6; h++) {
+	switch (layout[i][h]) {
+	case road_top:
+	case road_bot:
+	case road_left:
+	case road_right:
+	case road_curve:
+	case road_inside_curve:
+	case small_road:
+		return true;
+		break;
+	}
+	return false;
+}
+
+
+void city_gen::create_buildings(int i_start, int h_start,int i_max, int h_max) {
+	std::cout << "creating buildings" << std::endl;
+
+	for (int i = i_start; i < i_max; i++) {
+		for (int h = h_start; h < h_max; h++) {
 			if (layout[i][h] == open) {
 				//check for cornners 
-				if ((layout[i - 1][h] == small_road || layout[i - 1][h] == road_top) && (layout[i][h - 1] == small_road || layout[i][h - 1] == road_top)) {
-					layout[i][h] = wall_c;
-				}else if ((layout[i + 1][h] == small_road || layout[i + 1][h] == road_top) && (layout[i][h - 1] == small_road || layout[i][h - 1] == road_top)) {
+				if ((is_road(i - 1, h) || is_road(i - 1, h)) && (is_road(i, h - 1) || is_road(i, h - 1))) {
 					layout[i][h] = wall_c;
 				}
-				else if ((layout[i + 1][h] == small_road || layout[i + 1][h] == road_top) && (layout[i][h + 1] == small_road || layout[i][h + 1] == road_top)) {
+				else if ((is_road(i + 1, h) || is_road(i + 1, h)) && (is_road(i, h - 1) || is_road(i, h - 1))) {
 					layout[i][h] = wall_c;
 				}
-				else if ((layout[i - 1][h] == small_road || layout[i - 1][h] == road_top) && (layout[i][h + 1] == small_road || layout[i][h + 1] == road_top)) {
+				else if ((is_road(i + 1, h) || is_road(i + 1, h)) && (is_road(i, h + 1) || is_road(i, h + 1))) {
+					layout[i][h] = wall_c;
+				}
+				else if ((is_road(i - 1, h) || is_road(i - 1, h)) && (is_road(i, h + 1) || is_road(i, h + 1))) {
 					layout[i][h] = wall_c;
 				}
 				else {
 
 					//check for single roads
-					if (layout[i - 1][h] == small_road || layout[i - 1][h] == road_top) {
+					if (is_road(i - 1, h)) {
 						layout[i][h] = wall;
 					}
-					else if (layout[i + 1][h] == small_road || layout[i + 1][h] == road_top) {
+					else if (is_road(i + 1, h)) {
 						layout[i][h] = wall;
 					}
-					else if (layout[i][h - 1] == small_road || layout[i][h - 1] == road_top) {
+					else if (is_road(i, h - 1)) {
 						layout[i][h] = wall;
 					}
-					else if (layout[i][h + 1] == small_road || layout[i][h + 1] == road_top) {
+					else if (is_road(i, h + 1)) {
 						layout[i][h] = wall;
 					}
 				}
@@ -408,6 +404,11 @@ void city_gen::print_layout() {
 		for (int h = 0; h < block_width; h++) {
 			switch (layout[i][h]) {
 			case road_top:
+			case road_bot:
+			case road_left:
+			case road_right:
+			case road_curve:
+			case road_inside_curve:
 				std::cout << "R ";
 				break;
 			case small_road:
