@@ -166,6 +166,6 @@ private:
 	bool draw_wall_c;
 	bool draw_sidewalk;
 	bool draw_light_post;
-
+	bool draw_sideroads;
 };
 

@@ -411,7 +411,17 @@ void city_gen::create_road_tile(int start_x, int start_y, int set) {
 		break;
 	}
 
-	gen_last_light = (i % 2 == 0||h%2 ==0 );
+	//create the inital spaces for the path finding AI
+	//note this is a temp solution until the bug next code is fixed
+	//it is not placing cubes until the light post is placed
+	for (int x = 0; x < key; x++) {
+		for (int y = 0; y < key; y++) {
+			layout_e[(i * key) + x][(h * key) + y] = 1;
+		}
+	}
+
+	gen_last_light = (i % 2 == 1 && h % 2 == 0) || (i % 2 == 0 && h % 2 == 1);
+
 	layout_e[i * key][h * key] = set;
 	if (key != 1) {
 		for (int x = 0; x < key; x++) {

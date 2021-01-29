@@ -19,6 +19,7 @@ object_manger::object_manger() {
 	draw_wall_c = true;
 	draw_sidewalk = true;
 	draw_light_post = true;
+	draw_sideroads = true;
 }
 
 object_manger::~object_manger() {
@@ -479,7 +480,7 @@ void object_manger::create_sidestreet_object() {
 	temp->modelMatrices = modelMatrices;
 	temp->custom_shader = custom_shader;
 	temp->item_name = item_name_t;
-
+	temp->draw = draw_sideroads;
 
 	items.push_back(temp);
 
