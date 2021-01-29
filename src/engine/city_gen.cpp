@@ -126,59 +126,62 @@ void city_gen::create_city_block(int x1, int y1, int x2, int y2) {
 		}
 	}
 
-	int width = x2 - x1;
-	int height = y2 - y1;
+	int width = x2 - x1;//up down 
+	int height = y2 - y1;//left right
+
+	std::cout << "creating a city block" << std::endl;
+	std::cout << "width: " << width << std::endl;
+	std::cout << "height: "<< height << std::endl;
 
 	bool creating = true;
-	int direct = 0;
+	int direct = 0;//inital direction
+	int direct_change = 2;
+	int amount_roads = 3;
+
+	//how far away from the top of the map that 
+	int offset_x = 2;
+	int offset_y = 2;
 
 
+	//start possitions
+	int pos_x = height / amount_roads;
+	int pos_y = 1;
 
-	int top_start = width / 2;
-	int parts = top_start;
-	int z = top_start;
-	int x = 0;
+	//roads starting from the top
+	create_road(pos_y, pos_x, direct, (width / 2)+ offset_x, direct_change);
+	direct_change = 3;
+	create_road(pos_y, height- pos_x , direct, (width /2)+ offset_x, direct_change);
 
-	create_road(1, 5, direct, width / 2, 2);
+	//roads starting from the bottom
+	direct = 1;
+	pos_y = width +offset_y;
 
-	create_road(1, 8, direct, width /2, 2);
-
-	create_road(1, 14, direct, width /2, 3);
-
-	
+	create_road(pos_y, pos_x+1 , direct, (width /2)+ offset_x, direct_change);//cut through the middle
+	direct_change = 2;
+	create_road(pos_y, height - pos_x, direct, (width / 2) + offset_x+1, direct_change);
 
 	create_buildings(x1,y1, x2, y2);
 
 }
 
-void city_gen::create_road(int x, int z, int direct, int mid, int dir_change) {
+
+
+void city_gen::create_road(int x, int z, int direct, int mid, int dir_change, bool debug) {
 	bool creating = true;
 	bool hit_mid = false;
 
 	while (creating) {
+		if (debug && !hit_mid) {
+			std::cout << "x: " << x << " mid: " << mid << std::endl;
+		}
+
+		if (!hit_mid && x == mid) {
+			direct = dir_change;
+		}
 
 		switch (direct) {
 		case 0://down
-			if (!hit_mid && x == mid) {
-				direct = dir_change;
-				switch (direct) {
-				case 0://down
-						x++;
-					break;
-				case 1://up
-					x--;
-					break;
-				case 2://left
-					z--;
-					break;
-				case 3://right
-					z++;
-					break;
-				}
-			}
-			else {
 				x++;
-			}
 			break;
 		case 1://up
 			x--;
