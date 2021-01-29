@@ -269,26 +269,32 @@ void city_gen::create_expanded_layout() {
 	 * 1:  place cube
 	 * 2:  place wall
 	 * 3:  place wall_d
-	 * 4:  place wall_c
+	 * 4:  place wall_c no rotate
 	 * 5:  place light post
 	 * 6:  place road (sidewalk top)
 	 * 7:  place road (sidewalk bottom)
 	 * 8:  place road (sidewalk left)
 	 * 9:  place road (sidewalk right)
 	 * 10: place road/path with no sidewalk
+	 * 11:  place light post 90 degree trun
+	 * 12:  place light post 180 degree trun
+	 * 13:  place light post 270 degree trun
+	 * 14:  place wall_c 90 degree trun
+	 * 15:  place wall_c 180 degree trun
+	 * 16:  place wall_c 270 degree trun
 	*/
 
 	int set = 0;
 	bool exp = true;
 	bool walls = false;
-	bool corn = false;
+	bool corn_bot_right = false;
 	bool road = false;
 	bool open_s = false;
 	for (int i = 0; i < block_height; i++) {
 		for (int h = 0; h < block_width; h++) {
 			exp = true;
 			walls = false;
-			corn = false;
+			corn_bot_right = false;
 			road = false;
 			open_s = false;
 			switch (layout[i][h]) {
@@ -312,7 +318,6 @@ void city_gen::create_expanded_layout() {
 				set = 9;
 				road = true;
 				break;
-
 			case wall:
 			case wall_d:
 				walls = true;
@@ -320,10 +325,22 @@ void city_gen::create_expanded_layout() {
 				break;
 			case wall_c:
 				walls = true;
-				if ((layout[i + 1][h] == small_road || layout[i + 1][h] == road_top) && (layout[i][h + 1] == small_road || layout[i][h + 1] == road_top)) {
-					corn = true;
+				/*if ((layout[i + 1][h] == small_road || layout[i + 1][h] == road_top) && (layout[i][h + 1] == small_road || layout[i][h + 1] == road_top)) {
+					corn_bot_right = true;
 				}
 				set = 4;
+				*/
+				if (is_road(i - 1, h) && is_road(i, h - 1)) {
+					set = 15;
+				}else if (is_road(i - 1, h) && is_road(i, h + 1)) {
+					set = 14;
+				}else if (is_road(i + 1, h) && is_road(i, h - 1)) {
+					set = 16;
+				}
+				else {
+					set = 4;
+					corn_bot_right = true;
+				}
 				break;
 			case open:
 			default:
@@ -332,16 +349,16 @@ void city_gen::create_expanded_layout() {
 			}
 			if (walls) {
 
-				if (corn) {//catch if it was not the propoer corner
-					corn = false;
+				if (corn_bot_right) {//catch if it was not the propoer corner
+					corn_bot_right = false;
 					layout_e[(i * key) + key - 1][(h * key) + key - 1] = set;
 
 				}
 				else {
-					if (layout[i][h + 1] == small_road || layout[i][h + 1] == road_top) {
+					if (is_road(i,h + 1)) {
 						layout_e[i * key][(h * key) + key - 1] = set;
 					}
-					else if (layout[i + 1][h] == small_road || layout[i + 1][h] == road_top) {
+					else if (is_road(i+1, h)) {
 						layout_e[(i * key) + key - 1][h * key] = set;
 					}
 					else {
@@ -374,7 +391,27 @@ void city_gen::create_road_tile(int start_x, int start_y, int set) {
 	int h = start_y;
 
 	int road_type = set;
+	bool placed_light = false;
+	bool place_light = false;
 
+	int light_type = 5;
+
+	switch (road_type) {
+	case 6://top (90 deg)
+		light_type = 13;
+		break;
+	case 7://bottom
+		light_type = 11;
+		break;
+	case 8://left (no turn)
+		light_type = 5;
+		break;
+	case 9://right
+		light_type = 12;
+		break;
+	}
+
+	gen_last_light = (i % 2 == 0||h%2 ==0 );
 	layout_e[i * key][h * key] = set;
 	if (key != 1) {
 		for (int x = 0; x < key; x++) {
@@ -383,17 +420,44 @@ void city_gen::create_road_tile(int start_x, int start_y, int set) {
 					layout_e[(i * key) + x][(h * key) + y] = set;
 					set = 1;
 				}
-				else if (layout[i][h] != small_road && x == 1 && y == 2) {//create the street lights
-					
-					if (gen_last_light) {
-						gen_last_light = false;
-						layout_e[(i * key) + x][(h * key) + y] = 5;
-					}
-					else {//no light just a normal spot
-						gen_last_light = true;
-						layout_e[(i * key) + x][(h * key) + y] = set;
+				else if (!placed_light && layout[i][h] != small_road) {//create the street lights
+
+					switch (road_type) {
+					case 6://top 
+						if (x == 2 && y == 1) {
+							place_light = true;
+						}
+						break;
+					case 7://bottom
+						if (x == 5 && y == 1) {
+							place_light = true;
+						}
+						break;
+					case 8://left 
+						if (x == 1 && y == 2) {
+							place_light = true;
+						}
+						break;
+					case 9://right
+						if (x == 1 && y == 5) {
+							place_light = true;
+						}
+						break;
 					}
 
+					//x == 1 && y == 2
+					if (place_light) {
+						if (gen_last_light) {
+							gen_last_light = false;
+							layout_e[(i * key) + x][(h * key) + y] = light_type;
+						}
+						else {//no light just a normal spot
+							gen_last_light = true;
+							layout_e[(i * key) + x][(h * key) + y] = set;
+						}
+						placed_light = true;
+						place_light = false;
+					}
 				}
 				else {
 					layout_e[(i * key) + x][(h * key) + y] = set;

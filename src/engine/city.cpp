@@ -98,12 +98,25 @@ void city::init(object_manger* OBJM) {
 				}
 				generated_mats_wall.push_back(temp);
 			}
-			else if (layout_expanded[i][h] == 4) {//for a corner
+			else if (layout_expanded[i][h] == 4 || (layout_expanded[i][h] >= 14 && layout_expanded[i][h] <= 16)) {//for a corner
 				//std::cout << "wall_c start found" << std::endl;
 				glm::mat4 temp = glm::mat4(1.0f);
 
 				temp = glm::translate(temp, glm::vec3(h * 2, 2, i * 2));
-				if (layout_expanded[i - 1][h] != 0 && layout_expanded[i][h - 1] != 0) {
+
+				switch (layout_expanded[i][h]){
+				case 14:
+					temp = glm::rotate(temp, glm::radians(90.0f), glm::vec3(0.0, 1.0, 0.0));
+					break;
+				case 15:
+					temp = glm::rotate(temp, glm::radians(180.0f), glm::vec3(0.0, 1.0, 0.0));
+					break;
+				case 16:
+					temp = glm::rotate(temp, glm::radians(270.0f), glm::vec3(0.0, 1.0, 0.0));
+					break;
+				}
+
+				/*if (layout_expanded[i - 1][h] != 0 && layout_expanded[i][h - 1] != 0) {
 					temp = glm::rotate(temp, glm::radians(180.0f), glm::vec3(0.0, 1.0, 0.0));//bottom left
 				}
 				else if (layout_expanded[i + 1][h] != 0 && layout_expanded[i][h - 1] != 0) {
@@ -114,14 +127,26 @@ void city::init(object_manger* OBJM) {
 				}
 				else {//no need to rotate
 					//temp = glm::rotate(temp, glm::radians(180.0f), glm::vec3(0.0, 1.0, 0.0));//bottom right
-
-				}
+				}*/
 
 				generated_mats_wall_c.push_back(temp);
 			}
-			else if (layout_expanded[i][h] == 5) {
+			else if (layout_expanded[i][h] == 5 || (layout_expanded[i][h] >= 11 && layout_expanded[i][h] <= 13)) {//lights posts
 				glm::mat4 temp = glm::mat4(1.0f);
 				temp = glm::translate(temp, glm::vec3(h * 2, 4, i * 2));
+
+				switch (layout_expanded[i][h]) {
+				case 11:
+					temp = glm::rotate(temp, glm::radians(90.0f), glm::vec3(0.0, 1.0, 0.0));
+					break;
+				case 12:
+					temp = glm::rotate(temp, glm::radians(180.0f), glm::vec3(0.0, 1.0, 0.0));
+					break;
+				case 13:
+					temp = glm::rotate(temp, glm::radians(270.0f), glm::vec3(0.0, 1.0, 0.0));
+					break;
+				}
+
 				generated_mats_lightposts.push_back(temp);
 
 			}
