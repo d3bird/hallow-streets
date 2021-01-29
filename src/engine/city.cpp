@@ -68,6 +68,8 @@ void city::init(object_manger* OBJM) {
 	std::vector<glm::mat4> generated_mats_wall;
 	std::vector<glm::mat4> generated_mats_wall_c;
 	std::vector<glm::mat4> generated_mats_sidewalk;
+	std::vector<glm::mat4> generated_mats_lightposts;
+	std::vector<glm::mat4> generated_mats_sidestreets;
 
 	for (int i = 0; i < x_width; i++) {
 		for (int h = 0; h < z_width; h++) {
@@ -117,6 +119,12 @@ void city::init(object_manger* OBJM) {
 
 				generated_mats_wall_c.push_back(temp);
 			}
+			else if (layout_expanded[i][h] == 5) {
+				glm::mat4 temp = glm::mat4(1.0f);
+				temp = glm::translate(temp, glm::vec3(h * 2, 4, i * 2));
+				generated_mats_lightposts.push_back(temp);
+
+			}
 			else if (layout_expanded[i][h] >= 6 && layout_expanded[i][h] <= 10) {//placing sidewalks
 
 				glm::mat4 trans = glm::mat4(1.0f);
@@ -125,6 +133,7 @@ void city::init(object_manger* OBJM) {
 				std::cout << layout_expanded[i][h]<< " ";;
 				
 				switch (layout_expanded[i][h]){
+				case 10:
 				case 6://sidewalk top
 					trans = glm::translate(trans, glm::vec3((h * 2) + 14, 2, i * 2));
 					trans = glm::rotate(trans, glm::radians(180.0f), glm::vec3(0.0, 1.0, 0.0));
@@ -144,8 +153,12 @@ void city::init(object_manger* OBJM) {
 				default:
 					break;
 				}
-				
-				generated_mats_sidewalk.push_back(trans);
+				if (layout_expanded[i][h] == 10) {
+					generated_mats_sidestreets.push_back(trans);
+				}
+				else {
+					generated_mats_sidewalk.push_back(trans);
+				}
 			}
 		}
 	}
@@ -261,23 +274,22 @@ void city::init(object_manger* OBJM) {
 		OBJM->spawn_item(SIDEWALK_T, -1, -1, generated_mats_sidewalk[i]);
 	}
 
-	std::cout << "spawning lightposts" << std::endl;
+	std::cout << "spawning sidestreets" << std::endl;
 
 
-	unsigned int light_post_amount;
-	unsigned int light_post_buffer;
-	glm::mat4* light_post_mats;
+	for (int i = 0; i < generated_mats_sidestreets.size(); i++) {
+		OBJM->spawn_item(SIDESTREET_T, -1, -1, generated_mats_sidestreets[i]);
+	}
+	
 
-	light_post_amount = 5;
-	light_post_mats = new glm::mat4[light_post_amount];
+	std::cout << "spawning lightposts: "<< generated_mats_lightposts.size() << std::endl;
 
-	for (int i = 0; i < light_post_amount; i++) {
-		glm::mat4 trans = glm::mat4(1.0f);
-		trans = glm::translate(trans, glm::vec3((i * 2) * 3, 4, 0));
-		trans = glm::rotate(trans, glm::radians(-90.0f), glm::vec3(0.0, 1.0, 0.0));//bottom left
-		light_post_mats[i] = trans;
-		OBJM->spawn_item(LIGHT_POST_T, -1, -1, light_post_mats[i]);
-
+	for (int i = 0; i < generated_mats_lightposts.size(); i++) {
+		//glm::mat4 trans = glm::mat4(1.0f);
+		//trans = glm::translate(trans, glm::vec3((i * 2) * 3, 4, 0));
+		//trans = glm::rotate(trans, glm::radians(-90.0f), glm::vec3(0.0, 1.0, 0.0));//bottom left
+		//light_post_mats[i] = trans;
+		OBJM->spawn_item(LIGHT_POST_T, -1, -1, generated_mats_lightposts[i]);
 	}
 
 	

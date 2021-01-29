@@ -11,7 +11,7 @@ city_gen::city_gen(){
 
 	premade = false;
 	key = 8;//do note that if this number is changed, the modles will also have to be changed  
-
+	gen_last_light = true;
 	max_cubes = block_width * block_height * key * key;
 }
 
@@ -164,8 +164,6 @@ void city_gen::create_city_block(int x1, int y1, int x2, int y2) {
 
 }
 
-
-
 void city_gen::create_road(int x, int z, int direct, int mid, int dir_change, bool debug) {
 	bool creating = true;
 	bool hit_mid = false;
@@ -295,8 +293,11 @@ void city_gen::create_expanded_layout() {
 			open_s = false;
 			switch (layout[i][h]) {
 			case road_top:
-			case small_road://should be 10 but it is not modeled yet
 				set = 6;
+				road = true;
+				break;
+			case small_road://should be 10 but it is not modeled yet
+				set = 10;
 				road = true;
 				break;
 			case road_bot:
@@ -372,6 +373,8 @@ void city_gen::create_road_tile(int start_x, int start_y, int set) {
 	int i = start_x;
 	int h = start_y;
 
+	int road_type = set;
+
 	layout_e[i * key][h * key] = set;
 	if (key != 1) {
 		for (int x = 0; x < key; x++) {
@@ -379,6 +382,18 @@ void city_gen::create_road_tile(int start_x, int start_y, int set) {
 				if (x == 0 && y == 0) {
 					layout_e[(i * key) + x][(h * key) + y] = set;
 					set = 1;
+				}
+				else if (layout[i][h] != small_road && x == 1 && y == 2) {//create the street lights
+					
+					if (gen_last_light) {
+						gen_last_light = false;
+						layout_e[(i * key) + x][(h * key) + y] = 5;
+					}
+					else {//no light just a normal spot
+						gen_last_light = true;
+						layout_e[(i * key) + x][(h * key) + y] = set;
+					}
+
 				}
 				else {
 					layout_e[(i * key) + x][(h * key) + y] = set;

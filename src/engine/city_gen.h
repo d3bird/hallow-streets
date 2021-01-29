@@ -23,8 +23,8 @@
 
 */
 
-enum city_square {  small_road =1, open=2, wall=3, wall_d=4, wall_c=5, 
-	road_top= 0 ,road_bot =6, road_left = 7, road_right = 8, road_turn = 9, road_open = 10, road_curve = 11, road_inside_curve = 12
+enum city_square {  cube =1, open=2, wall=3, wall_d=4, wall_c=5, 
+	road_top= 0 ,road_bot =6, road_left = 7, road_right = 8, road_turn = 9, road_open = 10, road_curve = 11, road_inside_curve = 12, small_road =13
 };  //large roads
 
 
@@ -94,6 +94,7 @@ private:
 	int block_height;//y
 
 	int max_cubes;
+	bool gen_last_light;//used for alternating light post generation
 
 	timing* Time;
 	float* deltatime;

@@ -19,7 +19,7 @@
 * this class maganges the information about the workshops, items, and misc furniture 
 */
 
-enum item_type {CUBE_T, SIDEWALK_T, LIGHT_POST_T, WALL_T, WALL_C_T, BED, TABLE};
+enum item_type {CUBE_T, SIDEWALK_T, LIGHT_POST_T, WALL_T, WALL_C_T, SIDESTREET_T, TABLE};
 //the information on each unique object
 struct item_info {
 	unsigned int debug_id;
@@ -136,7 +136,7 @@ private:
 	void create_light_post_object();
 	void create_wall_object();
 	void create_wall_c_fire();
-	void create_bed_object();
+	void create_sidestreet_object();
 	void create_table_object();
 
 	//timing

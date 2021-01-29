@@ -81,7 +81,7 @@ void object_manger::init() {
 	create_wall_object();
 	create_wall_c_fire();
 	//create_table_object();
-	//create_bed_object();
+	create_sidestreet_object();
 
 	std::cout << "finished creating the object manager" << std::endl;
 }
@@ -249,7 +249,7 @@ void object_manger::create_light_post_object() {
 	std::string* item_name_t = new std::string("light post object");
 	//creating the log item
 	buffer = 0;
-	buffer_size = 100;
+	buffer_size = 200;
 	amount = 0;
 	modelMatrices = new glm::mat4[buffer_size];
 	custom_shader = NULL;
@@ -428,7 +428,7 @@ void object_manger::create_wall_c_fire() {
 
 }
 
-void object_manger::create_bed_object() {
+void object_manger::create_sidestreet_object() {
 
 	unsigned int buffer;
 	unsigned int buffer_size;
@@ -436,51 +436,14 @@ void object_manger::create_bed_object() {
 	glm::mat4* modelMatrices;
 	Shader* custom_shader;
 	Model* model;
-	std::string* item_name_t = new std::string("bed object");
+	std::string* item_name_t = new std::string("sidestreet object");
 
 	buffer = 0;
-	buffer_size = 10;
-	amount = 1;
+	buffer_size = 100;
+	amount = 0;
 	modelMatrices = new glm::mat4[buffer_size];
 	custom_shader = NULL;
-	model = new Model("resources/objects/bed/bed.obj");
-
-	int int_x_loc = 15;
-	int int_y_loc = 2;
-	int int_z_loc = 11;
-
-	float x = int_x_loc * 2;
-	float y = int_y_loc;
-	float z = int_z_loc * 2;
-
-	float x_scale = 1;
-	float y_scale = 1;
-	float z_scale = 1;
-
-	glm::mat4 trans = glm::mat4(1.0f);
-	trans = glm::translate(trans, glm::vec3(x, y, z));
-	modelMatrices[0] = trans;
-
-	item_info* temp_data = new item_info;
-	temp_data->type = BED;
-	temp_data->x = x;
-	temp_data->y = y;
-	temp_data->z = z;
-	temp_data->x_m = int_x_loc;
-	temp_data->y_m = int_y_loc;
-	temp_data->z_m = int_z_loc;
-	temp_data->x_scale = x_scale;
-	temp_data->y_scale = y_scale;
-	temp_data->z_scale = z_scale;
-	temp_data->item_id = 0;
-	temp_data->buffer_loc = 0;
-	temp_data->item_name = item_name_t;
-	temp_data->debug_id = object_id;
-	//temp_data->zone_location = NULL;
-	temp_data->stackable = false;
-	temp_data->stack_size = 1;
-	temp_data->max_stack_size = 1;
-	object_id++;
+	model = new Model("resources/objects/sidestreet/sidestreet.obj");
 
 	glGenBuffers(1, &buffer);
 	glBindBuffer(GL_ARRAY_BUFFER, buffer);
@@ -516,7 +479,6 @@ void object_manger::create_bed_object() {
 	temp->modelMatrices = modelMatrices;
 	temp->custom_shader = custom_shader;
 	temp->item_name = item_name_t;
-	temp->item_data.push_back(temp_data);//add the data for the object
 
 
 	items.push_back(temp);
@@ -693,6 +655,7 @@ item_info* object_manger::spawn_item(item_type type, int x, int z, glm::mat4 giv
 		break;
 	case SIDEWALK_T:
 		if (items[1]->amount >= items[1]->buffer_size) {
+			std::cout << "there are too many sidewalks" << std::endl;
 			return NULL;
 		}
 		item_id = 1;
@@ -703,7 +666,7 @@ item_info* object_manger::spawn_item(item_type type, int x, int z, glm::mat4 giv
 		break;
 	case LIGHT_POST_T:
 		if (items[2]->amount >= items[2]->buffer_size) {
-			//std::cout << "there are too many fruits" << std::endl;
+			std::cout << "there are too many lightposts" << std::endl;
 			return NULL;
 		}
 		item_id = 2;
@@ -739,10 +702,10 @@ item_info* object_manger::spawn_item(item_type type, int x, int z, glm::mat4 giv
 		stackable = false;
 		y_f = 2;
 		break;
-/*
-	case TABLE:
+
+	case SIDESTREET_T:
 		if (items[5]->amount >= items[5]->buffer_size) {
-			std::cout << "there are too many beds" << std::endl;
+			std::cout << "there are too many sidestreets" << std::endl;
 			return NULL;
 		}
 		item_id = 5;
@@ -751,7 +714,7 @@ item_info* object_manger::spawn_item(item_type type, int x, int z, glm::mat4 giv
 		max_stack_size = 1;
 		stackable = false;
 		y_f = 2;
-		break;*/
+		break;
 	}
 
 
