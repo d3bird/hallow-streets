@@ -138,6 +138,12 @@ void world::draw_objects() {
 
 void world::update() {
 	Sky->update();
+
+#ifdef DEMO1
+    if (start_demo1) {
+        OBJM->update_demo1();
+    }
+#endif
 }
 
 void world::change_projection(glm::mat4 i) {
@@ -176,16 +182,6 @@ void world::init() {
     OBJM->set_time(Time);
     OBJM->set_max_cubes(City->get_max_cubes());
     OBJM->init();
-
-    OBJM->spawn_item(CUBE_T, 7, 0);
-    OBJM->spawn_item(CUBE_T, 8, 0);
-    OBJM->spawn_item(CUBE_T, 9, 0);
-
-    OBJM->spawn_item(CUBE_T, 10, 0);
-    OBJM->spawn_item(CUBE_T, 10, 1);
-    OBJM->spawn_item(CUBE_T, 10, 2);
-    OBJM->spawn_item(CUBE_T, 10, 3);
-
 	
 	City->set_time(Time);
 	City->set_projection(projection);
@@ -209,6 +205,13 @@ void world::init() {
 
 	std::cout << "finished initing objects" << std::endl;
 	std::cout << std::endl;
+
+#ifdef DEMO1
+    std::cout << "running demo 1" << std::endl;
+    start_demo1 = false;
+    render_text = true;
+    std::cout << std::endl;
+#endif // DEMO1
 }
 
 void world::lighting_init() {

@@ -92,7 +92,7 @@ int main() {
     glm::mat4 projection = glm::perspective(glm::radians(45.0f), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 1000.0f);
     glm::mat4 view = camera.GetViewMatrix();
 
-    Time = new timing(true);
+    Time = new timing(false);
 
     deltaTime = Time->get_time_change_static();
 
@@ -153,9 +153,22 @@ int main() {
     return 0;
 }
 
+//data for the demos
+#ifdef DEMO1
+bool running_d1 = false;
+#endif // DEMO1
 
 void processInput(GLFWwindow *window)
 {
+
+#ifdef DEMO1
+    if (!running_d1 && glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_PRESS) {
+        std::cout << "starting demo 1" << std::endl;
+        running_d1 = true;
+        World->start_demo_1();
+    }
+#endif // DEMO1
+
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
@@ -183,6 +196,7 @@ void processInput(GLFWwindow *window)
         Time->set_time_multipler(4);
     if (glfwGetKey(window, GLFW_KEY_5) == GLFW_PRESS)
         Time->toggle_frame_rates();
+
 }
 
 // glfw: whenever the window size changed (by OS or user resize) this callback function executes

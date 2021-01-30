@@ -21,6 +21,9 @@
 #include "text_rendering.h"
 #include "object_manger.h"
 
+//uncooment for what demo you want the engine to build into
+#define DEMO1
+
 class world {
 public:
 	world();
@@ -48,6 +51,12 @@ public:
 	void set_cam_pos(glm::vec3 i) { cam_pos = i; }
 
 	void change_projection(glm::mat4 i);
+
+	//demo functions
+
+#ifdef DEMO1
+	void start_demo_1() { start_demo1 = true; }
+#endif // DEMO1
 
 private:
 
@@ -101,5 +110,9 @@ private:
 	void renderCube();
 	void renderQuad();
 
+	//demo data
+#ifdef DEMO1
+	bool start_demo1;
+#endif // DEMO1
 };
 

@@ -10,6 +10,9 @@
 #include <vector>
 #include <queue>
 #include <string>
+#include <cstdlib>
+#include <ctime>
+#include <random>
 
 #include "model.h"
 #include "shader.h"
@@ -31,9 +34,16 @@ struct item_info {
 	float x_scale;
 	float y_scale;
 	float z_scale;
+
+	float x_rot;
+	float y_rot;
+	float z_rot;
+
+	float angle;
+
 	std::string* item_name;
 	item_type type;
-	//zone_loc* zone_location;//needed for when an object leaves a zone
+
 	int stack_size;
 	int max_stack_size;
 	bool stackable;
@@ -96,12 +106,12 @@ public:
 	~object_manger();
 
 	void draw();
-	void update();
+	void update_demo1();
 	void init();
 
 	void update_item_matrix(update_pak* data);
 
-	item_info* spawn_item(item_type type,int x, int z, glm::mat4 given_mat = glm::mat4(-1.0f));
+	item_info* spawn_item(item_type type,int x, int y, int z, glm::mat4 given_mat = glm::mat4(-1.0f));
 
 	void merge_item_stacks(item_info* keep, item_info* rm);
 	void split_merge_item_stacks(item_info* keep, item_info* rm);
@@ -167,5 +177,23 @@ private:
 	bool draw_sidewalk;
 	bool draw_light_post;
 	bool draw_sideroads;
+
+	//demo1 vars
+	float angle = 90.0f;
+	float angle_incr;
+	float move_incr;
+	float shirnk_incr;
+	glm::vec3 scale;
+	
+	float timmer;
+
+	bool float_cubes;
+	bool float_wall;
+	bool float_wall_c;
+	bool float_sidewalk;
+	bool float_light_post;
+	bool float_sideroads;
+
+	std::vector<int> floaters;
 };
 

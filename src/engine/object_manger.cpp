@@ -20,6 +20,21 @@ object_manger::object_manger() {
 	draw_sidewalk = true;
 	draw_light_post = true;
 	draw_sideroads = true;
+
+	//demo 1 vars
+	angle = 0;
+	scale = glm::vec3(1, 1, 1);
+	shirnk_incr = .0000011;
+	move_incr = 3;
+	angle_incr = 0.01;
+	timmer = 0;
+
+	 float_cubes = false;
+	 float_wall = true;
+	 float_wall_c = true;
+	 float_sidewalk = true;
+	 float_light_post = true;
+	 float_sideroads = true;
 }
 
 object_manger::~object_manger() {
@@ -53,8 +68,125 @@ void object_manger::draw() {
 
 }
 
-void object_manger::update() {
 
+
+void object_manger::update_demo1() {
+	if (draw_cubes) {
+		draw_cubes = false;
+		items[0]->draw = false;
+	}
+	float speed = ((*deltatime) * move_incr);
+	float angle_speed = ((*deltatime) * move_incr);
+	float scale_amount = ((*deltatime) * shirnk_incr);
+	scale.x -= scale_amount;
+	scale.y -= scale_amount;
+	scale.z -= scale_amount;
+	angle += angle_speed;
+	//if (angle >= 360) {
+	//	angle = 0;
+	//}
+
+	glm::vec3 moveto;
+	glm::vec3 rotate;
+
+	timmer += (*deltatime);
+
+	//std::cout << "time " << timmer << std::endl;
+
+	if (float_light_post && (timmer < 4)) {
+		floaters.push_back(2);
+		float_light_post = false;
+		std::cout << "floating light posts" << std::endl;
+	}
+	if (float_wall && (timmer >= 4 && timmer < 8)) {
+		floaters.push_back(3);
+		float_wall = false;
+		std::cout << "floating wall" << std::endl;
+	}
+	if (float_wall_c && (timmer >= 8 && timmer < 12)) {
+		floaters.push_back(4);
+		float_wall_c = false;
+		std::cout << "floating wall_c" << std::endl;
+	}
+	if (float_sidewalk && (timmer >= 12 && timmer < 16)) {
+		floaters.push_back(1);
+		float_sidewalk = false;
+		std::cout << "floating sidewalk" << std::endl;
+	}
+	if (float_sideroads && (timmer >= 16 && timmer < 20)) {
+		floaters.push_back(5);
+		float_sideroads = false;
+		std::cout << "floating sideraods" << std::endl;
+	}
+
+
+	for (int qc = 0; qc < floaters.size(); qc++) {
+		int q = floaters[qc];
+		if (items[q]->draw) {
+			glm::mat4* matrix_temp = items[q]->modelMatrices;
+			for (int i = 0; i < items[q]->amount; i++) {
+				std::random_device rd;
+				std::mt19937 mt(rd());
+				std::uniform_real_distribution<double> distribution(0.0, 1);
+				double mod = (distribution(mt));
+
+				items[q]->item_data[i]->y += mod * speed * cos((*deltatime)*i);
+				bool rotate_ob = false;
+
+				switch (qc) {
+				case 0:
+					rotate_ob = !float_wall;
+					break;
+				case 1:
+					rotate_ob = !float_wall_c;
+					break;
+				case 2:
+					rotate_ob = !float_wall;
+					break;
+				case 3:
+					rotate_ob = !float_sideroads;
+					break;
+				case 4:
+					rotate_ob = !float_light_post;
+					break;
+				}
+
+				if (rotate_ob) {
+					mod = (distribution(mt));
+					if (mod < .3) {
+						items[q]->item_data[i]->x_rot += angle_speed;
+					}
+					else if (mod < .6) {
+						items[q]->item_data[i]->y_rot += angle_speed;
+					}
+					else {
+						items[q]->item_data[i]->z_rot += angle_speed;
+					}
+					items[q]->item_data[i]->angle += angle_speed;
+				}
+				
+				moveto = glm::vec3(1);
+				rotate = glm::vec3(1);
+
+				glm::mat4 temp = glm::mat4(1.0f);
+				moveto.x = items[q]->item_data[i]->x;
+				moveto.y = items[q]->item_data[i]->y;
+				moveto.z = items[q]->item_data[i]->z;
+
+				rotate.x = items[q]->item_data[i]->x_rot;
+				rotate.y = items[q]->item_data[i]->y_rot;
+				rotate.z = items[q]->item_data[i]->z_rot;
+
+				temp = glm::translate(temp, glm::vec3(moveto.x, moveto.y, moveto.z));
+				temp = glm::rotate(temp, glm::radians(items[q]->item_data[i]->angle), rotate);
+				//temp = glm::scale(temp, scale);
+
+				matrix_temp[i] = temp;
+
+			}
+			items[q]->updatemats = true;
+		}
+	}
 }
 
 void object_manger::init() {
@@ -64,7 +196,7 @@ void object_manger::init() {
 		deltatime = Time->get_time_change();
 	}
 	else {
-		std::cout << "there was a problem getting time in the sky" << std::endl;
+		std::cout << "there was a problem getting time in the object manager" << std::endl;
 		while (true);
 	}
 	
@@ -633,19 +765,19 @@ void object_manger::delete_item_from_buffer(item_info* it) {
 	
 }
 
-item_info* object_manger::spawn_item(item_type type, int x, int z, glm::mat4 given_mat) {
+item_info* object_manger::spawn_item(item_type type, int x,int y, int z, glm::mat4 given_mat) {
 	unsigned int buffer_loc;
 	unsigned int item_id;
 	bool stackable = false;
 	int max_stack_size;
 	//check to see if the buffer is large enough
 	float x_f = x * 2;
-	float y_f = 7;
+	float y_f = y * 2;
 	float z_f = z * 2;
 	switch (type) {
 	case CUBE_T:
 		if (items[0]->amount >= items[0]->buffer_size) {
-			std::cout << "there are too many of these objects" << std::endl;
+			std::cout << "there are too many debug_cubes" << std::endl;
 			return NULL;
 		}
 		item_id = 0;

@@ -63,23 +63,17 @@ void city::init(object_manger* OBJM) {
 	x_width = city_info->get_height() * key;
 	z_width = city_info->get_width() * key;
 
-	//generate the mats from the layout
-	std::vector<glm::mat4> generated_mats_debug_cubes;
-	std::vector<glm::mat4> generated_mats_wall;
-	std::vector<glm::mat4> generated_mats_wall_c;
-	std::vector<glm::mat4> generated_mats_sidewalk;
-	std::vector<glm::mat4> generated_mats_lightposts;
-	std::vector<glm::mat4> generated_mats_sidestreets;
-
+	std::cout << "spawning in objects" << std::endl;
 	for (int i = 0; i < x_width; i++) {
 		for (int h = 0; h < z_width; h++) {
-
-			//if (layout[i][h] == small_road || layout[i][h] == road_top) {
-			if (layout_expanded[i][h] == 1) {
+			item_info* tempdata;
+			float angle = 0;
+			if (layout_expanded[i][h] == 1) {//generate path finding cubes
 				glm::mat4 temp = glm::mat4(1.0f);
 
 				temp = glm::translate(temp, glm::vec3(h * 2, 0, i * 2));
-				generated_mats_debug_cubes.push_back(temp);
+				tempdata = OBJM->spawn_item(CUBE_T, h * 2, 0, i * 2, temp);
+				//generated_mats_debug_cubes.push_back(temp);
 			}
 			else if (layout_expanded[i][h] == 3) {//for a wall
 				//std::cout << "wall start found" << std::endl;
@@ -88,17 +82,28 @@ void city::init(object_manger* OBJM) {
 				temp = glm::translate(temp, glm::vec3(h * 2, 2, i * 2));
 				if (i - 1 >= 0 && layout_expanded[i - 1][h] != 0) {//if the topspot is a rode
 					temp = glm::rotate(temp, glm::radians(270.0f), glm::vec3(0.0, 1.0, 0.0));
+					angle = 270;
 				}
 				else if (i + 1 < x_width && layout_expanded[i + 1][h] != 0) {
 					temp = glm::rotate(temp, glm::radians(270.0f), glm::vec3(0.0, 1.0, 0.0));
+					angle = 270;
 				}
 				else {
 					temp = glm::rotate(temp, glm::radians(180.0f), glm::vec3(0.0, 1.0, 0.0));
-
+					angle = 180;
 				}
-				generated_mats_wall.push_back(temp);
+				tempdata = OBJM->spawn_item(WALL_T, -1, -1, -1, temp);
+				tempdata->x_rot = 0;
+				tempdata->y_rot = 1;
+				tempdata->z_rot = 0;
+				tempdata->angle = angle;
+				tempdata->x = h * 2;
+				tempdata->y = 2;
+				tempdata->z = i * 2;
+				//generated_mats_wall.push_back(temp);
 			}
 			else if (layout_expanded[i][h] == 4 || (layout_expanded[i][h] >= 14 && layout_expanded[i][h] <= 16)) {//for a corner
+				
 				//std::cout << "wall_c start found" << std::endl;
 				glm::mat4 temp = glm::mat4(1.0f);
 
@@ -107,29 +112,28 @@ void city::init(object_manger* OBJM) {
 				switch (layout_expanded[i][h]){
 				case 14:
 					temp = glm::rotate(temp, glm::radians(90.0f), glm::vec3(0.0, 1.0, 0.0));
+					angle = 90;
 					break;
 				case 15:
 					temp = glm::rotate(temp, glm::radians(180.0f), glm::vec3(0.0, 1.0, 0.0));
+					angle = 180;
+
 					break;
 				case 16:
 					temp = glm::rotate(temp, glm::radians(270.0f), glm::vec3(0.0, 1.0, 0.0));
+					angle = 270;
+
 					break;
 				}
-
-				/*if (layout_expanded[i - 1][h] != 0 && layout_expanded[i][h - 1] != 0) {
-					temp = glm::rotate(temp, glm::radians(180.0f), glm::vec3(0.0, 1.0, 0.0));//bottom left
-				}
-				else if (layout_expanded[i + 1][h] != 0 && layout_expanded[i][h - 1] != 0) {
-					temp = glm::rotate(temp, glm::radians(270.0f), glm::vec3(0.0, 1.0, 0.0));//top left
-				}
-				else if (layout_expanded[i - 1][h] != 0 && layout_expanded[i][h + 1] != 0) {
-					temp = glm::rotate(temp, glm::radians(90.0f), glm::vec3(0.0, 1.0, 0.0));//top right
-				}
-				else {//no need to rotate
-					//temp = glm::rotate(temp, glm::radians(180.0f), glm::vec3(0.0, 1.0, 0.0));//bottom right
-				}*/
-
-				generated_mats_wall_c.push_back(temp);
+				tempdata = OBJM->spawn_item(WALL_C_T, -1, -1, -1, temp);
+					tempdata->x_rot = 0;
+				tempdata->y_rot = 1;
+				tempdata->z_rot = 0;
+				tempdata->angle = angle;
+				tempdata->x = h * 2;
+				tempdata->y = 2;
+				tempdata->z = i * 2;
+				//generated_mats_wall_c.push_back(temp);
 			}
 			else if (layout_expanded[i][h] == 5 || (layout_expanded[i][h] >= 11 && layout_expanded[i][h] <= 13)) {//lights posts
 				glm::mat4 temp = glm::mat4(1.0f);
@@ -138,22 +142,36 @@ void city::init(object_manger* OBJM) {
 				switch (layout_expanded[i][h]) {
 				case 11:
 					temp = glm::rotate(temp, glm::radians(90.0f), glm::vec3(0.0, 1.0, 0.0));
+					angle = 90;
 					break;
 				case 12:
 					temp = glm::rotate(temp, glm::radians(180.0f), glm::vec3(0.0, 1.0, 0.0));
+					angle = 180;
 					break;
 				case 13:
 					temp = glm::rotate(temp, glm::radians(270.0f), glm::vec3(0.0, 1.0, 0.0));
+					angle = 270;
 					break;
 				}
 
-				generated_mats_lightposts.push_back(temp);
+				tempdata = OBJM->spawn_item(LIGHT_POST_T, -1, -1, -1, temp);
+					tempdata->x_rot = 0;
+				tempdata->y_rot = 1;
+				tempdata->z_rot = 0;
+				tempdata->angle = angle;
+				tempdata->x = h * 2;
+				tempdata->y = 4;
+				tempdata->z = i * 2;
+				//generated_mats_lightposts.push_back(temp);
 
 			}
 			else if (layout_expanded[i][h] >= 6 && layout_expanded[i][h] <= 10) {//placing sidewalks
 
 				glm::mat4 trans = glm::mat4(1.0f);
 				
+				int x = 0;
+				int y = 2;
+				int z =0;
 				
 				std::cout << layout_expanded[i][h]<< " ";;
 				
@@ -162,35 +180,56 @@ void city::init(object_manger* OBJM) {
 				case 6://sidewalk top
 					trans = glm::translate(trans, glm::vec3((h * 2) + 14, 2, i * 2));
 					trans = glm::rotate(trans, glm::radians(180.0f), glm::vec3(0.0, 1.0, 0.0));
+					angle = 180;
+					x = (h * 2) + 14;
+					z = (i * 2);
 					break;
 				case 7://sidewalk bottom
 					trans = glm::translate(trans, glm::vec3((h * 2), 2, (i * 2)+14 ));
 					//trans = glm::rotate(trans, glm::radians(90.0f), glm::vec3(0.0, 1.0, 0.0));
+					x = (h * 2);
+					z = (i * 2)+14;
 					break;
 				case 8://sidewalk left
 					trans = glm::translate(trans, glm::vec3((h * 2), 2, i * 2));
 					trans = glm::rotate(trans, glm::radians(270.0f), glm::vec3(0.0, 1.0, 0.0));
+					x = (h * 2);
+					z = (i * 2);
+					angle = 270;
 					break;
 				case 9://sidewalk right
 					trans = glm::translate(trans, glm::vec3((h * 2) + 14, 2, (i * 2)+14));
 					trans = glm::rotate(trans, glm::radians(90.0f), glm::vec3(0.0, 1.0, 0.0));
+					angle = 90;
+					x = (h * 2) + 14;
+					z = (i * 2) + 14;
 					break;
 				default:
 					break;
 				}
 				if (layout_expanded[i][h] == 10) {
-					generated_mats_sidestreets.push_back(trans);
+					tempdata = OBJM->spawn_item(SIDESTREET_T, -1, -1, -1, trans);
+
+					//generated_mats_sidestreets.push_back(trans);
 				}
 				else {
-					generated_mats_sidewalk.push_back(trans);
+					tempdata = OBJM->spawn_item(SIDEWALK_T, -1, -1, -1, trans);
+					//generated_mats_sidewalk.push_back(trans);
 				}
+				tempdata->x_rot = 0;
+				tempdata->y_rot = 1;
+				tempdata->z_rot = 0;
+				tempdata->angle = angle;
+				tempdata->x = x;
+				tempdata->y = y;
+				tempdata->z = z;
 			}
 		}
 	}
 
 	std::cout<< std::endl;
 
-	std::cout << "done "<< generated_mats_sidewalk.size() << std::endl;
+	std::cout << "done "<< std::endl;
 	std::cout << "creating pathfinding data" << std::endl;
 
 	cube_amount = x_width * z_width;
@@ -273,52 +312,6 @@ void city::init(object_manger* OBJM) {
 		std::cout << "using premade shader for the cubes" << std::endl;
 	}
 
-	std::cout << "spawning objects" << std::endl;
-	std::cout << "spawning wall" << std::endl;
-
-	
-	for (int i = 0; i < generated_mats_wall.size(); i++) {
-		OBJM->spawn_item(WALL_T, -1, -1, generated_mats_wall[i]);
-	}
-
-	std::cout << "spawning wall_c" << std::endl;
-	
-	for (int i = 0; i < generated_mats_wall_c.size(); i++) {
-		OBJM->spawn_item(WALL_C_T, -1, -1, generated_mats_wall_c[i]);
-	}
-	
-	std::cout << "spawning cubes" << std::endl;
-
-	for (int i = 0; i < generated_mats_debug_cubes.size(); i++) {
-		OBJM->spawn_item(CUBE_T, -1, -1, generated_mats_debug_cubes[i]);
-	}
-
-	std::cout << "spawning sidewalks" << std::endl;
-
-	for (int i = 0; i < generated_mats_sidewalk.size(); i++) {
-		OBJM->spawn_item(SIDEWALK_T, -1, -1, generated_mats_sidewalk[i]);
-	}
-
-	std::cout << "spawning sidestreets" << std::endl;
-
-
-	for (int i = 0; i < generated_mats_sidestreets.size(); i++) {
-		OBJM->spawn_item(SIDESTREET_T, -1, -1, generated_mats_sidestreets[i]);
-	}
-	
-
-	std::cout << "spawning lightposts: "<< generated_mats_lightposts.size() << std::endl;
-
-	for (int i = 0; i < generated_mats_lightposts.size(); i++) {
-		//glm::mat4 trans = glm::mat4(1.0f);
-		//trans = glm::translate(trans, glm::vec3((i * 2) * 3, 4, 0));
-		//trans = glm::rotate(trans, glm::radians(-90.0f), glm::vec3(0.0, 1.0, 0.0));//bottom left
-		//light_post_mats[i] = trans;
-		OBJM->spawn_item(LIGHT_POST_T, -1, -1, generated_mats_lightposts[i]);
-	}
-
-	
-	std::cout << "done" << std::endl;
 	std::cout << "done creating city" << std::endl;
 
 	check();
