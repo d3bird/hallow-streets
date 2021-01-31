@@ -29,7 +29,7 @@ struct item_info {
 	unsigned int item_id;
 	unsigned int buffer_loc;
 	unsigned int amount;
-	int x_m, y_m, z_m;// the location in the world
+	float x_m, y_m, z_m;// the location in the world
 	float x, y, z;//the location on the screen
 	float x_scale;
 	float y_scale;
@@ -137,6 +137,9 @@ public:
 	void set_time(timing* i) { Time = i; }
 	void delete_item_from_buffer(item_info* it);
 
+	bool is_phase_two() { return phase_two; }
+	glm::vec3 get_merge_point() { return merge_point; }
+
 private:
 
 	void increase_buffer_size();
@@ -193,7 +196,9 @@ private:
 	bool float_sidewalk;
 	bool float_light_post;
 	bool float_sideroads;
-
+	bool phase_two;
+	bool converge;
+	glm::vec3 merge_point;
 	std::vector<int> floaters;
 };
 

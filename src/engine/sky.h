@@ -36,6 +36,8 @@ public:
 
 	void pause_time_at_noon();
 	void unpause() { paused = false; }
+
+	void set_loc(glm::vec3 i) { x = i.x; y = i.y; z = i.z; }
 private:
 
 	bool toggled_day;

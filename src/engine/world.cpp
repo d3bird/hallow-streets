@@ -115,6 +115,13 @@ void world::draw_deferred() {
         }
     }
 
+#ifdef DEMO1
+    if (OBJM->is_phase_two()) {
+        Sky->set_cam(view);
+        Sky->draw();
+    }
+#endif
+
     //daw objects that need to be affected by blending
     if (render_text) {
         glEnable(GL_BLEND);
@@ -210,6 +217,7 @@ void world::init() {
     std::cout << "running demo 1" << std::endl;
     start_demo1 = false;
     render_text = true;
+    Sky->set_loc(OBJM->get_merge_point());
     std::cout << std::endl;
 #endif // DEMO1
 }

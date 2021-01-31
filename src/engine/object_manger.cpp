@@ -35,6 +35,9 @@ object_manger::object_manger() {
 	 float_sidewalk = true;
 	 float_light_post = true;
 	 float_sideroads = true;
+	 phase_two = false;
+	 converge = false;
+	 merge_point = glm::vec3(200,50,100);
 }
 
 object_manger::~object_manger() {
@@ -78,14 +81,15 @@ void object_manger::update_demo1() {
 	float speed = ((*deltatime) * move_incr);
 	float angle_speed = ((*deltatime) * move_incr);
 	float scale_amount = ((*deltatime) * shirnk_incr);
-	scale.x -= scale_amount;
-	scale.y -= scale_amount;
-	scale.z -= scale_amount;
-	angle += angle_speed;
-	//if (angle >= 360) {
-	//	angle = 0;
-	//}
-
+	//scale.x -= scale_amount;
+	//scale.y -= scale_amount;
+	//scale.z -= scale_amount;
+	if (!phase_two && !converge) {
+		angle += angle_speed;
+		if (angle >= 360) {
+			angle = 0;
+		}
+	}
 	glm::vec3 moveto;
 	glm::vec3 rotate;
 
@@ -118,61 +122,163 @@ void object_manger::update_demo1() {
 		float_sideroads = false;
 		std::cout << "floating sideraods" << std::endl;
 	}
-
+	if (!phase_two && timmer > 25) {
+		phase_two = true;
+		std::cout << "starting phase two" << std::endl;
+		timmer = 0;
+	}
 
 	for (int qc = 0; qc < floaters.size(); qc++) {
 		int q = floaters[qc];
 		if (items[q]->draw) {
 			glm::mat4* matrix_temp = items[q]->modelMatrices;
 			for (int i = 0; i < items[q]->amount; i++) {
-				std::random_device rd;
-				std::mt19937 mt(rd());
-				std::uniform_real_distribution<double> distribution(0.0, 1);
-				double mod = (distribution(mt));
+				if (phase_two) {
+					if (!converge) {
+						int ready = 0;
 
-				items[q]->item_data[i]->y += mod * speed * cos((*deltatime)*i);
-				bool rotate_ob = false;
+						if (!(items[q]->item_data[i]->x >= merge_point.x - 1 && items[q]->item_data[i]->x <= merge_point.x - 1)) {
 
-				switch (qc) {
-				case 0:
-					rotate_ob = !float_wall;
-					break;
-				case 1:
-					rotate_ob = !float_wall_c;
-					break;
-				case 2:
-					rotate_ob = !float_wall;
-					break;
-				case 3:
-					rotate_ob = !float_sideroads;
-					break;
-				case 4:
-					rotate_ob = !float_light_post;
-					break;
-				}
+							if (items[q]->item_data[i]->x < merge_point.x) {
+								items[q]->item_data[i]->x += speed;
+								scale.x = merge_point.x / items[q]->item_data[i]->x;
+							}
+							else if (items[q]->item_data[i]->x > merge_point.x) {
+								items[q]->item_data[i]->x -= speed;
+								scale.x = items[q]->item_data[i]->x / merge_point.x;
+							}
+						}
+						else {
+							ready++;
+						}
 
-				if (rotate_ob) {
-					mod = (distribution(mt));
-					if (mod < .3) {
-						items[q]->item_data[i]->x_rot += angle_speed;
+						if (!(items[q]->item_data[i]->y >= merge_point.y - 1 && items[q]->item_data[i]->y <= merge_point.y - 1)) {
+
+							if (items[q]->item_data[i]->y < merge_point.y) {
+								items[q]->item_data[i]->y += speed;
+								scale.y = merge_point.y / items[q]->item_data[i]->y;
+							}
+							else if (items[q]->item_data[i]->y > merge_point.y) {
+								items[q]->item_data[i]->y -= speed;
+								scale.y = items[q]->item_data[i]->y / merge_point.y;
+							}
+						}
+						else {
+							ready++;
+						}
+
+						if (!(items[q]->item_data[i]->z >= merge_point.z - 1 && items[q]->item_data[i]->z <= merge_point.z - 1)) {
+
+							if (items[q]->item_data[i]->z < merge_point.z) {
+								items[q]->item_data[i]->z += speed;
+								scale.x = merge_point.z / items[q]->item_data[i]->z;
+							}
+							else if (items[q]->item_data[i]->z > merge_point.z) {
+								items[q]->item_data[i]->z -= speed;
+								scale.z = items[q]->item_data[i]->z / merge_point.z;
+							}
+						}
+						else {
+							ready++;
+						}
+
+						if (ready == 3) {
+							converge = true;
+							std::cout << "converging" << std::endl;
+						}
+						else {
+//							std::cout << "ready = "<<ready << std::endl;
+
+						}
 					}
-					else if (mod < .6) {
-						items[q]->item_data[i]->y_rot += angle_speed;
+					//x = center_x + radius * cos(angle * (PI / 180));
+					//y = center_y + radius * sin(angle * (PI / 180));
+					if (converge) {
+						if (items[q]->item_data[i]->x > 0) {
+							items[q]->item_data[i]->x -= speed;
+						}
+						else {
+							items[q]->item_data[i]->x += speed;
+						}
+						if (items[q]->item_data[i]->y > 0) {
+							items[q]->item_data[i]->y -= speed;
+						}
+						else {
+							items[q]->item_data[i]->y += speed;
+						}
+						//items[q]->item_data[i]->z -= speed;
 					}
 					else {
-						items[q]->item_data[i]->z_rot += angle_speed;
+						moveto.x = merge_point.x + items[q]->item_data[i]->x * cos(angle * 3.14 / 180);
+						moveto.z = merge_point.z + items[q]->item_data[i]->z * sin(angle * 3.14 / 180);
 					}
-					items[q]->item_data[i]->angle += angle_speed;
+					moveto.y = items[q]->item_data[i]->y;
+
+					if (scale.x >= 1) {
+						scale.x = 1;
+					}
+					if (scale.y >= 1) {
+						scale.y = 1;
+					}
+					if (scale.z >= 1) {
+						scale.z = 1;
+					}
+					//items[q]->item_data[i]->x = cos(timmer);
+					//items[q]->item_data[i]->y = sin(timmer);
+
+					//x(t) = at cos(t), y(t) = at sin(t),
 				}
-				
-				moveto = glm::vec3(1);
-				rotate = glm::vec3(1);
+				else {
+					std::random_device rd;
+					std::mt19937 mt(rd());
+					std::uniform_real_distribution<double> distribution(0.0, 3.14);
+					double mod = (distribution(mt));
+					double rando = (distribution(mt));
+					items[q]->item_data[i]->y += mod * speed;// *cos(rando);
+					bool rotate_ob = false;
+
+					switch (qc) {
+					case 0:
+						rotate_ob = !float_wall;
+						break;
+					case 1:
+						rotate_ob = !float_wall_c;
+						break;
+					case 2:
+						rotate_ob = !float_wall;
+						break;
+					case 3:
+						rotate_ob = !float_sideroads;
+						break;
+					case 4:
+						rotate_ob = !float_light_post;
+						break;
+					}
+
+					if (rotate_ob) {
+						mod = (distribution(mt));
+						if (mod < .3) {
+							items[q]->item_data[i]->x_rot += angle_speed;
+						}
+						else if (mod < .6) {
+							items[q]->item_data[i]->y_rot += angle_speed;
+						}
+						else {
+							items[q]->item_data[i]->z_rot += angle_speed;
+						}
+						items[q]->item_data[i]->angle += angle_speed;
+					}
+				}
+
+				//moveto = glm::vec3(1);
+				//rotate = glm::vec3(1);
 
 				glm::mat4 temp = glm::mat4(1.0f);
-				moveto.x = items[q]->item_data[i]->x;
-				moveto.y = items[q]->item_data[i]->y;
-				moveto.z = items[q]->item_data[i]->z;
-
+				if (!phase_two) {
+					moveto.x = items[q]->item_data[i]->x;
+					moveto.y = items[q]->item_data[i]->y;
+					moveto.z = items[q]->item_data[i]->z;
+				}
 				rotate.x = items[q]->item_data[i]->x_rot;
 				rotate.y = items[q]->item_data[i]->y_rot;
 				rotate.z = items[q]->item_data[i]->z_rot;
