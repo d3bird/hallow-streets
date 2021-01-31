@@ -35,7 +35,7 @@ public:
         WorldUp = up;
         Yaw = yaw;
         Pitch = pitch;
-        free_cam = false;
+        free_cam = true;
         updateCameraVectors();
     }
 
