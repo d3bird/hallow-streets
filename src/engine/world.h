@@ -21,8 +21,6 @@
 #include "text_rendering.h"
 #include "object_manger.h"
 
-//uncooment for what demo you want the engine to build into
-//#define DEMO1
 
 class world {
 public:

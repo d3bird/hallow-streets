@@ -18,9 +18,8 @@
 #include "shader.h"
 #include "time.h"
 
-/*
-* this class maganges the information about the workshops, items, and misc furniture 
-*/
+//uncooment for what demo you want the engine to build into
+#define DEMO1
 
 enum item_type {CUBE_T, SIDEWALK_T, LIGHT_POST_T, WALL_T, WALL_C_T, SIDESTREET_T, SKYTRACK_S_T};
 //the information on each unique object
@@ -106,7 +105,6 @@ public:
 	~object_manger();
 
 	void draw();
-	void update_demo1();
 	void init();
 
 	void update_item_matrix(update_pak* data);
@@ -116,9 +114,6 @@ public:
 	void merge_item_stacks(item_info* keep, item_info* rm);
 	void split_merge_item_stacks(item_info* keep, item_info* rm);
 	item_info* split_item_stacks(item_info* keep, int amount);
-
-	item_info* get_open_table();
-	void return_table(item_info*i);
 
 	//getters and setters
 	void set_projection(glm::mat4 i) { projection = i; update_projection = true; }
@@ -137,8 +132,11 @@ public:
 	void set_time(timing* i) { Time = i; }
 	void delete_item_from_buffer(item_info* it);
 
+#ifdef DEMO1
+	void update_demo1();
 	bool is_phase_two() { return phase_two; }
 	glm::vec3 get_merge_point() { return merge_point; }
+#endif // DEMO1
 
 private:
 
@@ -181,8 +179,14 @@ private:
 	bool draw_light_post;
 	bool draw_sideroads;
 	bool draw_sky_rail_s;
+
 	//demo1 vars
+#ifdef DEMO1
+
+
 	float angle = 90.0f;
+	float angle2 = 0.0f;
+
 	float angle_incr;
 	float move_incr;
 	float shirnk_incr;
@@ -198,7 +202,10 @@ private:
 	bool float_sideroads;
 	bool phase_two;
 	bool converge;
+	bool setpoints;
+	bool orbit;
 	glm::vec3 merge_point;
 	std::vector<int> floaters;
+#endif // DEMO1
 };
 

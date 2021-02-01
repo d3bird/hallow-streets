@@ -21,7 +21,9 @@ object_manger::object_manger() {
 	draw_light_post = true;
 	draw_sideroads = true;
 	draw_sky_rail_s = true;
+
 	//demo 1 vars
+#ifdef DEMO1
 	angle = 0;
 	scale = glm::vec3(1, 1, 1);
 	shirnk_incr = .0000011;
@@ -37,7 +39,11 @@ object_manger::object_manger() {
 	 float_sideroads = true;
 	 phase_two = false;
 	 converge = false;
+	 setpoints = false;
+	 orbit = false;
 	 merge_point = glm::vec3(200,50,100);
+#endif // DEMO1
+
 }
 
 object_manger::~object_manger() {
@@ -75,7 +81,7 @@ void object_manger::draw() {
 }
 
 
-
+#ifdef DEMO1
 void object_manger::update_demo1() {
 	if (draw_cubes) {
 		draw_cubes = false;
@@ -87,7 +93,7 @@ void object_manger::update_demo1() {
 	//scale.x -= scale_amount;
 	//scale.y -= scale_amount;
 	//scale.z -= scale_amount;
-	if (!phase_two && !converge) {
+	if ((!phase_two && !converge)|| orbit) {
 		angle += angle_speed;
 		if (angle >= 360) {
 			angle = 0;
@@ -99,6 +105,38 @@ void object_manger::update_demo1() {
 	timmer += (*deltatime);
 
 	//std::cout << "time " << timmer << std::endl;
+	
+	if (!setpoints) {
+		srand(glfwGetTime()); // initialize random seed	
+		float radius = 150.0;
+		float offset = 25.0f;
+		int amount = 0;
+		int i = 0;
+
+		for (int q = 0; q < items.size(); q++) {
+			amount += items[q]->amount;
+		}
+
+		for (int q = 0; q < items.size(); q++) {
+			for (int w = 0; w < items[q]->amount; w++) {
+				float angle = (float)i / (float)amount * 360.0f;
+				float displacement = (rand() % (int)(2 * offset * 100)) / 100.0f - offset;
+				float x = sin(angle) * radius + displacement;
+				displacement = (rand() % (int)(2 * offset * 100)) / 100.0f - offset;
+				float y = displacement * 0.4f; // keep height of asteroid field smaller compared to width of x and z
+				displacement = (rand() % (int)(2 * offset * 100)) / 100.0f - offset;
+				float z = cos(angle) * radius + displacement;
+				i++;
+				
+
+				items[q]->item_data[w]->x_m = x;
+				items[q]->item_data[w]->y_m = y;
+				items[q]->item_data[w]->z_m = z;
+			}
+		}
+
+		setpoints = true;
+	}
 
 	if (float_light_post && (timmer < 4)) {
 		floaters.push_back(2);
@@ -128,7 +166,17 @@ void object_manger::update_demo1() {
 	if (!phase_two && timmer > 25) {
 		phase_two = true;
 		std::cout << "starting phase two" << std::endl;
+		move_incr *= 3;
 		timmer = 0;
+	}
+
+	if (!orbit && timmer > 25) {
+		std::cout << "starting the orbeting" << std::endl;
+		orbit = true;
+	}
+	else {
+		//std::cout << "time "<< timmer << std::endl;
+
 	}
 
 	for (int qc = 0; qc < floaters.size(); qc++) {
@@ -139,6 +187,9 @@ void object_manger::update_demo1() {
 				if (phase_two) {
 					if (!converge) {
 						int ready = 0;
+						merge_point.x = items[q]->item_data[i]->x_m;
+						merge_point.y = items[q]->item_data[i]->y_m;
+						merge_point.z = items[q]->item_data[i]->z_m;
 
 						if (!(items[q]->item_data[i]->x >= merge_point.x - 1 && items[q]->item_data[i]->x <= merge_point.x - 1)) {
 
@@ -151,48 +202,32 @@ void object_manger::update_demo1() {
 								scale.x = items[q]->item_data[i]->x / merge_point.x;
 							}
 						}
-						else {
-							ready++;
-						}
 
-						if (!(items[q]->item_data[i]->y >= merge_point.y - 1 && items[q]->item_data[i]->y <= merge_point.y - 1)) {
+							if (!(items[q]->item_data[i]->y >= merge_point.y - 1 && items[q]->item_data[i]->y <= merge_point.y - 1)) {
 
-							if (items[q]->item_data[i]->y < merge_point.y) {
-								items[q]->item_data[i]->y += speed;
-								scale.y = merge_point.y / items[q]->item_data[i]->y;
+								if (items[q]->item_data[i]->y < merge_point.y) {
+									items[q]->item_data[i]->y += speed;
+									scale.y = merge_point.y / items[q]->item_data[i]->y;
+								}
+								else if (items[q]->item_data[i]->y > merge_point.y) {
+									items[q]->item_data[i]->y -= speed;
+									scale.y = items[q]->item_data[i]->y / merge_point.y;
+								}
 							}
-							else if (items[q]->item_data[i]->y > merge_point.y) {
-								items[q]->item_data[i]->y -= speed;
-								scale.y = items[q]->item_data[i]->y / merge_point.y;
+
+							if (!(items[q]->item_data[i]->z >= merge_point.z - 1 && items[q]->item_data[i]->z <= merge_point.z - 1)) {
+
+								if (items[q]->item_data[i]->z < merge_point.z) {
+									items[q]->item_data[i]->z += speed;
+									scale.x = merge_point.z / items[q]->item_data[i]->z;
+								}
+								else if (items[q]->item_data[i]->z > merge_point.z) {
+									items[q]->item_data[i]->z -= speed;
+									scale.z = items[q]->item_data[i]->z / merge_point.z;
+								}
+
 							}
-						}
-						else {
-							ready++;
-						}
-
-						if (!(items[q]->item_data[i]->z >= merge_point.z - 1 && items[q]->item_data[i]->z <= merge_point.z - 1)) {
-
-							if (items[q]->item_data[i]->z < merge_point.z) {
-								items[q]->item_data[i]->z += speed;
-								scale.x = merge_point.z / items[q]->item_data[i]->z;
-							}
-							else if (items[q]->item_data[i]->z > merge_point.z) {
-								items[q]->item_data[i]->z -= speed;
-								scale.z = items[q]->item_data[i]->z / merge_point.z;
-							}
-						}
-						else {
-							ready++;
-						}
-
-						if (ready == 3) {
-							converge = true;
-							std::cout << "converging" << std::endl;
-						}
-						else {
-//							std::cout << "ready = "<<ready << std::endl;
-
-						}
+						
 					}
 					//x = center_x + radius * cos(angle * (PI / 180));
 					//y = center_y + radius * sin(angle * (PI / 180));
@@ -230,6 +265,10 @@ void object_manger::update_demo1() {
 					//items[q]->item_data[i]->y = sin(timmer);
 
 					//x(t) = at cos(t), y(t) = at sin(t),
+
+					moveto.x = items[q]->item_data[i]->x;
+					moveto.y = items[q]->item_data[i]->y;
+					moveto.z = items[q]->item_data[i]->z;
 				}
 				else {
 					std::random_device rd;
@@ -282,14 +321,31 @@ void object_manger::update_demo1() {
 					moveto.y = items[q]->item_data[i]->y;
 					moveto.z = items[q]->item_data[i]->z;
 				}
+
+				if (orbit) {
+					items[q]->item_data[i]->x_rot =1;
+				//	items[q]->item_data[i]->y_rot;
+				//	items[q]->item_data[i]->z_rot;
+					items[q]->item_data[i]->angle += angle_speed;
+				}
 				rotate.x = items[q]->item_data[i]->x_rot;
 				rotate.y = items[q]->item_data[i]->y_rot;
 				rotate.z = items[q]->item_data[i]->z_rot;
 
-				temp = glm::translate(temp, glm::vec3(moveto.x, moveto.y, moveto.z));
-				temp = glm::rotate(temp, glm::radians(items[q]->item_data[i]->angle), rotate);
-				//temp = glm::scale(temp, scale);
-
+				if (orbit) {
+					temp = glm::rotate(temp, glm::radians(angle2), glm::vec3(0,1,0));
+					temp = glm::translate(temp, glm::vec3(moveto.x, moveto.y, moveto.z));
+					temp = glm::rotate(temp, glm::radians(items[q]->item_data[i]->angle), rotate);
+					angle2 += (angle_speed /100);
+					if (angle2 >= 360) {
+						angle2 = 0;
+					}
+				}
+				else {
+					temp = glm::translate(temp, glm::vec3(moveto.x, moveto.y, moveto.z));
+					temp = glm::rotate(temp, glm::radians(items[q]->item_data[i]->angle), rotate);
+					//temp = glm::scale(temp, scale);
+				}
 				matrix_temp[i] = temp;
 
 			}
@@ -297,6 +353,7 @@ void object_manger::update_demo1() {
 		}
 	}
 }
+#endif // DEMO1
 
 void object_manger::init() {
 	std::cout << "creating the object manager" << std::endl;
