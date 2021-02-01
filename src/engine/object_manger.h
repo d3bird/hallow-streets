@@ -22,7 +22,7 @@
 * this class maganges the information about the workshops, items, and misc furniture 
 */
 
-enum item_type {CUBE_T, SIDEWALK_T, LIGHT_POST_T, WALL_T, WALL_C_T, SIDESTREET_T, TABLE};
+enum item_type {CUBE_T, SIDEWALK_T, LIGHT_POST_T, WALL_T, WALL_C_T, SIDESTREET_T, SKYTRACK_S_T};
 //the information on each unique object
 struct item_info {
 	unsigned int debug_id;
@@ -150,7 +150,7 @@ private:
 	void create_wall_object();
 	void create_wall_c_fire();
 	void create_sidestreet_object();
-	void create_table_object();
+	void create_sky_track_s_object();
 
 	//timing
 	timing* Time;
@@ -180,7 +180,7 @@ private:
 	bool draw_sidewalk;
 	bool draw_light_post;
 	bool draw_sideroads;
-
+	bool draw_sky_rail_s;
 	//demo1 vars
 	float angle = 90.0f;
 	float angle_incr;

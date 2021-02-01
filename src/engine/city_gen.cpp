@@ -16,7 +16,9 @@ city_gen::city_gen(){
 }
 
 city_gen::~city_gen(){
-
+	for (int i = 0; i < rails.size(); i++) {
+		delete rails[i];
+	}
 }
 
 
@@ -98,6 +100,14 @@ void city_gen::init() {
 	}
 	create_expanded_layout();
 
+	rail_section* rail_s;
+	for (int i = 0; i < 50;i++) {
+		rail_s = new rail_section;
+		rail_s->loc = glm::vec3((i * 2), 10, (0));
+		rail_s->rot = glm::vec3(0.0f, 1.0f, 0.0f);
+		rail_s->angle = 0;
+		rails.push_back(rail_s);
+	}
 	if (Time != NULL) {
 		deltatime = Time->get_time_change();
 	}
@@ -290,6 +300,7 @@ void city_gen::create_expanded_layout() {
 	bool corn_bot_right = false;
 	bool road = false;
 	bool open_s = false;
+	rail_section* rail_s;
 	for (int i = 0; i < block_height; i++) {
 		for (int h = 0; h < block_width; h++) {
 			exp = true;

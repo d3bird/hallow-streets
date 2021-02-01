@@ -11,10 +11,6 @@ city::city() {
 
 	cube_matrices = NULL;//contains all the cubes mats
 	cube_shader = NULL;
-
-	wall = NULL;
-	wall_d = NULL;
-	wall_c = NULL;
 	
 	//path finding data
 	terrian_map = NULL;
@@ -31,6 +27,15 @@ city::city() {
 }
 
 city::~city(){
+	if (city_info != NULL) {
+		delete city_info;
+	}
+	if (cube_matrices != NULL) {
+		delete cube_matrices;
+	}
+	if (cube_shader != NULL) {
+		delete cube_shader;
+	}
 
 }
 
@@ -225,6 +230,23 @@ void city::init(object_manger* OBJM) {
 				tempdata->z = z;
 			}
 		}
+	}
+
+	std::vector< rail_section*> rails = city_info->get_rails();
+	item_info* tempdata;
+	for (int i = 0; i < rails.size(); i++) {
+		glm::mat4 trans = glm::mat4(1.0f);
+		trans = glm::translate(trans, rails[i]->loc);
+		trans = glm::rotate(trans, glm::radians(rails[i]->angle), rails[i]->rot);
+		tempdata = OBJM->spawn_item(SKYTRACK_S_T, -1, -1, -1, trans);
+
+		tempdata->x_rot = rails[i]->rot.x;
+		tempdata->y_rot = rails[i]->rot.y;
+		tempdata->z_rot = rails[i]->rot.z;
+		tempdata->angle = rails[i]->angle;
+		tempdata->x = rails[i]->loc.x;
+		tempdata->y = rails[i]->loc.y;
+		tempdata->z = rails[i]->loc.z;
 	}
 
 	std::cout<< std::endl;

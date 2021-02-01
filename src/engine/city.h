@@ -46,15 +46,15 @@ struct map_tile {
 	int g_cost;//move cost to move to this square
 };
 
-struct object {
-	std::string name;
-	Model* model;
-	glm::mat4* trans;
-	unsigned int amount;//the amount in the buffer
-	unsigned int buffer;//the buffer
-	unsigned int buffer_size;//max buffer size
-	bool rebind_tans;//if the mats changed and the mats need to be updated
-	bool draw; // if false then the program will not draw
+struct rail_cart {
+
+};
+
+struct rail_track {
+
+	std::vector<glm::vec3> travel_points;
+
+	std::vector< rail_cart*> carts_ontrack;
 };
 
 
@@ -118,19 +118,14 @@ private:
 	glm::mat4 projection;
 	timing* Time;
 
-	std::vector<object*> objects;
-
 	city_gen* city_info;
 	city_square** layout;
 
+	//rail carts
+	item* rail_carts;
 
 	unsigned int cube_amount;//the amount of cubes that there are to display
 
-	Model* wall;
-	Model* wall_c;
-	Model* wall_d;
-	Model* light_post;
-	Model* sidewalk;
 
 	//city debug information
 	bool draw_wall;

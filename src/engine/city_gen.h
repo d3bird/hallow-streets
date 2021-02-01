@@ -28,6 +28,11 @@ enum city_square {  cube =1, open=2, wall=3, wall_d=4, wall_c=5,
 };  //large roads
 
 
+struct rail_section {
+	glm::vec3 loc;
+	glm::vec3 rot;
+	float angle;
+};
 
 class city_gen{
 public:
@@ -54,6 +59,8 @@ public:
 	int** get_expanded_layout() { return layout_e; }
 
 	int get_expandion_key() { return key; }
+
+	std::vector< rail_section*> get_rails() { return rails; }
 
 	//misc function
 	void print_layout();
@@ -98,6 +105,8 @@ private:
 
 	timing* Time;
 	float* deltatime;
+
+	std::vector< rail_section*> rails;
 
 };
 

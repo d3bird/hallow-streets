@@ -145,6 +145,7 @@ void world::draw_objects() {
 
 void world::update() {
 	Sky->update();
+    City->update();
 
 #ifdef DEMO1
     if (start_demo1) {

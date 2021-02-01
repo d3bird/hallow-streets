@@ -20,7 +20,7 @@ object_manger::object_manger() {
 	draw_sidewalk = true;
 	draw_light_post = true;
 	draw_sideroads = true;
-
+	draw_sky_rail_s = true;
 	//demo 1 vars
 	angle = 0;
 	scale = glm::vec3(1, 1, 1);
@@ -42,6 +42,9 @@ object_manger::object_manger() {
 
 object_manger::~object_manger() {
 	delete blocked_spots;
+	//TODO add the mem clearing 
+	//glDeleteVertexArrays(1, &VAO);
+	//glDeleteBuffers(1, &VBO);
 }
 
 void object_manger::draw() {
@@ -319,8 +322,8 @@ void object_manger::init() {
 	create_light_post_object();
 	create_wall_object();
 	create_wall_c_fire();
-	//create_table_object();
 	create_sidestreet_object();
+	create_sky_track_s_object();
 
 	std::cout << "finished creating the object manager" << std::endl;
 }
@@ -724,7 +727,7 @@ void object_manger::create_sidestreet_object() {
 
 }
 
-void object_manger::create_table_object() {
+void object_manger::create_sky_track_s_object() {
 
 	unsigned int buffer;
 	unsigned int buffer_size;
@@ -732,50 +735,15 @@ void object_manger::create_table_object() {
 	glm::mat4* modelMatrices;
 	Shader* custom_shader;
 	Model* model;
-	std::string* item_name_t = new std::string("table object");
+	std::string* item_name_t = new std::string("sky rail s object");
 
 	buffer = 0;
-	buffer_size = 10;
-	amount = 1;
+	buffer_size = 200;
+	amount = 0;
+
 	modelMatrices = new glm::mat4[buffer_size];
 	custom_shader = NULL;
-	model = new Model("resources/objects/table/table.obj");
-
-	int int_x_loc = 9;
-	int int_y_loc = 2;
-	int int_z_loc = 14;
-
-	float x = int_x_loc * 2;
-	float y = int_y_loc;
-	float z = int_z_loc * 2;
-
-	float x_scale = 1;
-	float y_scale = 1;
-	float z_scale = 1;
-	glm::mat4 trans = glm::mat4(1.0f);
-	trans = glm::translate(trans, glm::vec3(x, y, z));
-	modelMatrices[0] = trans;
-
-	item_info* temp_data = new item_info;
-	temp_data->type = TABLE;
-	temp_data->x = x;
-	temp_data->y = y;
-	temp_data->z = z;
-	temp_data->x_m = int_x_loc;
-	temp_data->y_m = int_y_loc;
-	temp_data->z_m = int_z_loc;
-	temp_data->x_scale = x_scale;
-	temp_data->y_scale = y_scale;
-	temp_data->z_scale = z_scale;
-	temp_data->item_id = 0;
-	temp_data->buffer_loc = 0;
-	temp_data->item_name = item_name_t;
-	temp_data->debug_id = object_id;
-	//temp_data->zone_location = NULL;
-	temp_data->stackable = false;
-	temp_data->stack_size = 1;
-	temp_data->max_stack_size = 1;
-	object_id++;
+	model = new Model("resources/objects/sky_tracks/sky_rails_s.obj");
 
 	glGenBuffers(1, &buffer);
 	glBindBuffer(GL_ARRAY_BUFFER, buffer);
@@ -811,9 +779,8 @@ void object_manger::create_table_object() {
 	temp->modelMatrices = modelMatrices;
 	temp->custom_shader = custom_shader;
 	temp->item_name = item_name_t;
-	temp->item_data.push_back(temp_data);//add the data for the object
+	temp->draw = draw_sky_rail_s;
 
-	//open_tables.push_back(temp_data);
 
 	items.push_back(temp);
 
@@ -950,6 +917,18 @@ item_info* object_manger::spawn_item(item_type type, int x,int y, int z, glm::ma
 		item_id = 5;
 		buffer_loc = items[5]->amount;
 		items[5]->amount++;
+		max_stack_size = 1;
+		stackable = false;
+		y_f = 2;
+		break;
+	case SKYTRACK_S_T:
+		if (items[6]->amount >= items[5]->buffer_size) {
+			std::cout << "there are too many skyrail_s" << std::endl;
+			return NULL;
+		}
+		item_id = 6;
+		buffer_loc = items[6]->amount;
+		items[6]->amount++;
 		max_stack_size = 1;
 		stackable = false;
 		y_f = 2;

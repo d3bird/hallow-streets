@@ -21,6 +21,9 @@ timing::~timing() {
 	if (deltaTime != NULL) {
 		delete deltaTime;
 	}
+	if (deltaTime_static != NULL) {
+		delete deltaTime_static;
+	}
 }
 
 void timing::update_time() {

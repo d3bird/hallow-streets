@@ -44,10 +44,10 @@ float current_mouse_y = lastY;
 
 bool firstMouse = true;
 
-world* World;
-timing* Time;
-skymap* sky;
-float* deltaTime;
+world* World = NULL;
+timing* Time = NULL;
+skymap* sky = NULL;
+float* deltaTime = NULL;
 
 int main() {
 
@@ -92,7 +92,7 @@ int main() {
     glm::mat4 projection = glm::perspective(glm::radians(45.0f), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 1000.0f);
     glm::mat4 view = camera.GetViewMatrix();
 
-    Time = new timing(false);
+    Time = new timing(true);
 
     deltaTime = Time->get_time_change_static();
 
@@ -148,6 +148,20 @@ int main() {
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
+
+
+    //clean up mem
+    delete Time;
+    if (Time != NULL) {
+        delete Time;
+    }
+    if (World != NULL) {
+        delete World;
+    }
+    if (sky != NULL) {
+        delete sky;
+    }
+
 
     glfwTerminate();
     return 0;
