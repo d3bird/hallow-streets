@@ -146,7 +146,6 @@ void world::draw_objects() {
 void world::update() {
 	Sky->update();
     City->update();
-
 #ifdef DEMO1
     if (start_demo1) {
         OBJM->update_demo1();
@@ -158,6 +157,7 @@ void world::change_projection(glm::mat4 i) {
     projection = i;
     City->set_projection(projection);
     Sky->set_projection(projection);
+    //lighting_in
 }
 
 void world::init() {

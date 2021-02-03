@@ -37,6 +37,7 @@ object_manger::object_manger() {
 	 float_sidewalk = true;
 	 float_light_post = true;
 	 float_sideroads = true;
+	 float_rail = true;
 	 phase_two = false;
 	 converge = false;
 	 setpoints = false;
@@ -141,6 +142,8 @@ void object_manger::update_demo1() {
 	if (float_light_post && (timmer < 4)) {
 		floaters.push_back(2);
 		float_light_post = false;
+		float_rail = false;
+		floaters.push_back(6);
 		std::cout << "floating light posts" << std::endl;
 	}
 	if (float_wall && (timmer >= 4 && timmer < 8)) {

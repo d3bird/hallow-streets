@@ -53,7 +53,7 @@ public:
 	//demo functions
 
 #ifdef DEMO1
-	void start_demo_1() { start_demo1 = true; }
+	void start_demo_1() { render_text = false; start_demo1 = true; }
 #endif // DEMO1
 
 private:

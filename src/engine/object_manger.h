@@ -200,6 +200,7 @@ private:
 	bool float_sidewalk;
 	bool float_light_post;
 	bool float_sideroads;
+	bool float_rail;
 	bool phase_two;
 	bool converge;
 	bool setpoints;
