@@ -10,6 +10,8 @@ world::world(){
 
 world::~world(){
 	delete City;
+    delete OBJM;
+    delete ADM;
 }
 
 //draw with a single light source
@@ -210,6 +212,9 @@ void world::init() {
 	Sky->init();
 
 	Sky->pause_time_at_noon();
+
+    ADM = new audio_manger();
+    ADM->init();
 
 	std::cout << "finished initing objects" << std::endl;
 	std::cout << std::endl;

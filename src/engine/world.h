@@ -20,7 +20,7 @@
 #include "sky.h"
 #include "text_rendering.h"
 #include "object_manger.h"
-
+#include "audio_manger.h"
 
 class world {
 public:
@@ -39,6 +39,9 @@ public:
 
 	void set_single_draw() { single = true; }
 
+	void play_sound_effect(int i) { ADM->play_sound_effect(i); }
+	void play_background_music(int i) { ADM->play_background_music(i); }
+
 	//getters
 
 	//setters
@@ -56,6 +59,8 @@ public:
 	void start_demo_1() { render_text = false; start_demo1 = true; }
 #endif // DEMO1
 
+
+
 private:
 
 	void lighting_init();
@@ -69,7 +74,7 @@ private:
 	sky* Sky;
 	text_engine* text_render;
 
-
+	audio_manger* ADM;
 	object_manger* OBJM;
 
 	bool single;

@@ -19,7 +19,7 @@
 #include "time.h"
 
 //uncooment for what demo you want the engine to build into
-#define DEMO1
+//#define DEMO1
 
 enum item_type {CUBE_T, SIDEWALK_T, LIGHT_POST_T, WALL_T, WALL_C_T, SIDESTREET_T, SKYTRACK_S_T};
 //the information on each unique object

@@ -21,8 +21,10 @@
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
-void processInput(GLFWwindow *window);
+void process_movement(GLFWwindow *window);
 void mouse_button_callback(GLFWwindow* window, int button, int action, int mods);
+
+void key_board_input(GLFWwindow* window, int key, int scancode, int action, int mods);
 
 // settings
 const unsigned int SCR_WIDTH = 800;
@@ -73,7 +75,7 @@ int main() {
     glfwSetCursorPosCallback(window, mouse_callback);
     glfwSetScrollCallback(window, scroll_callback);
     glfwSetMouseButtonCallback(window, mouse_button_callback);
-
+    glfwSetKeyCallback(window, key_board_input);
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
@@ -120,7 +122,7 @@ int main() {
     while (!glfwWindowShouldClose(window))
     {
         Time->update_time();
-        processInput(window);
+        process_movement(window);
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -172,17 +174,8 @@ int main() {
 bool running_d1 = false;
 #endif // DEMO1
 
-void processInput(GLFWwindow *window)
+void process_movement(GLFWwindow *window)
 {
-
-#ifdef DEMO1
-    if (!running_d1 && glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_PRESS) {
-        std::cout << "starting demo 1" << std::endl;
-        running_d1 = true;
-        World->start_demo_1();
-    }
-#endif // DEMO1
-
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
@@ -197,21 +190,37 @@ void processInput(GLFWwindow *window)
         camera.ProcessKeyboard(UP, *deltaTime);
     if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
         camera.ProcessKeyboard(DOWN, *deltaTime);
-    //timimng changes
-    if (glfwGetKey(window, GLFW_KEY_0) == GLFW_PRESS)
-        Time->set_time_multipler(0);
-    if (glfwGetKey(window, GLFW_KEY_1) == GLFW_PRESS)
-        Time->set_time_multipler(1);
-    if (glfwGetKey(window, GLFW_KEY_2) == GLFW_PRESS)
-        Time->set_time_multipler(2);
-    if (glfwGetKey(window, GLFW_KEY_3) == GLFW_PRESS)
-        Time->set_time_multipler(3);
-    if (glfwGetKey(window, GLFW_KEY_4) == GLFW_PRESS)
-        Time->set_time_multipler(4);
-    if (glfwGetKey(window, GLFW_KEY_5) == GLFW_PRESS)
-        Time->toggle_frame_rates();
-
 }
+
+void key_board_input(GLFWwindow* window, int key, int scancode, int action, int mods) {
+
+#ifdef DEMO1
+    if (!running_d1 && glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_PRESS) {
+        std::cout << "starting demo 1" << std::endl;
+        running_d1 = true;
+        World->start_demo_1();
+    }
+#endif // DEMO1
+
+    if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
+        glfwSetWindowShouldClose(window, true);
+    //timimng changes
+    if (key == GLFW_KEY_0 && action == GLFW_PRESS)
+        Time->set_time_multipler(0);
+    if (key == GLFW_KEY_1 && action == GLFW_PRESS)
+        Time->set_time_multipler(1);
+    if (key == GLFW_KEY_2 && action == GLFW_PRESS)
+        Time->set_time_multipler(2);
+    if (key == GLFW_KEY_3 && action == GLFW_PRESS)
+        Time->set_time_multipler(3);
+    if (key == GLFW_KEY_4 && action == GLFW_PRESS)
+        Time->set_time_multipler(4);
+    if (key == GLFW_KEY_5 && action == GLFW_PRESS)
+        Time->toggle_frame_rates();
+    if (key == GLFW_KEY_6 && action == GLFW_RELEASE)
+        World->play_sound_effect(0);
+}
+
 
 // glfw: whenever the window size changed (by OS or user resize) this callback function executes
 // ---------------------------------------------------------------------------------------------
