@@ -238,8 +238,12 @@ void city::init(object_manger* OBJM) {
 		glm::mat4 trans = glm::mat4(1.0f);
 		trans = glm::translate(trans, rails[i]->loc);
 		trans = glm::rotate(trans, glm::radians(rails[i]->angle), rails[i]->rot);
-		tempdata = OBJM->spawn_item(SKYTRACK_S_T, -1, -1, -1, trans);
-
+		if (rails[i]->type == 1) {
+			tempdata = OBJM->spawn_item(SKYTRACK_C_T, -1, -1, -1, trans);
+		}
+		else {
+			tempdata = OBJM->spawn_item(SKYTRACK_S_T, -1, -1, -1, trans);
+		}
 		tempdata->x_rot = rails[i]->rot.x;
 		tempdata->y_rot = rails[i]->rot.y;
 		tempdata->z_rot = rails[i]->rot.z;
@@ -247,6 +251,17 @@ void city::init(object_manger* OBJM) {
 		tempdata->x = rails[i]->loc.x;
 		tempdata->y = rails[i]->loc.y;
 		tempdata->z = rails[i]->loc.z;
+	}
+
+
+	for (int i = 0; i < 5; i++) {
+		glm::mat4 trans = glm::mat4(1.0f);
+		trans = glm::translate(trans, rails[i]->loc);
+		trans = glm::rotate(trans, glm::radians(rails[i]->angle), rails[i]->rot);
+
+			tempdata = OBJM->spawn_item(CHICKEN_T, -1, -1, -1, trans);
+		
+
 	}
 
 	std::cout<< std::endl;
@@ -339,7 +354,6 @@ void city::init(object_manger* OBJM) {
 	check();
 	//while (true);
 }
-
 
 
 void city::check() {

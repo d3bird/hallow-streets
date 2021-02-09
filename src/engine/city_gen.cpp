@@ -106,6 +106,9 @@ void city_gen::init() {
 		rail_s->loc = glm::vec3((i * 2), 10, (0));
 		rail_s->rot = glm::vec3(0.0f, 1.0f, 0.0f);
 		rail_s->angle = 0;
+		if (i == 49) {
+			rail_s->type = 1;
+		}
 		rails.push_back(rail_s);
 	}
 	if (Time != NULL) {

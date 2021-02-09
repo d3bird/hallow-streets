@@ -21,7 +21,7 @@
 //uncooment for what demo you want the engine to build into
 //#define DEMO1
 
-enum item_type {CUBE_T, SIDEWALK_T, LIGHT_POST_T, WALL_T, WALL_C_T, SIDESTREET_T, SKYTRACK_S_T};
+enum item_type {CUBE_T, SIDEWALK_T, LIGHT_POST_T, WALL_T, WALL_C_T, SIDESTREET_T, SKYTRACK_S_T, SKYTRACK_C_T, CHICKEN_T};
 //the information on each unique object
 struct item_info {
 	unsigned int debug_id;
@@ -149,6 +149,9 @@ private:
 	void create_wall_c_fire();
 	void create_sidestreet_object();
 	void create_sky_track_s_object();
+	void create_sky_track_c_object();
+	void create_chicken_object();
+
 
 	//timing
 	timing* Time;
@@ -179,6 +182,8 @@ private:
 	bool draw_light_post;
 	bool draw_sideroads;
 	bool draw_sky_rail_s;
+	bool draw_sky_rail_c;
+	bool draw_chicken;
 
 	//demo1 vars
 #ifdef DEMO1

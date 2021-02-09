@@ -32,6 +32,7 @@ struct rail_section {
 	glm::vec3 loc;
 	glm::vec3 rot;
 	float angle;
+	int type =0;
 };
 
 class city_gen{
