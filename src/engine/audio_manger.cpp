@@ -28,7 +28,7 @@ audio_manger::~audio_manger() {
 
 
 void audio_manger::update(glm::vec3 pos, glm::vec3 look, glm::vec3 vel, glm::vec3 up) {
-	engine->setListenerPosition(irrklang::vec3df(pos.x,pos.y,pos.z), irrklang::vec3df(look.x, look.y, look.z),
+	engine->setListenerPosition(irrklang::vec3df( pos.x, pos.y,  pos.z), irrklang::vec3df(-1 * look.x, -1 * look.y, -1 * look.z),
 		irrklang::vec3df(vel.x, vel.y, vel.z), irrklang::vec3df(up.x, up.y, up.z));
 }
 
@@ -39,8 +39,10 @@ void audio_manger::update() {
 	else {
 		glm::vec3 pos = cam->get_pos();
 		glm::vec3 look = cam->get_look();
-			//glm::vec3 vel, glm::vec3 up
-		engine->setListenerPosition(irrklang::vec3df(pos.x, pos.y, pos.z), irrklang::vec3df(look.x, look.y, look.z));
+		glm::vec3 vel = glm::vec3(0, 0, 0);
+		glm::vec3 up = cam->get_up();
+		engine->setListenerPosition(irrklang::vec3df(pos.x, pos.y, pos.z), irrklang::vec3df(-1*look.x, -1 * look.y, -1 * look.z),
+			irrklang::vec3df(vel.x, vel.y, vel.z), irrklang::vec3df(up.x, up.y, up.z));
 	}
 
 }
@@ -107,6 +109,16 @@ void audio_manger::create_sound_data() {
 
 	temp_sound_data = new sound;
 	temp_sound_data->sound_data = engine->addSoundSourceFromFile("resources/audio/unused_audio/Explosion_Large_Blast_2.mp3");
+	if (temp_sound_data->sound_data == 0) {
+		std::cout << "there was a problem importing sound 2" << std::endl;
+	}
+	else {
+		temp_sound_data->sound_data->setDefaultVolume(0.5f);
+		effects.push_back(temp_sound_data);
+	}
+
+	temp_sound_data = new sound;
+	temp_sound_data->sound_data = engine->addSoundSourceFromFile("resources/audio/effects/chickens.wav");
 	if (temp_sound_data->sound_data == 0) {
 		std::cout << "there was a problem importing sound 2" << std::endl;
 	}

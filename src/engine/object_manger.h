@@ -18,7 +18,15 @@
 #include "shader.h"
 #include "time.h"
 
-//uncooment for what demo you want the engine to build into
+/*
+* This class handlse all the rendering for each of the differnt objects
+* each object has one draw call that will draw every instance of that object
+* an object can be spawned at a loaction(x y z) or a given transform
+* the created object will return a pointer to a object so if anything needs to be changed from the defualts it can be changed or add to a update list
+*/
+
+
+//uncoment for what demo you want the engine to build into
 //#define DEMO1
 
 enum item_type {CUBE_T, SIDEWALK_T, LIGHT_POST_T, WALL_T, WALL_C_T, SIDESTREET_T, SKYTRACK_S_T, SKYTRACK_C_T, CHICKEN_T};
