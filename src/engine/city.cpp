@@ -229,6 +229,28 @@ void city::init(object_manger* OBJM) {
 				tempdata->y = y;
 				tempdata->z = z;
 			}
+			else if (layout_expanded[i][h] == 17) {
+				glm::mat4 trans = glm::mat4(1.0f);
+				trans = glm::translate(trans, glm::vec3((h * 2), 4, (i * 2)));
+				tempdata = OBJM->spawn_item(CHICKEN_T, -1, -1, -1, trans);
+				tempdata->x_rot = 0;
+				tempdata->y_rot = 1;
+				tempdata->z_rot = 0;
+				tempdata->angle = angle;
+				tempdata->x = (h * 2);
+				tempdata->y = 4;
+				tempdata->z = (i * 2);
+				//spawn a block underneath them
+				trans = glm::mat4(1.0f);
+				trans = glm::translate(trans, glm::vec3((h * 2), 2, (i * 2)));
+				tempdata = OBJM->spawn_item(CUBE_T, -1, -1, -1, trans);
+			}
+			else if (layout_expanded[i][h] == 18) {
+				glm::mat4 trans = glm::mat4(1.0f);
+				trans = glm::translate(trans, glm::vec3((h * 2), 2, (i * 2)));
+				tempdata = OBJM->spawn_item(CUBE_T, -1, -1, -1, trans);
+
+			}
 		}
 	}
 

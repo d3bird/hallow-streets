@@ -173,6 +173,8 @@ void city_gen::create_city_block(int x1, int y1, int x2, int y2) {
 	direct_change = 2;
 	create_road(pos_y, height - pos_x, direct, (width / 2) + offset_x+1, direct_change);
 
+	create_chicken_pen(7,7, 13,13);
+
 	create_buildings(x1,y1, x2, y2);
 
 }
@@ -273,11 +275,25 @@ void city_gen::create_buildings(int i_start, int h_start,int i_max, int h_max) {
 }
 
 
+void city_gen::create_chicken_pen(int i_start, int h_start, int i_max, int h_max) {
+	std::cout << "creating buildings" << std::endl;
+
+	for (int i = i_start; i < i_max; i++) {
+		for (int h = h_start; h < h_max; h++) {
+			if (layout[i][h] == open) {
+				layout[i][h] = chicken_pen;
+			}
+		}
+	}
+	//while (true);
+}
+
 void city_gen::create_expanded_layout() {
 
 	if (key < 1) {
 		std::cout << "the key to expand the layout was bellow 1, problems may arise" << std::endl;
 	}
+
 	/* key for what the set numbers mean
 	 * 1:  place cube
 	 * 2:  place wall
@@ -289,12 +305,14 @@ void city_gen::create_expanded_layout() {
 	 * 8:  place road (sidewalk left)
 	 * 9:  place road (sidewalk right)
 	 * 10: place road/path with no sidewalk
-	 * 11:  place light post 90 degree trun
-	 * 12:  place light post 180 degree trun
-	 * 13:  place light post 270 degree trun
-	 * 14:  place wall_c 90 degree trun
-	 * 15:  place wall_c 180 degree trun
-	 * 16:  place wall_c 270 degree trun
+	 * 11: place light post 90 degree trun
+	 * 12: place light post 180 degree trun
+	 * 13: place light post 270 degree trun
+	 * 14: place wall_c 90 degree trun
+	 * 15: place wall_c 180 degree trun
+	 * 16: place wall_c 270 degree trun
+	 * 17: chicken
+	 * 18 chicken ground
 	*/
 
 	int set = 0;
@@ -303,6 +321,7 @@ void city_gen::create_expanded_layout() {
 	bool corn_bot_right = false;
 	bool road = false;
 	bool open_s = false;
+	bool chickens = false;
 	rail_section* rail_s;
 	for (int i = 0; i < block_height; i++) {
 		for (int h = 0; h < block_width; h++) {
@@ -311,6 +330,7 @@ void city_gen::create_expanded_layout() {
 			corn_bot_right = false;
 			road = false;
 			open_s = false;
+			chickens = false;
 			switch (layout[i][h]) {
 			case road_top:
 				set = 6;
@@ -356,6 +376,9 @@ void city_gen::create_expanded_layout() {
 					corn_bot_right = true;
 				}
 				break;
+			case chicken_pen:
+				chickens = true;
+				break;
 			case open:
 			default:
 				set = 0;
@@ -382,7 +405,41 @@ void city_gen::create_expanded_layout() {
 
 			}else if (road) {
 				create_road_tile(i, h, set);
-
+			}
+			else if (chickens) {
+				int connecting_pens = 0;
+				//check for connection
+				if (layout[i - 1][h] == chicken_pen) {
+					connecting_pens++;
+				}
+				 if (layout[i][h + 1] == chicken_pen) {
+					connecting_pens++;
+				}
+				 if (layout[i][h - 1] == chicken_pen) {
+					connecting_pens++;
+				}
+				 if (layout[i + 1][h] == chicken_pen) {
+					connecting_pens++;
+				}
+				std::cout << "there are " << connecting_pens << " connecting_pens" << std::endl;
+				if (connecting_pens == 2) {
+					if (layout[i][h+1] == chicken_pen && layout[i+1][h] == chicken_pen) {
+						create_chicken_tile(i, h, 1);
+					}
+					else if (layout[i][h - 1] == chicken_pen && layout[i + 1][h] == chicken_pen) {
+						create_chicken_tile(i, h, 3);
+					}
+					else if (layout[i][h + 1] == chicken_pen && layout[i - 1][h] == chicken_pen) {
+						create_chicken_tile(i, h, 2);
+					}
+					else {
+						create_chicken_tile(i, h, 4);
+					}
+				}
+				else {
+					create_chicken_tile(i, h, 0);
+				}
+				
 			}
 			else {
 				layout_e[i * key][h * key] = set;
@@ -395,6 +452,86 @@ void city_gen::create_expanded_layout() {
 				}
 			}
 		}
+	}
+
+}
+
+void city_gen::create_chicken_tile(int start_x, int start_y, int type) {
+	//int set;
+	int i = start_x;
+	int h = start_y;
+
+	int set = 1;
+	int num_chicks = 4;
+
+	int space = key / 3;
+
+	bool top_blank = false;
+	bool bot_blank = false;
+	bool rig_blank = false;
+	bool lef_blank = false;
+	//determin which side to leave blank
+	
+	if (type == 1) {
+		top_blank = true;
+		rig_blank = true;
+	}
+	else if (type == 2) {
+		rig_blank = true;
+		bot_blank = true;
+	}
+	else if (type == 3) {
+		top_blank = true;
+		lef_blank = true;
+	}
+	else if (type == 4) {
+		lef_blank = true;
+		bot_blank = true;
+	}
+	
+	if (key != 1) {
+		for (int x = 0; x < key; x++) {
+			for (int y = 0; y < key; y++) {
+				//if ((y != 0 && y != key - 1) && (x != 0 && x != key - 1)) {
+					layout_e[(i * key) + x][(h * key) + y] = 18;
+				//}
+				if (top_blank && x == 0) {
+					layout_e[(i * key) + x][(h * key) + y] = 0;
+				}
+				if (bot_blank && x == key-1) {
+					layout_e[(i * key) + x][(h * key) + y] = 0;
+				}
+				if (rig_blank && y == 0) {
+					layout_e[(i * key) + x][(h * key) + y] = 0;
+				}
+				if (lef_blank && y == key - 1) {
+					layout_e[(i * key) + x][(h * key) + y] = 0;
+				}
+
+				
+			}
+		}
+
+		//place the corrners
+		if (type == 1) {
+			layout_e[(i * key)][(h * key)] = 15;
+		}
+		else if (type == 2) {
+			layout_e[(i * key) + 7][(h * key)] = 16;
+		}
+		else if (type == 3) {
+			layout_e[(i * key)][(h * key) + 7] = 14;
+		}
+		else if (type == 4) {
+			layout_e[(i * key) + 7][(h * key) + 7] = 4;
+		}
+
+		//place the chickens
+		layout_e[(i * key) + 3][(h * key) + 3] = 17;
+		layout_e[(i * key) + 3][(h * key) + 6] = 17;
+		layout_e[(i * key) + 6][(h * key) + 3] = 17;
+		layout_e[(i * key) + 6][(h * key) + 6] = 17;
+
 	}
 
 }
@@ -528,6 +665,9 @@ void city_gen::print_layout() {
 				break;
 			case wall_d:
 				std::cout << "d ";
+				break;
+			case chicken_pen:
+				std::cout << "C ";
 				break;
 			case open:
 				std::cout << ". ";
