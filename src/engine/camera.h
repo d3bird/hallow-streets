@@ -60,6 +60,8 @@ public:
     void deactivate_free_Cam() { free_cam = false; }
 
     glm::vec3 get_pos() { return Position; }
+    glm::vec3 get_up() { return Up; }
+    glm::vec3 get_look() { return Front; }
 
 private:
     void updateCameraVectors();

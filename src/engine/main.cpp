@@ -34,7 +34,7 @@ const unsigned int SCR_HEIGHT = 600;
 //Camera camera(glm::vec3(0.0f, 6.0f, 5.0f));
 //Camera camera(glm::vec3(0.0f, 0.0f, 155.0f));
 //Camera camera(glm::vec3(0.0f, 0.0f, 60.0f));//LIGHTING test
-Camera camera(glm::vec3(7.9019, 29.3491, 18.9233), glm::vec3(0.0f, 1.0f, 0.0f), -89.2999, -71.7001);//looking at the whole World
+Camera* camera;// (glm::vec3(7.9019, 29.3491, 18.9233), glm::vec3(0.0f, 1.0f, 0.0f), -89.2999, -71.7001);//looking at the whole World
 
 bool draw_world_info;
 
@@ -52,6 +52,8 @@ skymap* sky = NULL;
 float* deltaTime = NULL;
 
 int main() {
+
+    camera= new Camera(glm::vec3(7.9019, 29.3491, 18.9233), glm::vec3(0.0f, 1.0f, 0.0f), -89.2999, -71.7001);//looking at the whole World
 
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -92,7 +94,7 @@ int main() {
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     glm::mat4 projection = glm::perspective(glm::radians(45.0f), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 1000.0f);
-    glm::mat4 view = camera.GetViewMatrix();
+    glm::mat4 view = camera->GetViewMatrix();
 
     Time = new timing(false);
 
@@ -119,6 +121,8 @@ int main() {
     }
     World->init();
 
+    World->set_camera_obj(camera);
+
     while (!glfwWindowShouldClose(window))
     {
         Time->update_time();
@@ -127,11 +131,11 @@ int main() {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
-        view = camera.GetViewMatrix();
+        view = camera->GetViewMatrix();
 
         glEnable(GL_CULL_FACE);
         World->set_cam(view);
-        World->set_cam_pos(camera.get_pos());
+        World->set_cam_pos(camera->get_pos());
         if (!sigle_light_soruce) {
             World->draw_deferred();
         }
@@ -179,17 +183,17 @@ void process_movement(GLFWwindow *window)
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-        camera.ProcessKeyboard(FORWARD, *deltaTime);
+        camera->ProcessKeyboard(FORWARD, *deltaTime);
     if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-        camera.ProcessKeyboard(BACKWARD, *deltaTime);
+        camera->ProcessKeyboard(BACKWARD, *deltaTime);
     if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-        camera.ProcessKeyboard(LEFT, *deltaTime);
+        camera->ProcessKeyboard(LEFT, *deltaTime);
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-        camera.ProcessKeyboard(RIGHT, *deltaTime);
+        camera->ProcessKeyboard(RIGHT, *deltaTime);
     if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
-        camera.ProcessKeyboard(UP, *deltaTime);
+        camera->ProcessKeyboard(UP, *deltaTime);
     if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
-        camera.ProcessKeyboard(DOWN, *deltaTime);
+        camera->ProcessKeyboard(DOWN, *deltaTime);
 }
 
 void key_board_input(GLFWwindow* window, int key, int scancode, int action, int mods) {
@@ -248,14 +252,14 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos)
     lastX = xpos;
     lastY = ypos;
 
-    camera.ProcessMouseMovement(xoffset, yoffset);
+    camera->ProcessMouseMovement(xoffset, yoffset);
 }
 
 // glfw: whenever the mouse scroll wheel scrolls, this callback is called
 // ----------------------------------------------------------------------
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset){
     if (World != NULL) {
-       float zoom = camera.ProcessMouseScroll(yoffset);
+       float zoom = camera->ProcessMouseScroll(yoffset);
        World->change_projection(glm::perspective(glm::radians(zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 1000.0f));
     }
 }

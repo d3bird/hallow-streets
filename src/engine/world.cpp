@@ -1,11 +1,14 @@
 #include "world.h"
 
 
-world::world(){
-	single = false;
-    draw_lights_debug = false;
-    render_text = true;
+world::world() {
+
+    single = false;
     update_lights = true;
+
+    render_text = true;
+    draw_speakers = false;
+    draw_lights_debug = false;
 }
 
 world::~world(){
@@ -102,18 +105,31 @@ void world::draw_deferred() {
 
     // 3. render lights on top of scene
     // --------------------------------
-    if (draw_lights_debug) {
+    if (draw_lights_debug || draw_speakers) {
         shaderLightBox->use();
         shaderLightBox->setMat4("projection", projection);
         shaderLightBox->setMat4("view", view);
-        for (unsigned int i = 0; i < lightPositions.size(); i++)
-        {
-            model = glm::mat4(1.0f);
-            model = glm::translate(model, lightPositions[i]);
-            model = glm::scale(model, glm::vec3(0.125f));
-            shaderLightBox->setMat4("model", model);
-            shaderLightBox->setVec3("lightColor", lightColors[i]);
-            renderCube();
+        if (draw_lights_debug) {
+            for (unsigned int i = 0; i < lightPositions.size(); i++)
+            {
+                model = glm::mat4(1.0f);
+                model = glm::translate(model, lightPositions[i]);
+                model = glm::scale(model, glm::vec3(0.125f));
+                shaderLightBox->setMat4("model", model);
+                shaderLightBox->setVec3("lightColor", lightColors[i]);
+                renderCube();
+            }
+        }
+        if(draw_speakers){
+            for (unsigned int i = 0; i < speakers_locs.size(); i++)
+            {
+                model = glm::mat4(1.0f);
+                model = glm::translate(model, speakers_locs[i]);
+                model = glm::scale(model, glm::vec3(0.125f));
+                shaderLightBox->setMat4("model", model);
+                shaderLightBox->setVec3("lightColor", lightColors[0]);
+                renderCube();
+            }
         }
     }
 
@@ -123,6 +139,8 @@ void world::draw_deferred() {
         Sky->draw();
     }
 #endif
+
+    ADM->draw_speaker_locations();
 
     //daw objects that need to be affected by blending
     if (render_text) {
@@ -148,6 +166,7 @@ void world::draw_objects() {
 void world::update() {
 	Sky->update();
     City->update();
+    ADM->update();
 #ifdef DEMO1
     if (start_demo1) {
         OBJM->update_demo1();
@@ -215,6 +234,9 @@ void world::init() {
 
     ADM = new audio_manger();
     ADM->init();
+
+    draw_speakers = ADM->draw_speaker_locations();
+    speakers_locs = ADM->get_speaker_locations();
 
 	std::cout << "finished initing objects" << std::endl;
 	std::cout << std::endl;

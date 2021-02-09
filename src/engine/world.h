@@ -15,6 +15,7 @@
 #include <random>
 
 #include "shader.h"
+#include "camera.h"
 #include "time.h"
 #include "city.h"
 #include "sky.h"
@@ -52,7 +53,7 @@ public:
 	void set_cam_pos(glm::vec3 i) { cam_pos = i; }
 
 	void change_projection(glm::mat4 i);
-
+	void set_camera_obj(Camera *cam) { ADM->set_cam(cam); }
 	//demo functions
 
 #ifdef DEMO1
@@ -112,6 +113,9 @@ private:
 
 	void renderCube();
 	void renderQuad();
+
+	bool draw_speakers;
+	std::vector<glm::vec3> speakers_locs;
 
 	//demo data
 #ifdef DEMO1

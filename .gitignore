@@ -3,6 +3,7 @@ bin/
 build/
 copy_folder/
 
+resources/audio/unused_audio
 
 src/mass_rendering_system/camera.*
 src/mass_rendering_system/city_gen.*
