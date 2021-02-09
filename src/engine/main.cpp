@@ -223,6 +223,14 @@ void key_board_input(GLFWwindow* window, int key, int scancode, int action, int 
         Time->toggle_frame_rates();
     if (key == GLFW_KEY_6 && action == GLFW_RELEASE)
         World->play_sound_effect(0);
+    if (key == GLFW_KEY_7 && action == GLFW_RELEASE)
+        World->play_sound_effect(1);
+    if (key == GLFW_KEY_8 && action == GLFW_RELEASE)
+        World->play_sound_effect(2);
+    if (key == GLFW_KEY_9 && action == GLFW_RELEASE)
+        World->play_sound_effect(3);
+    if (key == GLFW_KEY_0 && action == GLFW_RELEASE)
+        World->play_sound_effect(4);
 }
 
 

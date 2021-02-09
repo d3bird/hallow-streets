@@ -85,16 +85,40 @@ void audio_manger::init() {
 void audio_manger::create_sound_data() {
 	sound* temp_sound_data;
 
-	//create teh explosion sound efffect
+	//create the sound efffects
 	temp_sound_data = new sound;
 	temp_sound_data->sound_data = engine->addSoundSourceFromFile("resources/audio/effects/explosion.wav");
-	//temp_sound_data->sound_data = engine->addSoundSourceFromFile("resources/audio/unused_audio/Explosion_Large_Blast_1.mp3");
-	//temp_sound_data->sound_data = engine->addSoundSourceFromFile("resources/audio/unused_audio/Explosion_Large_Blast_2.mp3");
-	temp_sound_data->sound_data->setDefaultVolume();
-	effects.push_back(temp_sound_data);
+	if (temp_sound_data->sound_data == 0) {
+		std::cout << "there was a problem importing sound 0" << std::endl;
+	}
+	else {
+		temp_sound_data->sound_data->setDefaultVolume();
+		effects.push_back(temp_sound_data);
+	}
+	temp_sound_data = new sound;
+	temp_sound_data->sound_data = engine->addSoundSourceFromFile("resources/audio/unused_audio/Explosion_Large_Blast_1.mp3");
+	if (temp_sound_data->sound_data == 0) {
+		std::cout << "there was a problem importing sound 1" << std::endl;
+	}
+	else {
+		temp_sound_data->sound_data->setDefaultVolume(0.5f);
+		effects.push_back(temp_sound_data);
+	}
+
+	temp_sound_data = new sound;
+	temp_sound_data->sound_data = engine->addSoundSourceFromFile("resources/audio/unused_audio/Explosion_Large_Blast_2.mp3");
+	if (temp_sound_data->sound_data == 0) {
+		std::cout << "there was a problem importing sound 2" << std::endl;
+	}
+	else {
+		temp_sound_data->sound_data->setDefaultVolume(0.5f);
+		effects.push_back(temp_sound_data);
+	}
+
+	//create the speakers
 
 	speaker* newspeaker = new speaker;
-	newspeaker->audio = temp_sound_data;
+	newspeaker->audio = effects[0];
 	newspeaker->loc = glm::vec3(5.0, 5.0, 4.0);
 	newspeaker->repeat = true;
 	speaker_locs.push_back(newspeaker);
