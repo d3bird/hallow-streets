@@ -19,12 +19,10 @@
 #include "shader.h"
 #include "time.h"
 #include "city_gen.h"
+#include "animation_manger.h"
 #include "object_manger.h"
 
 using namespace std;
-
-//#define ROW 9 
-//#define COL 10 
 
 typedef pair<int, int> Pair;
 typedef pair<double, pair<int, int>> pPair;

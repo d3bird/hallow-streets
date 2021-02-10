@@ -275,17 +275,6 @@ void city::init(object_manger* OBJM) {
 		tempdata->z = rails[i]->loc.z;
 	}
 
-
-	for (int i = 0; i < 5; i++) {
-		glm::mat4 trans = glm::mat4(1.0f);
-		trans = glm::translate(trans, rails[i]->loc);
-		trans = glm::rotate(trans, glm::radians(rails[i]->angle), rails[i]->rot);
-
-			tempdata = OBJM->spawn_item(CHICKEN_T, -1, -1, -1, trans);
-		
-
-	}
-
 	std::cout<< std::endl;
 
 	std::cout << "done "<< std::endl;
