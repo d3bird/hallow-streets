@@ -67,7 +67,7 @@ public:
 
 	void update();
 
-	void init(object_manger* OBJM);
+	void init(object_manger* OBJM, animation_manager* an);
 
 	//path finding function
 	void aStarSearch(Pair src, Pair dest);
@@ -115,6 +115,8 @@ private:
 	glm::mat4 view;
 	glm::mat4 projection;
 	timing* Time;
+
+	animation_manager* AM;
 
 	city_gen* city_info;
 	city_square** layout;

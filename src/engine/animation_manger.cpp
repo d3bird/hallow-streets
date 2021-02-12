@@ -35,20 +35,131 @@ void animation_manager::init() {
 		routines.push_back(def_routine);
 	}
 
+
 	if (Time != NULL) {
 		deltatime = Time->get_time_change();
 	}
 	else {
-		std::cout << "there was a problem getting time in the animation manager" << std::endl;
+	std::cout << "there was a problem getting time in the animation manager" << std::endl;
 	}
 
 	std::cout << "finished creating the animation manager" << std::endl;
 }
 
+
+float diff_btwn_pnt(float start, float end) {
+	float output = 0;
+	if (start < end) {
+		output = end - start;
+	}
+	else {
+		output = start - end;
+	}
+	return output;
+}
+
+//determins whther to move the loc in a positive or negative direction
+bool determin_direction(float start, float end) {
+	if (start < end) {
+		return true;//possitive
+	}
+	return false;//negative
+}
+
 void animation_manager::update() {
+
+	float speed = (*deltatime) * 30;
+
+	glm::mat4 trans = glm::mat4(1.0f);
 
 	for (int i = 0; i < actors.size(); i++) {
 		if (!actors[i]->empty) {
+			//std::cout << "updatting actor "<<i << std::endl;
+
+			if (actors[i]->nav_points.empty()) {//get the next set of nav points
+				//std::cout << "out of nav points" << i << std::endl;
+				create_nav_points(actors[i]);
+			}
+			else {//move to the next destination
+
+				glm::vec3 current_loc = glm::vec3(actors[i]->object->x, actors[i]->object->y, actors[i]->object->z);
+				glm::vec3 nav_point = actors[i]->nav_points[0];
+				bool reached_x = false;
+				bool reached_z = false;
+				float temp;//remaining distance
+				//move x
+				temp = diff_btwn_pnt(current_loc.x, nav_point.x);
+
+				if (speed <= temp) {
+					// std::cout << current_loc.x << " " << current_loc.y << " " << current_loc.z << " || " << speed << " <> " << temp << " && " << nav_point.x << std::endl;
+					if (determin_direction(current_loc.x, nav_point.x)) {
+						current_loc.x += speed;
+					}
+					else {
+						current_loc.x -= speed;
+					}
+				}
+				else {
+					//std::cout << "can not move anymore on x axis" << std::endl;
+					current_loc.x = nav_point.x;
+					reached_x = true;
+				}
+
+				//move z
+				temp = diff_btwn_pnt(current_loc.z, nav_point.z);
+
+				if (speed <= temp) {
+					// std::cout << current_loc.x << " " << current_loc.y << " " << current_loc.z << " || " << speed << " <> " << temp << " && " << nav_point.x << std::endl;
+					if (determin_direction(current_loc.z, nav_point.z)) {
+						current_loc.z += speed;
+					}
+					else {
+						current_loc.z -= speed;
+					}
+				}
+				else {
+					//std::cout << "can not move anymore on x axis" << std::endl;
+					current_loc.z = nav_point.z;
+					reached_z = true;
+				}
+
+				//trans = glm::translate(trans, glm::vec3(current_loc.x, current_loc.y, current_loc.z));
+				//beast_matrices[all_creatures[i]->get_buffer_loc()] = trans;
+				
+
+				//std::cout << "c_loc: " << current_loc.x << " " << current_loc.y << " " << current_loc.z <<" || nav " << nav_point.x << " " << nav_point.y << " " << nav_point.z << std::endl;
+
+
+				actors[i]->object->x = current_loc.x;
+				actors[i]->object->y = current_loc.y;
+				actors[i]->object->z = current_loc.z;
+
+				update_pak update_pac;
+
+				update_pac.x = current_loc.x;
+				update_pac.y = current_loc.y;
+				update_pac.z = current_loc.z;
+
+				update_pac.x_scale = 1;
+				update_pac.y_scale = 1;
+				update_pac.z_scale = 1;
+
+				update_pac.buffer_loc = actors[i]->object->buffer_loc;
+				update_pac.item_id = actors[i]->object->item_id;
+
+				OBJM->update_item_matrix(&update_pac);
+
+				if (reached_z && reached_x) {
+					//std::cout << "reached the distination" << i << std::endl;
+					if(actors[i]->nav_points.size() == 1){
+						actors[i]->nav_points.pop_back();
+					}
+					else {
+						actors[i]->nav_points.erase(actors[i]->nav_points.begin());
+					}
+				}
+
+			}
 
 		}
 	}
@@ -56,7 +167,8 @@ void animation_manager::update() {
 }
 
 //takes a object and a 
-int animation_manager::turn_object_into_actor(item_info* obje, sound* soun, int route) {
+int animation_manager::turn_object_into_actor(item_info* obje, routine_designation route , sound* soun) {
+	std::cout << "turning object into an actor" << std::endl;
 	actor* new_act = new actor;
 
 	new_act->object = obje;
@@ -70,6 +182,8 @@ int animation_manager::turn_object_into_actor(item_info* obje, sound* soun, int 
 		new_act->soun = soun;
 		new_act->has_sound = true;
 	}
+
+	new_act->routine = route;
 
 	if (openIDs.size() >= 1) {
 		new_act->id = openIDs[openIDs.size() - 1];
@@ -172,6 +286,42 @@ void animation_manager::define_routine(routine_designation route, int x_min, int
 		routines[buffer_loc]->min_flee_distance = min_flee_distance;
 		routines[buffer_loc]->return_area = return_area;
 
+	}
+}
+
+void animation_manager::create_nav_points(actor* act) {
+
+	if (act != NULL && act->nav_points.empty()) {
+
+		float dest_x = -1;
+		float dest_z = -1;
+
+		int index = 0;
+
+		switch (act->routine)
+		{
+		case CHICKEN_ROUTINE:
+			index = 2;
+			break;
+		case DEFF_ERROR_ROUTINE:
+		case DEFF_WORLD_ROUTINE:
+		default:
+			index = 0;
+			break;
+		}
+
+		if (index != 0) {
+			std::random_device rd;
+			std::mt19937 mt(rd());
+			std::uniform_real_distribution<float> distribution(routines[index]->x_min, routines[index]->x_max);
+			dest_x = distribution(mt);
+			distribution = std::uniform_real_distribution<float>(routines[index]->z_min, routines[index]->z_max);
+			dest_z = distribution(mt);
+
+		}
+
+		act->nav_points.push_back(glm::vec3(dest_x, 4, dest_z));
+		
 	}
 }
 

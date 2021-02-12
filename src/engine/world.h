@@ -53,7 +53,7 @@ public:
 	void set_cam_pos(glm::vec3 i) { cam_pos = i; }
 
 	void change_projection(glm::mat4 i);
-	void set_camera_obj(Camera *cam) { ADM->set_cam(cam); }
+	void set_camera_obj(Camera* cam) { ADM->set_cam(cam); AM->set_cam(cam); }
 	//demo functions
 
 #ifdef DEMO1
@@ -77,7 +77,7 @@ private:
 
 	audio_manger* ADM;
 	object_manger* OBJM;
-
+	animation_manager* AM;
 	bool single;
 	bool render_text;
 	//single source

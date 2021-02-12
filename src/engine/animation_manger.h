@@ -10,10 +10,14 @@
 #include <string>
 #include <iostream>
 #include <vector>
+#include <cstdlib>
+#include <ctime>
+#include <random>
 
 #include "object_manger.h"
 #include "audio_manger.h"
 #include "time.h"
+
 
 /*
 * This class handles all of the animation and updating of possitions 
@@ -47,7 +51,7 @@ struct actor{
 	bool has_sound = false;
 	int id;
 	bool empty = true;
-	int routine;
+	routine_designation routine;
 	bool in_designated_area =true;
 };
 
@@ -58,7 +62,7 @@ public:
 
 	void update();
 
-	int turn_object_into_actor(item_info* obje, sound* soun = NULL, int route =0);
+	int turn_object_into_actor(item_info* obje, routine_designation route = DEFF_ERROR_ROUTINE, sound* soun = NULL );
 
 	void define_routine(routine_designation route, int x_min, int z_min, int x_max, int z_max);
 
@@ -69,12 +73,20 @@ public:
 	void set_cam(Camera* c) { cam = c; }
 	void set_time(timing* i) { Time = i; }
 
+	void set_sound_engine(audio_manger* i) { sound_system = i; }
+	void set_object_manger(object_manger*i) { OBJM = i; }
+
 private:
 
+	void create_nav_points(actor* act);
 
 	timing* Time;
 	float* deltatime;
 	Camera* cam;
+
+	audio_manger *sound_system;
+
+	object_manger* OBJM;
 
 	int id_highest;
 	std::vector<int> openIDs;

@@ -404,7 +404,8 @@ void object_manger::update_item_matrix(update_pak* data) {
 		//model = glm::scale(model, glm::vec3(data->x_scale, data->y_scale, data->z_scale));
 		model = glm::translate(model, glm::vec3(data->x, data->y, data->z));
 		items[data->item_id]->modelMatrices[data->buffer_loc] = model;
-		delete data;//clean mem
+		items[data->item_id]->updatemats = true;
+		//delete data;//clean mem
 	}
 	else {
 		std::cout << "could not update item, item_id out of range" << std::endl;

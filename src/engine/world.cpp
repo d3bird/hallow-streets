@@ -166,6 +166,7 @@ void world::draw_objects() {
 void world::update() {
 	Sky->update();
     City->update();
+    AM->update();
     ADM->update();
 #ifdef DEMO1
     if (start_demo1) {
@@ -196,6 +197,14 @@ void world::init() {
         text_render->init();
     }
 
+    ADM = new audio_manger();
+    ADM->init();
+
+    AM = new animation_manager();
+    AM->set_sound_engine(ADM);
+    AM->set_time(Time);
+    AM->init();
+
     City = new city();
 
     OBJM = new object_manger();
@@ -212,6 +221,8 @@ void world::init() {
     OBJM->set_max_cubes(City->get_max_cubes());
     OBJM->init();
 	
+    AM->set_object_manger(OBJM);
+
 	City->set_time(Time);
 	City->set_projection(projection);
 	City->set_cam(view);
@@ -221,7 +232,7 @@ void world::init() {
     else {
         City->set_shader(shaderGeometryPass);
     }
-	City->init(OBJM);
+	City->init(OBJM, AM);
 
 	Sky = new sky();
 	Sky->set_projection(projection);
@@ -232,8 +243,6 @@ void world::init() {
 
 	Sky->pause_time_at_noon();
 
-    ADM = new audio_manger();
-    ADM->init();
 
     draw_speakers = ADM->draw_speaker_locations();
     speakers_locs = ADM->get_speaker_locations();

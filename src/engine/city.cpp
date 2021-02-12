@@ -8,7 +8,7 @@ city::city() {
 
 	city_info = NULL;
 	layout = NULL;
-
+	AM = NULL;
 	cube_matrices = NULL;//contains all the cubes mats
 	cube_shader = NULL;
 	
@@ -47,7 +47,7 @@ void city::update() {
 
 }
 
-void city::init(object_manger* OBJM) {
+void city::init(object_manger* OBJM, animation_manager* an) {
 	std::cout << "creating city" << std::endl;
 	std::cout << "creating city info" << std::endl;
 
@@ -59,6 +59,8 @@ void city::init(object_manger* OBJM) {
 	city_info->set_projection(projection);
 	city_info->init();
 
+	AM = an;
+
 	layout = city_info->get_layout();
 	int** layout_expanded = city_info->get_expanded_layout();
 
@@ -67,6 +69,30 @@ void city::init(object_manger* OBJM) {
 	int key = city_info->get_expandion_key();
 	x_width = city_info->get_height() * key;
 	z_width = city_info->get_width() * key;
+
+
+	int chicken_x_s = -1;
+	int chicken_z_s = -1;
+
+	int chicken_x_e = -1;
+	int chicken_z_e = -1;
+
+
+	//hard coded for now
+	//134,150 || hig 188,188
+	chicken_x_s = 134;
+	chicken_z_s = 150;
+
+	chicken_x_e = 188;
+	chicken_z_e = 188;
+
+	AM->define_routine(DEFF_ERROR_ROUTINE, -1, -1, -1, -1);
+	AM->define_routine(CHICKEN_ROUTINE, chicken_x_s, chicken_z_s, chicken_x_e , chicken_z_e );
+	
+	int low_x = 10000000;
+	int low_z = 10000000;
+	int hig_x = 0;
+	int hig_z = 0;
 
 	std::cout << "spawning in objects" << std::endl;
 	for (int i = 0; i < x_width; i++) {
@@ -230,6 +256,21 @@ void city::init(object_manger* OBJM) {
 				tempdata->z = z;
 			}
 			else if (layout_expanded[i][h] == 17) {
+
+			if (h * 2 < low_x) {
+				low_x = h * 2;
+			}
+			if (h * 2 > hig_x) {
+				hig_x = h * 2;
+			}
+
+			if (i * 2 < low_z) {
+				low_z = i * 2;
+			}
+			if (i* 2 > hig_z) {
+				hig_z = i * 2;
+			}
+
 				glm::mat4 trans = glm::mat4(1.0f);
 				trans = glm::translate(trans, glm::vec3((h * 2), 4, (i * 2)));
 				tempdata = OBJM->spawn_item(CHICKEN_T, -1, -1, -1, trans);
@@ -240,12 +281,14 @@ void city::init(object_manger* OBJM) {
 				tempdata->x = (h * 2);
 				tempdata->y = 4;
 				tempdata->z = (i * 2);
+				AM->turn_object_into_actor(tempdata, CHICKEN_ROUTINE);
 				//spawn a block underneath them
 				trans = glm::mat4(1.0f);
 				trans = glm::translate(trans, glm::vec3((h * 2), 2, (i * 2)));
 				tempdata = OBJM->spawn_item(CUBE_T, -1, -1, -1, trans);
 			}
 			else if (layout_expanded[i][h] == 18) {
+			//std::cout << h << " " << i << std::endl;
 				glm::mat4 trans = glm::mat4(1.0f);
 				trans = glm::translate(trans, glm::vec3((h * 2), 2, (i * 2)));
 				tempdata = OBJM->spawn_item(CUBE_T, -1, -1, -1, trans);
@@ -253,6 +296,8 @@ void city::init(object_manger* OBJM) {
 			}
 		}
 	}
+
+	std::cout << "low  " << low_x << "," << low_z << " || hig " << hig_x << "," << hig_z << std::endl;
 
 	std::vector< rail_section*> rails = city_info->get_rails();
 	item_info* tempdata;
@@ -279,6 +324,19 @@ void city::init(object_manger* OBJM) {
 
 	std::cout << "done "<< std::endl;
 	std::cout << "creating pathfinding data" << std::endl;
+
+
+	glm::mat4 trans = glm::mat4(1.0f);
+	trans = glm::translate(trans, glm::vec3((10), 4, (10)));
+	tempdata = OBJM->spawn_item(CHICKEN_T, -1, -1, -1, trans);
+	tempdata->x_rot = 0;
+	tempdata->y_rot = 1;
+	tempdata->z_rot = 0;
+	tempdata->angle = 0;
+	tempdata->x = 10;
+	tempdata->y = 4;
+	tempdata->z = 10;
+	AM->turn_object_into_actor(tempdata, DEFF_ERROR_ROUTINE);
 
 	cube_amount = x_width * z_width;
 
