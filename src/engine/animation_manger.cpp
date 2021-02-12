@@ -83,6 +83,28 @@ void animation_manager::update() {
 			else {//move to the next destination
 
 				glm::vec3 current_loc = glm::vec3(actors[i]->object->x, actors[i]->object->y, actors[i]->object->z);
+
+				//react to the cammera location
+				glm::vec3 cam_loc = cam->get_pos();
+
+				if ((diff_btwn_pnt(current_loc.x, cam_loc.x) >= 0 && diff_btwn_pnt(current_loc.x, cam_loc.x) <= 10)
+					&& (diff_btwn_pnt(current_loc.z, cam_loc.z) >= 0 && diff_btwn_pnt(current_loc.z, cam_loc.z) <= 10)) {
+
+					if (determin_direction(current_loc.x, cam_loc.x)) {
+						actors[i]->nav_points[0].x = current_loc.x - 4.0f;
+					}
+					else {
+						actors[i]->nav_points[0].x = current_loc.x + 4.0f;
+					}
+
+					if (determin_direction(current_loc.z, cam_loc.z)) {
+						actors[i]->nav_points[0].z = current_loc.z - 4.0f;
+					}
+					else {
+						actors[i]->nav_points[0].z = current_loc.z + 4.0f;
+					}
+				}
+
 				glm::vec3 nav_point = actors[i]->nav_points[0];
 				bool reached_x = false;
 				bool reached_z = false;

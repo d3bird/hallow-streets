@@ -118,7 +118,7 @@ void audio_manger::create_sound_data() {
 	}
 
 	temp_sound_data = new sound;
-	temp_sound_data->sound_data = engine->addSoundSourceFromFile("resources/audio/effects/chickens.wav");
+	temp_sound_data->sound_data = engine->addSoundSourceFromFile("resources/audio/effects/chicken-alarm-call.wav");
 	if (temp_sound_data->sound_data == 0) {
 		std::cout << "there was a problem importing sound 2" << std::endl;
 	}
@@ -126,6 +126,23 @@ void audio_manger::create_sound_data() {
 		temp_sound_data->sound_data->setDefaultVolume(0.5f);
 		effects.push_back(temp_sound_data);
 	}
+
+
+	//create the backgorund music
+
+	temp_sound_data = new sound;
+	temp_sound_data->sound_data = engine->addSoundSourceFromFile("resources/audio/background_music/space.ogg");
+	if (temp_sound_data->sound_data == 0) {
+		std::cout << "there was a problem importing space background loop" << std::endl;
+	}
+	else {
+		temp_sound_data->sound_data->setDefaultVolume(1.0f);
+		background_music.push_back(temp_sound_data);
+	}
+
+
+	//start the background music
+	engine->play2D(temp_sound_data->sound_data, true);
 
 	//create the speakers
 

@@ -94,6 +94,8 @@ void city::init(object_manger* OBJM, animation_manager* an) {
 	int hig_x = 0;
 	int hig_z = 0;
 
+	int num_chickens = 0;
+
 	std::cout << "spawning in objects" << std::endl;
 	for (int i = 0; i < x_width; i++) {
 		for (int h = 0; h < z_width; h++) {
@@ -257,19 +259,21 @@ void city::init(object_manger* OBJM, animation_manager* an) {
 			}
 			else if (layout_expanded[i][h] == 17) {
 
-			if (h * 2 < low_x) {
-				low_x = h * 2;
-			}
-			if (h * 2 > hig_x) {
-				hig_x = h * 2;
-			}
+				if (h * 2 < low_x) {
+					low_x = h * 2;
+				}
+				if (h * 2 > hig_x) {
+					hig_x = h * 2;
+				}
 
-			if (i * 2 < low_z) {
-				low_z = i * 2;
-			}
-			if (i* 2 > hig_z) {
-				hig_z = i * 2;
-			}
+				if (i * 2 < low_z) {
+					low_z = i * 2;
+				}
+				if (i * 2 > hig_z) {
+					hig_z = i * 2;
+				}
+
+				num_chickens++;
 
 				glm::mat4 trans = glm::mat4(1.0f);
 				trans = glm::translate(trans, glm::vec3((h * 2), 4, (i * 2)));
@@ -297,7 +301,10 @@ void city::init(object_manger* OBJM, animation_manager* an) {
 		}
 	}
 
-	std::cout << "low  " << low_x << "," << low_z << " || hig " << hig_x << "," << hig_z << std::endl;
+	//test for the pathing area for the chicken routine
+	//std::cout << "low  " << low_x << "," << low_z << " || hig " << hig_x << "," << hig_z << std::endl;
+	std::cout << "chicken number " <<num_chickens<< std::endl;
+
 
 	std::vector< rail_section*> rails = city_info->get_rails();
 	item_info* tempdata;
