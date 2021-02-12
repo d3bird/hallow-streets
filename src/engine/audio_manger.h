@@ -15,6 +15,8 @@
 
 #include "camera.h"
 
+enum effect_names { explosion = 0, Explosion_Large_Blast_1 = 1, Explosion_Large_Blast_2 = 2, chicken_alarm_call = 3 };
+
 struct sound{
 	irrklang::ISoundSource* sound_data = NULL;
 	float current_volume = 1.0f;
@@ -41,6 +43,8 @@ public:
 	void init();
 	void play_sound_effect(int i);
 	void play_background_music(int i);
+
+	void play_3D_sound(effect_names soun, glm::vec3 pos);
 
 	void set_cam(Camera* c) { cam = c; }
 

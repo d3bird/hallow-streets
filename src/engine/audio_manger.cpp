@@ -84,6 +84,34 @@ void audio_manger::init() {
 	std::cout << "finished creating the audio engine" << std::endl;
 }
 
+void audio_manger::play_3D_sound(effect_names soun, glm::vec3 pos) {
+	int index = 0;
+	switch (soun)
+	{
+	case explosion:
+		index = 0;
+		break;
+	case Explosion_Large_Blast_1:
+		index = 1;
+		break;
+	case Explosion_Large_Blast_2:
+		index = 2;
+		break;
+	case chicken_alarm_call:
+		index = 3;
+		break;
+	default:
+		index = -1;
+		break;
+	}
+
+	irrklang::vec3df temp_loc(pos.x, pos.y, pos.z);
+
+	engine->play3D(effects[3]->sound_data, temp_loc);
+
+}
+
+
 void audio_manger::create_sound_data() {
 	sound* temp_sound_data;
 
@@ -123,7 +151,8 @@ void audio_manger::create_sound_data() {
 		std::cout << "there was a problem importing sound 2" << std::endl;
 	}
 	else {
-		temp_sound_data->sound_data->setDefaultVolume(0.5f);
+		temp_sound_data->sound_data->setDefaultVolume(5.0f);
+		temp_sound_data->sound_data->setDefaultMaxDistance(30.0f);
 		effects.push_back(temp_sound_data);
 	}
 

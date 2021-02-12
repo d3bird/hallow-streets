@@ -53,6 +53,10 @@ struct actor{
 	bool empty = true;
 	routine_designation routine;
 	bool in_designated_area =true;
+
+
+	float cooldown = 0;
+	float cooldown_max = 10;
 };
 
 class animation_manager {

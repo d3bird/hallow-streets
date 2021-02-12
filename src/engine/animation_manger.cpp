@@ -69,12 +69,18 @@ bool determin_direction(float start, float end) {
 void animation_manager::update() {
 
 	float speed = (*deltatime) * 30;
-
+	float cool = (*deltatime) * 5;
 	glm::mat4 trans = glm::mat4(1.0f);
 
 	for (int i = 0; i < actors.size(); i++) {
 		if (!actors[i]->empty) {
 			//std::cout << "updatting actor "<<i << std::endl;
+
+			//checkout cooldown
+
+			if (actors[i]->cooldown >= 0) {
+				actors[i]->cooldown -= cool;
+			}
 
 			if (actors[i]->nav_points.empty()) {//get the next set of nav points
 				//std::cout << "out of nav points" << i << std::endl;
@@ -102,6 +108,12 @@ void animation_manager::update() {
 					}
 					else {
 						actors[i]->nav_points[0].z = current_loc.z + 4.0f;
+					}
+
+					if (actors[i]->cooldown <= 0) {
+						//std::cout << "playing sound" << std::endl;
+						sound_system->play_3D_sound(chicken_alarm_call, current_loc);
+						actors[i]->cooldown = actors[i]->cooldown_max;
 					}
 				}
 
