@@ -43,6 +43,9 @@ public:
 	void init();
 	void play_sound_effect(int i);
 	void play_background_music(int i);
+	
+	void increase_volume();
+	void decrease_volume();
 
 	void play_3D_sound(effect_names soun, glm::vec3 pos);
 
@@ -56,6 +59,7 @@ private:
 
 	Camera *cam;
 
+	float volume;
 	irrklang::ISoundEngine* engine;// = createIrrKlangDevice();
 	std::string audio_loc;
 

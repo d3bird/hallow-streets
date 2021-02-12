@@ -43,6 +43,9 @@ public:
 	void play_sound_effect(int i) { ADM->play_sound_effect(i); }
 	void play_background_music(int i) { ADM->play_background_music(i); }
 
+	void increase_background_music() { ADM->increase_volume(); }
+	void decrease_background_music() { ADM->decrease_volume(); }
+
 	//getters
 
 	//setters

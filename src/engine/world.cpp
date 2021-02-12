@@ -6,7 +6,7 @@ world::world() {
     single = false;
     update_lights = true;
 
-    render_text = true;
+    render_text = false;
     draw_speakers = false;
     draw_lights_debug = false;
 }

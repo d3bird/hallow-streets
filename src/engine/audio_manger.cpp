@@ -3,6 +3,7 @@
 audio_manger::audio_manger() {
 	draw_speaker_loc = true;
 	cam = NULL;
+	volume = 1.0f;
 }
 
 audio_manger::~audio_manger() {
@@ -165,7 +166,7 @@ void audio_manger::create_sound_data() {
 		std::cout << "there was a problem importing space background loop" << std::endl;
 	}
 	else {
-		temp_sound_data->sound_data->setDefaultVolume(1.0f);
+		temp_sound_data->sound_data->setDefaultVolume(0.1f);
 		background_music.push_back(temp_sound_data);
 	}
 
@@ -195,4 +196,24 @@ std::vector<glm::vec3> audio_manger::get_speaker_locations() {
 	}
 
 	return output;
+}
+
+
+void audio_manger::increase_volume() {
+	volume += 0.1;
+	if (volume > 1.0f) {
+		volume = 1.0f;
+	}
+	std::cout << "volume is " << volume << std::endl;
+	engine->setSoundVolume(volume);
+}
+
+void audio_manger::decrease_volume() {
+	volume -= 0.1;
+	if (volume < 0.0f) {
+		volume = 0.0f;
+	}
+	std::cout << "volume is " << volume << std::endl;
+	engine->setSoundVolume(volume);
+
 }

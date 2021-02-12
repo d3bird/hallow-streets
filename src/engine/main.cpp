@@ -231,6 +231,12 @@ void key_board_input(GLFWwindow* window, int key, int scancode, int action, int 
         World->play_sound_effect(3);
     if (key == GLFW_KEY_0 && action == GLFW_RELEASE)
         World->play_sound_effect(4);
+
+    if (key == GLFW_KEY_O && action == GLFW_RELEASE)
+        World->increase_background_music();
+
+    if (key == GLFW_KEY_L && action == GLFW_RELEASE)
+        World->decrease_background_music();
 }
 
 
