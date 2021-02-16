@@ -110,6 +110,12 @@ private:
 	timing* Time;
 	float* deltatime;
 
+
+
+	int chicken_pen_amount;
+	int start_r_x;
+	int start_r_y;
+	int rail_amount;
 	std::vector< rail_section*> rails;
 
 };

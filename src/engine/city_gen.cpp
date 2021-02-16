@@ -1,6 +1,6 @@
 #include "city_gen.h"
 
-city_gen::city_gen(){
+city_gen::city_gen() {
 	update_projection = false;
 	update_cam = false;
 	Time = NULL;
@@ -13,6 +13,14 @@ city_gen::city_gen(){
 	key = 8;//do note that if this number is changed, the modles will also have to be changed  
 	gen_last_light = true;
 	max_cubes = block_width * block_height * key * key;
+
+	//rail information
+
+	rail_amount = 25;
+	start_r_x = -1;
+	start_r_y = -1;
+	chicken_pen_amount = 0;
+
 }
 
 city_gen::~city_gen(){
@@ -101,16 +109,24 @@ void city_gen::init() {
 	create_expanded_layout();
 
 	rail_section* rail_s;
-	for (int i = 0; i < 50;i++) {
-		rail_s = new rail_section;
-		rail_s->loc = glm::vec3((i * 2), 10, (0));
-		rail_s->rot = glm::vec3(0.0f, 1.0f, 0.0f);
-		rail_s->angle = 0;
-		if (i == 49) {
-			rail_s->type = 1;
+	if (start_r_x != -1 && start_r_y != -1) {
+		start_r_x *= 2;
+		start_r_y *= 2;
+		for (int i = 0; i < rail_amount; i++) {
+			rail_s = new rail_section;
+			rail_s->loc = glm::vec3(start_r_x + (0 * 2), 4, start_r_y - (i * 2));
+			rail_s->rot = glm::vec3(0.0f, 1.0f, 0.0f);
+			rail_s->angle = 90;
+			if (i == 49) {
+				rail_s->type = 1;
+			}
+			rails.push_back(rail_s);
 		}
-		rails.push_back(rail_s);
 	}
+	else {
+		std::cout << "program never found where ro place the rails" << std::endl;
+	}
+
 	if (Time != NULL) {
 		deltatime = Time->get_time_change();
 	}
@@ -232,7 +248,6 @@ bool city_gen::is_road(int i, int h) {
 	return false;
 }
 
-
 void city_gen::create_buildings(int i_start, int h_start,int i_max, int h_max) {
 	std::cout << "creating buildings" << std::endl;
 
@@ -273,7 +288,6 @@ void city_gen::create_buildings(int i_start, int h_start,int i_max, int h_max) {
 	}
 	//while (true);
 }
-
 
 void city_gen::create_chicken_pen(int i_start, int h_start, int i_max, int h_max) {
 	std::cout << "creating buildings" << std::endl;
@@ -421,7 +435,7 @@ void city_gen::create_expanded_layout() {
 				 if (layout[i + 1][h] == chicken_pen) {
 					connecting_pens++;
 				}
-				std::cout << "there are " << connecting_pens << " connecting_pens" << std::endl;
+				//std::cout << "there are " << connecting_pens << " connecting_pens" << std::endl;
 				if (connecting_pens == 2) {
 					if (layout[i][h+1] == chicken_pen && layout[i+1][h] == chicken_pen) {
 						create_chicken_tile(i, h, 1);
@@ -471,7 +485,15 @@ void city_gen::create_chicken_tile(int start_x, int start_y, int type) {
 	bool rig_blank = false;
 	bool lef_blank = false;
 	//determin which side to leave blank
-	
+
+	chicken_pen_amount++;
+	if (chicken_pen_amount == 2) {
+		start_r_x = i * key;
+		start_r_y = h * key;
+		start_r_x += 1;
+		start_r_y += 2;
+	}
+
 	if (type == 1) {
 		top_blank = true;
 		rig_blank = true;

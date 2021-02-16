@@ -6,7 +6,7 @@ animation_manager::animation_manager() {
 	cam = NULL;
 
 	id_highest = 0;
-	routine_total_predefined = 3;
+	routine_total_predefined = 4;
 }
 
 animation_manager::~animation_manager() {
@@ -46,6 +46,31 @@ void animation_manager::init() {
 	std::cout << "finished creating the animation manager" << std::endl;
 }
 
+int animation_manager::get_routine_index(routine_designation i) {
+	int output = 0;
+
+	switch (i)
+	{
+	case DEFF_ERROR_ROUTINE:
+		output = 0;
+		break;
+	case DEFF_WORLD_ROUTINE:
+		output = 1;
+		break;
+	case CHICKEN_ROUTINE:
+		output = 2;
+		break;
+	case RAIL_ROUTINE:
+		output = 3;
+		break;
+	default:
+		break;
+	}
+
+	return output;
+}
+
+
 
 float diff_btwn_pnt(float start, float end) {
 	float output = 0;
@@ -68,14 +93,14 @@ bool determin_direction(float start, float end) {
 
 void animation_manager::update() {
 
-	float speed = (*deltatime) * 30;
+	float time_mes = (*deltatime);
 	float cool = (*deltatime) * 5;
 	glm::mat4 trans = glm::mat4(1.0f);
 
 	for (int i = 0; i < actors.size(); i++) {
 		if (!actors[i]->empty) {
 			//std::cout << "updatting actor "<<i << std::endl;
-
+			float speed = actors[i]->move_speed * time_mes;
 			//checkout cooldown
 
 			if (actors[i]->cooldown >= 0) {
@@ -90,32 +115,40 @@ void animation_manager::update() {
 
 				glm::vec3 current_loc = glm::vec3(actors[i]->object->x, actors[i]->object->y, actors[i]->object->z);
 
-				//react to the cammera location
-				glm::vec3 cam_loc = cam->get_pos();
+				int route_index = get_routine_index(actors[i]->routine);
 
-				if ((diff_btwn_pnt(current_loc.x, cam_loc.x) >= 0 && diff_btwn_pnt(current_loc.x, cam_loc.x) <= 10)
-					&& (diff_btwn_pnt(current_loc.z, cam_loc.z) >= 0 && diff_btwn_pnt(current_loc.z, cam_loc.z) <= 10)) {
+				//std::cout << "updateing " << route_index<<" with behavior "<< routines[route_index]->behavior << std::endl;
+				//if (routines[route_index]->behavior == 1) {
+					//std::cout << "updateing " << route_index<<" with behavior "<< routines[route_index]->behavior << std::endl;
 
-					if (determin_direction(current_loc.x, cam_loc.x)) {
-						actors[i]->nav_points[0].x = current_loc.x - 4.0f;
-					}
-					else {
-						actors[i]->nav_points[0].x = current_loc.x + 4.0f;
-					}
+					//react to the cammera location
+					glm::vec3 cam_loc = cam->get_pos();
 
-					if (determin_direction(current_loc.z, cam_loc.z)) {
-						actors[i]->nav_points[0].z = current_loc.z - 4.0f;
-					}
-					else {
-						actors[i]->nav_points[0].z = current_loc.z + 4.0f;
-					}
+					if ((diff_btwn_pnt(current_loc.x, cam_loc.x) >= 0 && diff_btwn_pnt(current_loc.x, cam_loc.x) <= 10)
+						&& (diff_btwn_pnt(current_loc.z, cam_loc.z) >= 0 && diff_btwn_pnt(current_loc.z, cam_loc.z) <= 10)) {
 
-					if (actors[i]->cooldown <= 0) {
-						//std::cout << "playing sound" << std::endl;
-						sound_system->play_3D_sound(chicken_alarm_call, current_loc);
-						actors[i]->cooldown = actors[i]->cooldown_max;
+						if (determin_direction(current_loc.x, cam_loc.x)) {
+							actors[i]->nav_points[0].x = current_loc.x - 4.0f;
+						}
+						else {
+							actors[i]->nav_points[0].x = current_loc.x + 4.0f;
+						}
+
+						if (determin_direction(current_loc.z, cam_loc.z)) {
+							actors[i]->nav_points[0].z = current_loc.z - 4.0f;
+						}
+						else {
+							actors[i]->nav_points[0].z = current_loc.z + 4.0f;
+						}
+
+						if (actors[i]->cooldown <= 0) {
+							//std::cout << "playing sound" << std::endl;
+							sound_system->play_3D_sound(chicken_alarm_call, current_loc);
+							actors[i]->cooldown = actors[i]->cooldown_max;
+						}
 					}
-				}
+				//}
+
 
 				glm::vec3 nav_point = actors[i]->nav_points[0];
 				bool reached_x = false;
@@ -185,6 +218,11 @@ void animation_manager::update() {
 
 				if (reached_z && reached_x) {
 					//std::cout << "reached the distination" << i << std::endl;
+
+					switch (actors[i]->routine == RAIL_ROUTINE) {
+						actors[i]->at_start = !actors[i]->at_start;
+					}
+
 					if(actors[i]->nav_points.size() == 1){
 						actors[i]->nav_points.pop_back();
 					}
@@ -202,8 +240,33 @@ void animation_manager::update() {
 
 //takes a object and a 
 int animation_manager::turn_object_into_actor(item_info* obje, routine_designation route , sound* soun) {
-	std::cout << "turning object into an actor" << std::endl;
+	std::cout << "turning object into an actor following ";
+
+	float move_speed =-1;
+	switch (route)
+	{
+	case DEFF_ERROR_ROUTINE:
+		std::cout << "DEFF_ERROR_ROUTINE" << std::endl;
+		break;
+	case DEFF_WORLD_ROUTINE:
+		std::cout << "DEFF_WORLD_ROUTINE" << std::endl;
+		break;
+	case CHICKEN_ROUTINE:
+		std::cout << "CHICKEN_ROUTINE" << std::endl;
+		break;
+	case RAIL_ROUTINE:
+		std::cout << "RAIL_ROUTINE" << std::endl;
+		move_speed = 15;
+		break;
+	default:
+		break;
+	}
+
 	actor* new_act = new actor;
+
+	if (move_speed != -1) {
+		new_act->move_speed = move_speed;
+	}
 
 	new_act->object = obje;
 	new_act->empty = false;
@@ -242,23 +305,27 @@ int animation_manager::turn_object_into_actor(item_info* obje, routine_designati
 }
 
 
-void animation_manager::define_routine(routine_designation route, int x_min, int z_min, int x_max, int z_max) {
-
+void animation_manager::define_routine(routine_designation route, std::vector< rail_check_point*> points) {
+	
 	unsigned int buffer_loc = 0;
 
 	switch (route)
 	{
 	case DEFF_ERROR_ROUTINE:
-		std::cout << "defining DEFF_ERROR_ROUTINE" << std::endl;
-		buffer_loc = 0;
+		std::cout << "cannot define DEFF_ERROR_ROUTINE to a bunch of rail" << std::endl;
+		return;
 		break;
 	case DEFF_WORLD_ROUTINE:
-		std::cout << "defining DEFF_WORLD_ROUTINE" << std::endl;
-		buffer_loc = 1;
+		std::cout << "cannot define DEFF_ERROR_ROUTINE to a bunch of rail" << std::endl;
+		return;
 		break;
 	case CHICKEN_ROUTINE:
-		std::cout << "defining CHICKEN_ROUTINE" << std::endl;
-		buffer_loc = 2;
+		std::cout << "cannot define DEFF_ERROR_ROUTINE to a bunch of rail" << std::endl;
+		return;
+		break;
+	case RAIL_ROUTINE:
+		std::cout << "defining RAIL_ROUTINE" << std::endl;
+		buffer_loc = 3;
 		break;
 	default:
 		std::cout << "not a recognised routine" << std::endl;
@@ -277,6 +344,80 @@ void animation_manager::define_routine(routine_designation route, int x_min, int
 	}
 	else {
 
+		routines[buffer_loc]->defined = true;
+
+		int behavior = 0;
+		bool flee_player = false;
+		float min_flee_distance = -1;
+		bool return_area = false;
+		//set the specfics
+
+		switch (route)
+		{
+		case RAIL_ROUTINE:
+			behavior = 3;
+			flee_player = false;
+			min_flee_distance = -1;
+			return_area = true;
+			break;
+		}
+
+		routines[buffer_loc]->designation = route;
+		routines[buffer_loc]->behavior = behavior;
+		routines[buffer_loc]->flee_player = flee_player;
+		routines[buffer_loc]->min_flee_distance = min_flee_distance;
+		routines[buffer_loc]->return_area = return_area;
+		routines[buffer_loc]->rail_network = true;
+
+
+		for (int i = 0; i < points.size(); i++) {
+			if (i == 0 || i == points.size() - 1) {
+				points[i]->rail_type = 3;
+			}
+			routines[buffer_loc]->rails.push_back(points[i]);
+		}
+	}
+
+}
+
+void animation_manager::define_routine(routine_designation route, int x_min, int z_min, int x_max, int z_max) {
+
+	unsigned int buffer_loc = 0;
+
+	switch (route)
+	{
+	case DEFF_ERROR_ROUTINE:
+		std::cout << "defining DEFF_ERROR_ROUTINE" << std::endl;
+		buffer_loc = 0;
+		break;
+	case DEFF_WORLD_ROUTINE:
+		std::cout << "defining DEFF_WORLD_ROUTINE" << std::endl;
+		buffer_loc = 1;
+		break;
+	case CHICKEN_ROUTINE:
+		std::cout << "defining CHICKEN_ROUTINE" << std::endl;
+		buffer_loc = 2;
+		break;
+	case RAIL_ROUTINE:
+std::cout << "can not define a RAIL_ROUTINE because needs points of rails" << std::endl;
+return;
+break;
+	default:
+		std::cout << "not a recognised routine" << std::endl;
+		return;
+		break;
+	}
+
+	if (buffer_loc >= routines.size()) {
+		std::cout << "this routine has not been inited" << std::endl;
+		return;
+	}
+
+	if (routines[buffer_loc]->defined) {
+		std::cout << "this routine has already been defined" << std::endl;
+		return;
+	}
+	else {
 		routines[buffer_loc]->defined = true;
 
 		//set the area
@@ -337,6 +478,12 @@ void animation_manager::create_nav_points(actor* act) {
 		case CHICKEN_ROUTINE:
 			index = 2;
 			break;
+		case RAIL_ROUTINE:
+			index = 3;
+			//std::cout << "updating cart" << std::endl;
+
+			//std::cout << act->object->x <<" "<< act->object->z<< std::endl;
+			break;
 		case DEFF_ERROR_ROUTINE:
 		case DEFF_WORLD_ROUTINE:
 		default:
@@ -344,7 +491,7 @@ void animation_manager::create_nav_points(actor* act) {
 			break;
 		}
 
-		if (index != 0) {
+		if (index == 2) {
 			std::random_device rd;
 			std::mt19937 mt(rd());
 			std::uniform_real_distribution<float> distribution(routines[index]->x_min, routines[index]->x_max);
@@ -353,9 +500,21 @@ void animation_manager::create_nav_points(actor* act) {
 			dest_z = distribution(mt);
 
 		}
+		else if (index == 3) {
+			dest_x = routines[index]->rails[0]->loc.x;
+			dest_z = routines[index]->rails[0]->loc.z;
+			if (act->object->x == dest_x && act->object->z == dest_z) {
+				int size = dest_x = routines[index]->rails.size() - 1;
+				dest_x = routines[index]->rails[size]->loc.x;
+				dest_z = routines[index]->rails[size]->loc.z;
+			}
+
+			//std::cout << dest_x << " " << dest_z << std::endl;
+
+		}
 
 		act->nav_points.push_back(glm::vec3(dest_x, 4, dest_z));
-		
+
 	}
 }
 

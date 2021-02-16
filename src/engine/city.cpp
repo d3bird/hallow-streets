@@ -96,6 +96,52 @@ void city::init(object_manger* OBJM, animation_manager* an) {
 
 	int num_chickens = 0;
 
+	std::vector< rail_section*> rails = city_info->get_rails();
+	item_info* tempdata = NULL;
+	item_info* cart = NULL;
+	std::vector<rail_check_point*> temp_rails;
+	for (int i = 0; i < rails.size(); i++) {
+		glm::mat4 trans = glm::mat4(1.0f);
+		trans = glm::translate(trans, rails[i]->loc);
+		trans = glm::rotate(trans, glm::radians(rails[i]->angle), rails[i]->rot);
+
+		if (i == 0) {
+			cart = OBJM->spawn_item(SKYTRACK_CART, -1, -1, -1, trans);
+			cart->x_rot = 0;
+			cart->y_rot = 1;
+			cart->z_rot = 0;
+			cart->angle = 0;
+			cart->x = rails[i]->loc.x;
+			cart->y = rails[i]->loc.y;
+			cart->z = rails[i]->loc.z;
+		}
+
+
+		if (rails[i]->type == 1) {
+			tempdata = OBJM->spawn_item(SKYTRACK_C_T, -1, -1, -1, trans);
+		}
+		else {
+			tempdata = OBJM->spawn_item(SKYTRACK_S_T, -1, -1, -1, trans);
+		}
+		tempdata->x_rot = rails[i]->rot.x;
+		tempdata->y_rot = rails[i]->rot.y;
+		tempdata->z_rot = rails[i]->rot.z;
+		tempdata->angle = rails[i]->angle;
+		tempdata->x = rails[i]->loc.x;
+		tempdata->y = rails[i]->loc.y;
+		tempdata->z = rails[i]->loc.z;
+
+		rail_check_point* temp = new rail_check_point;
+		temp->loc = rails[i]->loc;
+		temp->rail_type = rails[i]->type;
+
+		temp_rails.push_back(temp);
+	}
+
+	AM->define_routine(RAIL_ROUTINE, temp_rails);
+
+	AM->turn_object_into_actor(cart, RAIL_ROUTINE);
+
 	std::cout << "spawning in objects" << std::endl;
 	for (int i = 0; i < x_width; i++) {
 		for (int h = 0; h < z_width; h++) {
@@ -304,28 +350,6 @@ void city::init(object_manger* OBJM, animation_manager* an) {
 	//test for the pathing area for the chicken routine
 	//std::cout << "low  " << low_x << "," << low_z << " || hig " << hig_x << "," << hig_z << std::endl;
 	std::cout << "chicken number " <<num_chickens<< std::endl;
-
-
-	std::vector< rail_section*> rails = city_info->get_rails();
-	item_info* tempdata;
-	for (int i = 0; i < rails.size(); i++) {
-		glm::mat4 trans = glm::mat4(1.0f);
-		trans = glm::translate(trans, rails[i]->loc);
-		trans = glm::rotate(trans, glm::radians(rails[i]->angle), rails[i]->rot);
-		if (rails[i]->type == 1) {
-			tempdata = OBJM->spawn_item(SKYTRACK_C_T, -1, -1, -1, trans);
-		}
-		else {
-			tempdata = OBJM->spawn_item(SKYTRACK_S_T, -1, -1, -1, trans);
-		}
-		tempdata->x_rot = rails[i]->rot.x;
-		tempdata->y_rot = rails[i]->rot.y;
-		tempdata->z_rot = rails[i]->rot.z;
-		tempdata->angle = rails[i]->angle;
-		tempdata->x = rails[i]->loc.x;
-		tempdata->y = rails[i]->loc.y;
-		tempdata->z = rails[i]->loc.z;
-	}
 
 	std::cout<< std::endl;
 

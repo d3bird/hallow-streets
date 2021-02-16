@@ -24,7 +24,15 @@
 * it will update the possition of the sounds with the possition of the moving models
 */
 
-enum routine_designation { DEFF_ERROR_ROUTINE = 0, DEFF_WORLD_ROUTINE = 1, CHICKEN_ROUTINE = 2 };
+enum routine_designation { DEFF_ERROR_ROUTINE = 0, DEFF_WORLD_ROUTINE = 1, CHICKEN_ROUTINE = 2, RAIL_ROUTINE =3};
+
+
+//this struct controlls the checkpoints for the cart to follow
+struct rail_check_point {
+	glm::vec3 loc;
+	int rail_type;
+
+};
 
 struct routine{
 	bool defined = false;
@@ -42,6 +50,9 @@ struct routine{
 	float min_flee_distance;
 
 	bool return_area;//if they get forced out of the area for any reason, this determins if they return 
+
+	bool rail_network = false;
+	std::vector<rail_check_point* > rails;
 };
 
 struct actor{
@@ -54,9 +65,16 @@ struct actor{
 	routine_designation routine;
 	bool in_designated_area =true;
 
+	float move_speed = 30;
+
+	int animation_section =0;
 
 	float cooldown = 0;
 	float cooldown_max = 10;
+
+
+	//for rail cart
+	bool at_start = true;
 };
 
 class animation_manager {
@@ -69,6 +87,7 @@ public:
 	int turn_object_into_actor(item_info* obje, routine_designation route = DEFF_ERROR_ROUTINE, sound* soun = NULL );
 
 	void define_routine(routine_designation route, int x_min, int z_min, int x_max, int z_max);
+	void define_routine(routine_designation route, std::vector< rail_check_point*> points);
 
 	void init();
 
@@ -81,6 +100,8 @@ public:
 	void set_object_manger(object_manger*i) { OBJM = i; }
 
 private:
+
+	int get_routine_index(routine_designation i);
 
 	void create_nav_points(actor* act);
 
