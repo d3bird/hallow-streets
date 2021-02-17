@@ -67,6 +67,11 @@ struct actor{
 
 	float move_speed = 30;
 
+	bool being_held = false;
+	bool holding_somethig = false;
+	actor* held_actor = NULL;
+	actor* being_held_by_actor = NULL;
+
 	int animation_section =0;
 
 	float cooldown = 0;
@@ -119,4 +124,6 @@ private:
 	std::vector<actor*> actors;
 	std::vector<routine*> routines;
 	int routine_total_predefined;
+	actor* cart_waiting_loading_station;
+	bool revived_victum;
 };

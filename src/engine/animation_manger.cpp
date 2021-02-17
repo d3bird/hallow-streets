@@ -4,7 +4,7 @@ animation_manager::animation_manager() {
 	Time = NULL;
 	deltatime = NULL;
 	cam = NULL;
-
+	cart_waiting_loading_station = NULL;
 	id_highest = 0;
 	routine_total_predefined = 4;
 }
@@ -106,7 +106,32 @@ void animation_manager::update() {
 			if (actors[i]->cooldown >= 0) {
 				actors[i]->cooldown -= cool;
 			}
+			if (actors[i]->being_held) {
+				actor* holding = actors[i]->being_held_by_actor;
+				glm::vec3 current_loc = glm::vec3(holding->object->x, holding->object->y, holding->object->z);
 
+				current_loc.y += 3;
+
+				actors[i]->object->x = current_loc.x;
+				actors[i]->object->y = current_loc.y;
+				actors[i]->object->z = current_loc.z;
+
+				update_pak update_pac;
+
+				update_pac.x = current_loc.x;
+				update_pac.y = current_loc.y;
+				update_pac.z = current_loc.z;
+
+				update_pac.x_scale = 1;
+				update_pac.y_scale = 1;
+				update_pac.z_scale = 1;
+
+				update_pac.buffer_loc = actors[i]->object->buffer_loc;
+				update_pac.item_id = actors[i]->object->item_id;
+
+				OBJM->update_item_matrix(&update_pac);
+
+			}else
 			if (actors[i]->nav_points.empty()) {//get the next set of nav points
 				//std::cout << "out of nav points" << i << std::endl;
 				create_nav_points(actors[i]);
@@ -499,11 +524,24 @@ void animation_manager::create_nav_points(actor* act) {
 			distribution = std::uniform_real_distribution<float>(routines[index]->z_min, routines[index]->z_max);
 			dest_z = distribution(mt);
 
+
+			if (cart_waiting_loading_station != NULL && !cart_waiting_loading_station->holding_somethig) {
+				cart_waiting_loading_station->holding_somethig = true;
+				cart_waiting_loading_station->held_actor = act;
+				act->being_held = true;
+				act->being_held_by_actor = cart_waiting_loading_station;
+			}
+
 		}
 		else if (index == 3) {
 			dest_x = routines[index]->rails[0]->loc.x;
 			dest_z = routines[index]->rails[0]->loc.z;
-			if (act->object->x == dest_x && act->object->z == dest_z) {
+
+			if (cart_waiting_loading_station == NULL && !act->holding_somethig) {
+				cart_waiting_loading_station = act;
+			}
+
+			if (act->holding_somethig /*&& act->object->x == dest_x && act->object->z == dest_z*/) {
 				int size = dest_x = routines[index]->rails.size() - 1;
 				dest_x = routines[index]->rails[size]->loc.x;
 				dest_z = routines[index]->rails[size]->loc.z;
