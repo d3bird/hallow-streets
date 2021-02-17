@@ -131,6 +131,20 @@ void animation_manager::update() {
 
 				OBJM->update_item_matrix(&update_pac);
 
+				//check if it needs to play a sound if the 
+				int route_index = get_routine_index(actors[i]->routine);
+				if (routines[route_index]->behavior == 1) {
+					glm::vec3 cam_loc = cam->get_pos();
+					if ((diff_btwn_pnt(current_loc.x, cam_loc.x) >= 0 && diff_btwn_pnt(current_loc.x, cam_loc.x) <= 10)
+						&& (diff_btwn_pnt(current_loc.z, cam_loc.z) >= 0 && diff_btwn_pnt(current_loc.z, cam_loc.z) <= 10)) {
+						if (actors[i]->cooldown <= 0) {
+							//std::cout << "playing sound" << std::endl;
+							sound_system->play_3D_sound(chicken_alarm_call, current_loc);
+							actors[i]->cooldown = actors[i]->cooldown_max;
+						}
+					}
+				}
+
 			}else
 			if (actors[i]->nav_points.empty()) {//get the next set of nav points
 				//std::cout << "out of nav points" << i << std::endl;
@@ -147,6 +161,7 @@ void animation_manager::update() {
 					//std::cout << "updateing " << route_index<<" with behavior "<< routines[route_index]->behavior << std::endl;
 
 					//react to the cammera location
+				if(routines[route_index]->behavior ==1){
 					glm::vec3 cam_loc = cam->get_pos();
 
 					if ((diff_btwn_pnt(current_loc.x, cam_loc.x) >= 0 && diff_btwn_pnt(current_loc.x, cam_loc.x) <= 10)
@@ -172,7 +187,7 @@ void animation_manager::update() {
 							actors[i]->cooldown = actors[i]->cooldown_max;
 						}
 					}
-				//}
+				}
 
 
 				glm::vec3 nav_point = actors[i]->nav_points[0];
@@ -244,8 +259,24 @@ void animation_manager::update() {
 				if (reached_z && reached_x) {
 					//std::cout << "reached the distination" << i << std::endl;
 
-					switch (actors[i]->routine == RAIL_ROUTINE) {
-						actors[i]->at_start = !actors[i]->at_start;
+					if (actors[i]->routine == RAIL_ROUTINE) {
+
+						if (actors[i]->at_start) {
+							cart_waiting_loading_station = actors[i];
+						}else
+						if (!actors[i]->at_start && actors[i]->holding_somethig) {
+							std::cout << "updating the cart to unload" << std::endl;
+							actors[i]->held_actor->routine = DEFF_ERROR_ROUTINE;
+							actors[i]->held_actor->being_held = false;
+							actors[i]->held_actor->being_held_by_actor = NULL;
+
+							create_nav_points(actors[i]->held_actor, true);
+							actors[i]->holding_somethig = false;
+							actors[i]->held_actor = NULL;
+							
+
+							cart_waiting_loading_station = NULL;
+						}
 					}
 
 					if(actors[i]->nav_points.size() == 1){
@@ -489,7 +520,11 @@ break;
 	}
 }
 
-void animation_manager::create_nav_points(actor* act) {
+void animation_manager::create_nav_points(actor* act, bool wipe_old_points) {
+
+	if (wipe_old_points) {
+		act->nav_points.clear();
+	}
 
 	if (act != NULL && act->nav_points.empty()) {
 
@@ -538,13 +573,15 @@ void animation_manager::create_nav_points(actor* act) {
 			dest_z = routines[index]->rails[0]->loc.z;
 
 			if (cart_waiting_loading_station == NULL && !act->holding_somethig) {
-				cart_waiting_loading_station = act;
+				//cart_waiting_loading_station = act;
+				act->at_start = true;
 			}
 
 			if (act->holding_somethig /*&& act->object->x == dest_x && act->object->z == dest_z*/) {
 				int size = dest_x = routines[index]->rails.size() - 1;
 				dest_x = routines[index]->rails[size]->loc.x;
 				dest_z = routines[index]->rails[size]->loc.z;
+				act->at_start = false;
 			}
 
 			//std::cout << dest_x << " " << dest_z << std::endl;

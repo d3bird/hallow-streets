@@ -108,7 +108,7 @@ private:
 
 	int get_routine_index(routine_designation i);
 
-	void create_nav_points(actor* act);
+	void create_nav_points(actor* act, bool wipe_old_points = false);
 
 	timing* Time;
 	float* deltatime;
