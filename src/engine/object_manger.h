@@ -124,7 +124,7 @@ public:
 	item_info* split_item_stacks(item_info* keep, int amount);
 
 	//getters and setters
-	void set_projection(glm::mat4 i) { projection = i; update_projection = true; }
+	void set_projection(glm::mat4 i) { projection = i; update_projection = true; if (common != NULL) { common->setMat4("projection", i); } }
 	void set_cam(glm::mat4 i) { view = i; update_cam = true; }
 	void set_standered_shader(Shader* i) { common = i; }
 	void set_max_cubes(int i) { max_cubes = i; };

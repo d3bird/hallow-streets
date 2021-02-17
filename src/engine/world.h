@@ -74,6 +74,8 @@ private:
 	glm::vec3 cam_pos;
 	timing* Time;
 
+	bool update_projection;
+
 	city* City;
 	sky* Sky;
 	text_engine* text_render;

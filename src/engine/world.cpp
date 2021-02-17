@@ -9,6 +9,7 @@ world::world() {
     render_text = false;
     draw_speakers = false;
     draw_lights_debug = false;
+    update_projection = false;
 }
 
 world::~world(){
@@ -177,8 +178,17 @@ void world::update() {
 
 void world::change_projection(glm::mat4 i) {
     projection = i;
-    City->set_projection(projection);
-    Sky->set_projection(projection);
+    update_projection = true;
+    if (shaderGeometryPass != NULL) {
+        shaderGeometryPass->setMat4("projection", i);
+    }
+    if (shaderLightBox != NULL) {
+        shaderLightBox->setMat4("projection", i);
+    }
+
+    OBJM->set_projection(i);
+   // City->set_projection(projection);
+    //Sky->set_projection(projection);
     //lighting_in
 }
 
