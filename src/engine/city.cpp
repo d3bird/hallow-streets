@@ -116,6 +116,25 @@ void city::init(object_manger* OBJM, animation_manager* an) {
 			cart->z = rails[i]->loc.z;
 		}
 
+		if (i == rails.size() - 1) {
+			glm::vec3 temp_loc = rails[i]->loc;
+			glm::mat4 temp_trans = glm::mat4(1.0f);
+			temp_loc.z -= 6;
+			temp_loc.y += 8;
+			temp_trans = glm::translate(temp_trans, temp_loc);
+			tempdata = OBJM->spawn_item(ZAP_TOWER_T, -1, -1, -1, temp_trans);
+			tempdata = OBJM->spawn_item(ZAP_SPHERE_T, -1, -1, -1, temp_trans);
+			temp_loc.y -= 8;
+			temp_loc.x += 15;
+
+			temp_trans = glm::mat4(1.0f);
+			temp_trans = glm::translate(temp_trans, temp_loc);
+			temp_trans = glm::rotate(temp_trans, glm::radians(180.0f), rails[i]->rot);
+			tempdata = OBJM->spawn_item(CANNON_FRAME_T, -1, -1, -1, temp_trans);
+			tempdata = OBJM->spawn_item(CANNON_PLATFORM_T, -1, -1, -1, temp_trans);
+			tempdata = OBJM->spawn_item(CANNON_T, -1, -1, -1, temp_trans);
+		}
+
 
 		if (rails[i]->type == 1) {
 			tempdata = OBJM->spawn_item(SKYTRACK_C_T, -1, -1, -1, trans);

@@ -75,7 +75,7 @@ void main(){
                 vec3(0.666667,1,1),
                 clamp(length(r.x),0.0,1.0));
 
-    //FragColor = vec4((f*f*f+.6*f*f+.5*f)*color,1.);
-     FragColor =texture(ourTexture, TexCoord) * vec4((f*f*f+.6*f*f+.5*f)*color,1.);
+    FragColor = vec4((f*f*f+.6*f*f+.5*f)*color,1.);
+    // FragColor =texture(ourTexture, TexCoord) * vec4((f*f*f+.6*f*f+.5*f)*color,1.);
     //FragColor = texture(texture_diffuse1, TexCoords);
 }
