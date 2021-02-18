@@ -113,6 +113,9 @@ public:
 	~object_manger();
 
 	void draw();
+
+	void draw_cursed_ob();
+
 	void init();
 
 	void update_item_matrix(update_pak* data);
@@ -147,6 +150,8 @@ public:
 #endif // DEMO1
 
 private:
+
+	void create_cursed_object_buffer();
 
 	void increase_buffer_size();
 
@@ -194,6 +199,9 @@ private:
 	bool draw_chicken;
 	bool draw_cart;
 
+	//cursed objects
+	Shader* cursed;
+	float u_time;
 	//demo1 vars
 #ifdef DEMO1
 

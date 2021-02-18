@@ -143,6 +143,8 @@ void world::draw_deferred() {
 
     ADM->draw_speaker_locations();
 
+    OBJM->draw_cursed_ob();
+
     //daw objects that need to be affected by blending
     if (render_text) {
         glEnable(GL_BLEND);

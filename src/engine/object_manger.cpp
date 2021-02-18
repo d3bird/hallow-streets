@@ -22,9 +22,11 @@ object_manger::object_manger() {
 	draw_sideroads = true;
 	draw_sky_rail_s = true;
 	draw_sky_rail_c = true;
-	draw_chicken = true;
+	draw_chicken = false;
 	draw_cart = true;
 
+	cursed = new Shader("cursed.vs", "cursed.fs");
+	u_time = 0;
 	//demo 1 vars
 #ifdef DEMO1
 	angle = 0;
@@ -84,6 +86,33 @@ void object_manger::draw() {
 
 }
 
+void object_manger::draw_cursed_ob() {
+	cursed->use();
+	cursed->setMat4("projection", projection);
+	cursed->setMat4("view", view);
+	u_time += (*deltatime);
+	cursed->setFloat("u_time", u_time);
+	int q = 8;
+		//if (items[q]->draw) {
+			glm::mat4* matrix_temp = items[q]->modelMatrices;
+			glBindBuffer(GL_ARRAY_BUFFER, items[q]->buffer);
+			if (items[q]->updatemats) {
+				glBufferData(GL_ARRAY_BUFFER, items[q]->amount * sizeof(glm::mat4), &matrix_temp[0], GL_STATIC_DRAW);
+				items[q]->updatemats = false;
+			}
+
+			common->setInt("texture_diffuse1", 0);
+			glActiveTexture(GL_TEXTURE0);
+			glBindTexture(GL_TEXTURE_2D, items[q]->model->textures_loaded[0].id);
+			for (unsigned int i = 0; i < items[q]->model->meshes.size(); i++)
+			{
+				glBindVertexArray(items[q]->model->meshes[i].VAO);
+				glDrawElementsInstanced(GL_TRIANGLES, items[q]->model->meshes[i].indices.size(), GL_UNSIGNED_INT, 0, items[q]->amount);
+				glBindVertexArray(0);
+			}
+		//}
+
+}
 
 #ifdef DEMO1
 void object_manger::update_demo1() {
@@ -391,8 +420,17 @@ void object_manger::init() {
 	create_chicken_object();
 	create_sky_cart_object();
 
+	create_cursed_object_buffer();
+
 	std::cout << "finished creating the object manager" << std::endl;
 }
+
+void object_manger::create_cursed_object_buffer() {
+
+
+}
+
+
 
 void object_manger::increase_buffer_size() {
 
