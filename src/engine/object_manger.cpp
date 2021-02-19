@@ -14,11 +14,11 @@ object_manger::object_manger() {
 
 	max_cubes = 0;
 
-	draw_cubes = true;
-	draw_wall = true;
-	draw_wall_c = true;
+	draw_cubes = false;
+	draw_wall = false;
+	draw_wall_c = false;
 	draw_sidewalk = true;
-	draw_light_post = true;
+	draw_light_post = false;
 	draw_sideroads = true;
 	draw_sky_rail_s = true;
 	draw_sky_rail_c = true;

@@ -5,8 +5,29 @@ animation_manager::animation_manager() {
 	deltatime = NULL;
 	cam = NULL;
 	cart_waiting_loading_station = NULL;
+	OBJM = NULL;
+	sound_system = NULL;
 	id_highest = 0;
-	routine_total_predefined = 4;
+	routine_total_predefined = 20;
+
+	flying_chicken = NULL;
+	//misc vars
+	ready_for_next = true;
+	flush = false;
+	sending_chicken_to_platform = false;
+	lowering = false;
+	raising = true;
+	ready_to_lower = false;
+	platform = NULL;
+
+	first_plat_cord = true;
+
+	//zap vars
+	lower_zap = false;
+	ready_to_zap = false;
+	zapping = false;
+	animation_time = 0;
+	animation_time_max = 2;
 }
 
 animation_manager::~animation_manager() {
@@ -63,14 +84,27 @@ int animation_manager::get_routine_index(routine_designation i) {
 	case RAIL_ROUTINE:
 		output = 3;
 		break;
+	case CHICKEN_TRANS1_ROUTINE://chicken to platform
+		output = 4;
+		break;
+	case CHICKEN_TRANS2_ROUTINE://chicken flying through the air
+		output = 5;
+		break;
+	case CANNON_ROUTINE://rotating the cannon
+		output = 6;
+		break;
+	case ZAP_TOWER_ROUTINE://moving down the zap tower and charging the chicken
+		output = 7;
+		break;
+	case CANNON_PLATFORM_ROUTINE://loading the cannon
+		output = 8;
+		break;
 	default:
 		break;
 	}
 
 	return output;
 }
-
-
 
 float diff_btwn_pnt(float start, float end) {
 	float output = 0;
@@ -112,9 +146,16 @@ void animation_manager::update() {
 
 				current_loc.y += 3;
 
+				
+				if (holding->routine == CANNON_PLATFORM_ROUTINE) {//special case for the moving platforms to load the cannon
+					current_loc.x += 15;
+					current_loc.y += 0.8;
+				}
+
 				actors[i]->object->x = current_loc.x;
 				actors[i]->object->y = current_loc.y;
 				actors[i]->object->z = current_loc.z;
+
 
 				update_pak update_pac;
 
@@ -192,6 +233,7 @@ void animation_manager::update() {
 
 				glm::vec3 nav_point = actors[i]->nav_points[0];
 				bool reached_x = false;
+				bool reached_y = false;
 				bool reached_z = false;
 				float temp;//remaining distance
 				//move x
@@ -210,6 +252,24 @@ void animation_manager::update() {
 					//std::cout << "can not move anymore on x axis" << std::endl;
 					current_loc.x = nav_point.x;
 					reached_x = true;
+				}
+
+				//move y
+				temp = diff_btwn_pnt(current_loc.y, nav_point.y);
+
+				if (speed <= temp) {
+					// std::cout << current_loc.x << " " << current_loc.y << " " << current_loc.z << " || " << speed << " <> " << temp << " && " << nav_point.x << std::endl;
+					if (determin_direction(current_loc.y, nav_point.y)) {
+						current_loc.y += speed;
+					}
+					else {
+						current_loc.y -= speed;
+					}
+				}
+				else {
+					//std::cout << "can not move anymore on x axis" << std::endl;
+					current_loc.y = nav_point.y;
+					reached_y = true;
 				}
 
 				//move z
@@ -256,7 +316,7 @@ void animation_manager::update() {
 
 				OBJM->update_item_matrix(&update_pac);
 
-				if (reached_z && reached_x) {
+				if (reached_z && reached_x && reached_y) {
 					//std::cout << "reached the distination" << i << std::endl;
 
 					if (actors[i]->routine == RAIL_ROUTINE) {
@@ -265,19 +325,86 @@ void animation_manager::update() {
 							cart_waiting_loading_station = actors[i];
 						}else
 						if (!actors[i]->at_start && actors[i]->holding_somethig) {
-							std::cout << "updating the cart to unload" << std::endl;
-							actors[i]->held_actor->routine = DEFF_ERROR_ROUTINE;
-							actors[i]->held_actor->being_held = false;
-							actors[i]->held_actor->being_held_by_actor = NULL;
+							if (!sending_chicken_to_platform) {//if there is no chicken on the platform
+								std::cout << "updating the cart to unload" << std::endl;
+								actors[i]->held_actor->routine = CHICKEN_TRANS1_ROUTINE;
+								actors[i]->held_actor->being_held = false;
+								actors[i]->held_actor->being_held_by_actor = NULL;
 
-							create_nav_points(actors[i]->held_actor, true);
-							actors[i]->holding_somethig = false;
-							actors[i]->held_actor = NULL;
-							
+								create_nav_points(actors[i]->held_actor, true);
+								actors[i]->holding_somethig = false;
+								actors[i]->held_actor = NULL;
 
-							cart_waiting_loading_station = NULL;
+
+								cart_waiting_loading_station = NULL;
+								sending_chicken_to_platform = true;
+							}
 						}
 					}
+					else if (actors[i]->routine == CHICKEN_TRANS1_ROUTINE) {
+						//std::cout << "there is a chicken on the platform" << std::endl;
+						platform = actors[i];
+					}
+					else if (actors[i]->routine == CANNON_PLATFORM_ROUTINE) {
+						
+						if (ready_for_next && !actors[i]->holding_somethig && platform != NULL) {
+							std::cout << "there is a chicken on the platform" << std::endl;
+							actors[i]->holding_somethig = true;
+							actors[i]->held_actor = platform;
+
+							platform->being_held = true;
+							platform->being_held_by_actor = actors[i];
+							lower_zap = true;
+							ready_for_next = false;
+						}
+
+						if (ready_to_lower && actors[i]->holding_somethig) {
+							if (lowering) {
+								std::cout << "finished lowering down" << std::endl;
+								lowering = false;
+								raising = true;					
+								flush = true;
+							}
+							else {
+								std::cout << "finished rasing up" << std::endl;
+								lowering = true;
+								raising = false;
+
+								//ready_for_next = true;
+							}
+						}
+
+						if (platform == NULL) {
+							sending_chicken_to_platform = false;
+						}
+
+					}
+					else if (actors[i]->routine == ZAP_TOWER_ROUTINE ) {
+						if (lower_zap) {
+							//std::cout << "finished lowering down" << std::endl;
+							lower_zap = false;
+							ready_to_zap = true;
+							zapping = true;
+							std::cout << "start of zappng animation" << std::endl;
+
+						}
+
+
+						if (zapping && ready_to_zap) {
+							animation_time += (*deltatime);
+							if (animation_time >= animation_time_max) {
+								animation_time = 0;
+								zapping = false;
+								ready_to_zap = false;
+								//lower the platform
+								ready_to_lower = true;
+								lowering = true;
+
+								std::cout << "end of zappng animation" << std::endl;
+							}
+						}
+					}
+
 
 					if(actors[i]->nav_points.size() == 1){
 						actors[i]->nav_points.pop_back();
@@ -294,7 +421,7 @@ void animation_manager::update() {
 
 }
 
-//takes a object and a 
+//takes a object and add an animation pattern
 int animation_manager::turn_object_into_actor(item_info* obje, routine_designation route , sound* soun) {
 	std::cout << "turning object into an actor following ";
 
@@ -309,10 +436,30 @@ int animation_manager::turn_object_into_actor(item_info* obje, routine_designati
 		break;
 	case CHICKEN_ROUTINE:
 		std::cout << "CHICKEN_ROUTINE" << std::endl;
+		move_speed = 5;
 		break;
 	case RAIL_ROUTINE:
 		std::cout << "RAIL_ROUTINE" << std::endl;
 		move_speed = 15;
+		break;
+	case CHICKEN_TRANS1_ROUTINE:
+		std::cout << "CHICKEN_TRANS1_ROUTINE" << std::endl;
+		break;
+	case CHICKEN_TRANS2_ROUTINE:
+		std::cout << "CHICKEN_TRANS2_ROUTINE" << std::endl;
+		break;
+	case CANNON_ROUTINE:
+		std::cout << "CANNON_ROUTINE" << std::endl;
+		break;
+	case ZAP_SPHERE_ROUTINE:
+	case ZAP_TOWER_ROUTINE:
+		std::cout << "ZAP_TOWER_ROUTINE" << std::endl;
+		move_speed = 5;
+
+		break;
+	case CANNON_PLATFORM_ROUTINE:
+		std::cout << "CANNON_PLATFORM_ROUTINE" << std::endl;
+		move_speed = 5;
 		break;
 	default:
 		break;
@@ -360,10 +507,10 @@ int animation_manager::turn_object_into_actor(item_info* obje, routine_designati
 	return new_act->id;
 }
 
-
 void animation_manager::define_routine(routine_designation route, std::vector< rail_check_point*> points) {
-	
-	unsigned int buffer_loc = 0;
+	//std::cout << "defining a route from rail points" << std::endl;
+
+	unsigned int buffer_loc = get_routine_index(route);
 
 	switch (route)
 	{
@@ -381,13 +528,26 @@ void animation_manager::define_routine(routine_designation route, std::vector< r
 		break;
 	case RAIL_ROUTINE:
 		std::cout << "defining RAIL_ROUTINE" << std::endl;
-		buffer_loc = 3;
+		break;
+	case CHICKEN_TRANS1_ROUTINE:
+		std::cout << "defining CHICKEN_TRANS1_ROUTINE" << std::endl;
+		break;
+	case CANNON_PLATFORM_ROUTINE:
+		std::cout << "defining CANNON_PLATFORM_ROUTINE" << std::endl;
+		break;
+	case ZAP_TOWER_ROUTINE:
+		std::cout << "defining ZAP_TOWER_ROUTINE" << std::endl;
+		break;
+	case ZAP_SPHERE_ROUTINE:
+		std::cout << "defining ZAP_SPHERE_ROUTINE" << std::endl;
 		break;
 	default:
 		std::cout << "not a recognised routine" << std::endl;
 		return;
 		break;
 	}
+
+	std::cout << "checkout at buffer_loc: "<<buffer_loc << std::endl;
 
 	if (buffer_loc >= routines.size()) {
 		std::cout << "this routine has not been inited" << std::endl;
@@ -416,6 +576,25 @@ void animation_manager::define_routine(routine_designation route, std::vector< r
 			min_flee_distance = -1;
 			return_area = true;
 			break;
+		case CHICKEN_TRANS1_ROUTINE:
+			behavior = 4;
+			flee_player = false;
+			min_flee_distance = -1;
+			return_area = true;
+			break;
+		case CANNON_PLATFORM_ROUTINE:
+			behavior = 5;
+			flee_player = false;
+			min_flee_distance = -1;
+			return_area = true;
+			break;
+		case ZAP_SPHERE_ROUTINE:
+		case ZAP_TOWER_ROUTINE:
+			behavior = 6;
+			flee_player = false;
+			min_flee_distance = -1;
+			return_area = true;
+			break;
 		}
 
 		routines[buffer_loc]->designation = route;
@@ -427,13 +606,34 @@ void animation_manager::define_routine(routine_designation route, std::vector< r
 
 
 		for (int i = 0; i < points.size(); i++) {
-			if (i == 0 || i == points.size() - 1) {
+			if (points[i]->rail_type != -1 &&(i == 0 || i == points.size() - 1)) {
 				points[i]->rail_type = 3;
 			}
 			routines[buffer_loc]->rails.push_back(points[i]);
 		}
 	}
 
+}
+
+void animation_manager::define_routine(routine_designation route, std::vector<glm::vec3> points) {
+	//std::cout << "defining a route from many point" << std::endl;
+	std::vector<rail_check_point*> output;
+	rail_check_point* temp;
+	for (int i = 0; i < points.size(); i++) {
+		temp = new rail_check_point;
+		temp->loc = points[i];
+		temp->rail_type = -1;
+		output.push_back(temp);
+	}
+
+	define_routine(route, output);
+}
+
+void animation_manager::define_routine(routine_designation route, glm::vec3 point) {
+	//std::cout << "defining a route from a point" << std::endl;
+	std::vector<glm::vec3> output;
+	output.push_back(point);
+	define_routine(route, output);
 }
 
 void animation_manager::define_routine(routine_designation route, int x_min, int z_min, int x_max, int z_max) {
@@ -530,8 +730,10 @@ void animation_manager::create_nav_points(actor* act, bool wipe_old_points) {
 
 		float dest_x = -1;
 		float dest_z = -1;
-
+		float dest_y = 4;
 		int index = 0;
+
+		bool multi_points = false;
 
 		switch (act->routine)
 		{
@@ -543,6 +745,23 @@ void animation_manager::create_nav_points(actor* act, bool wipe_old_points) {
 			//std::cout << "updating cart" << std::endl;
 
 			//std::cout << act->object->x <<" "<< act->object->z<< std::endl;
+			break;
+		case CHICKEN_TRANS1_ROUTINE:
+			index = 4;
+			break;
+		case CHICKEN_TRANS2_ROUTINE:
+			index = 5;
+			break;
+		case CANNON_PLATFORM_ROUTINE:
+			index = get_routine_index(CANNON_PLATFORM_ROUTINE);
+			break;
+		case CANNON_ROUTINE:
+			index = get_routine_index(CANNON_ROUTINE);
+			break;
+		case ZAP_SPHERE_ROUTINE:
+		case ZAP_TOWER_ROUTINE:
+			index = get_routine_index(ZAP_TOWER_ROUTINE);
+			//std::cout << "ZAP_TOWER_ROUTINE index: " << index << std::endl;
 			break;
 		case DEFF_ERROR_ROUTINE:
 		case DEFF_WORLD_ROUTINE:
@@ -587,9 +806,120 @@ void animation_manager::create_nav_points(actor* act, bool wipe_old_points) {
 			//std::cout << dest_x << " " << dest_z << std::endl;
 
 		}
+		else if (index == 4) {
+			dest_x = routines[index]->rails[0]->loc.x;
+			dest_y = routines[index]->rails[0]->loc.y;
+			dest_z = routines[index]->rails[0]->loc.z;
+		}
+		else if (index == 5) {
+			//get the end possition 
+			std::random_device rd;
+			std::mt19937 mt(rd());
+			std::uniform_real_distribution<float> distribution(routines[index]->x_min, routines[index]->x_max);
+			dest_x = distribution(mt);
+			distribution = std::uniform_real_distribution<float>(routines[index]->z_min, routines[index]->z_max);
+			dest_z = distribution(mt);
 
-		act->nav_points.push_back(glm::vec3(dest_x, 4, dest_z));
+			multi_points = true;
 
+			//act->object->x = dest_x;
+			act->object->y += 10;
+			//act->object->z = dest_z;
+
+			//double r = 310.0;
+			//int n = 10;
+			//for (int i = 0; i < n; i++)
+			//{
+			//	double x = i * r / n;
+			//	double y = sqrt(r * r - x * x);
+			//	// both (x,y) and (x,-y) are points on the half-circle
+			//}
+
+		}
+		else if (index == 6) {
+
+		}
+		else if (index == 7) {
+			if (lower_zap || ready_to_zap) {//lower the platform down
+				//std::cout << "setting down" << std::endl;
+				dest_x = routines[index]->rails[0]->loc.x;
+				dest_y = routines[index]->rails[0]->loc.y - 6;
+				dest_z = routines[index]->rails[0]->loc.z;
+			}
+			else {//raise it back to the def possition
+				//std::cout << "setting up" << std::endl;
+				dest_x = routines[index]->rails[0]->loc.x;
+				dest_y = routines[index]->rails[0]->loc.y;
+				dest_z = routines[index]->rails[0]->loc.z;
+			}
+		}
+		else if (index == 8) {
+			if (first_plat_cord) {
+				dest_x = routines[index]->rails[0]->loc.x;
+				dest_y = routines[index]->rails[0]->loc.y;
+				dest_z = routines[index]->rails[0]->loc.z;
+
+				act->object->x = dest_x;
+				act->object->y = dest_y;
+				act->object->z = dest_z;
+
+				first_plat_cord = false;
+			}
+			else if (ready_to_lower && lowering){//lower the platform down
+				dest_x = routines[index]->rails[0]->loc.x;
+				dest_y = routines[index]->rails[0]->loc.y - 3;
+				dest_z = routines[index]->rails[0]->loc.z;
+			}
+			else {//raise it back to the def possition
+				if (flush) {
+					flying_chicken = platform;
+					platform->being_held = false;
+					platform->being_held_by_actor = NULL;
+
+					act->holding_somethig = false;
+					act->held_actor = NULL;
+
+					platform->routine = DEFF_ERROR_ROUTINE;
+					create_nav_points(platform, true);
+					platform = NULL;
+
+
+					//ready_for_next = true;
+					//flush = false;
+
+					//lowering = false;
+
+					//animation_time = 0;
+					//lower_zap = false;
+					//zapping = false;
+					//ready_to_zap = false;
+
+					ready_for_next = true;
+					flush = false;
+					sending_chicken_to_platform = false;
+					lowering = false;
+					raising = true;
+					ready_to_lower = false;
+					platform = NULL;
+
+					first_plat_cord = true;
+
+					//zap vars
+					lower_zap = false;
+					ready_to_zap = false;
+					zapping = false;
+					animation_time = 0;
+					animation_time_max = 2;
+
+				}
+				dest_x = routines[index]->rails[0]->loc.x;
+				dest_y = routines[index]->rails[0]->loc.y;
+				dest_z = routines[index]->rails[0]->loc.z;
+			}
+		}
+		if (!multi_points) {
+			act->nav_points.push_back(glm::vec3(dest_x, dest_y, dest_z));
+		}
 	}
 }
 

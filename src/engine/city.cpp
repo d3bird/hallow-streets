@@ -99,7 +99,17 @@ void city::init(object_manger* OBJM, animation_manager* an) {
 	std::vector< rail_section*> rails = city_info->get_rails();
 	item_info* tempdata = NULL;
 	item_info* cart = NULL;
+	item_info* zap_t = NULL;
+	item_info* zap_s = NULL;
+	item_info* platform = NULL;
+	item_info* cannon = NULL;
 	std::vector<rail_check_point*> temp_rails;
+
+	glm::vec3 platform_point = glm::vec3(-1,-1,-1);
+	glm::vec3 platform_point_ob = glm::vec3(-1, -1, -1);
+
+	glm::vec3 zap_o_tron = glm::vec3(-1, -1, -1);
+
 	for (int i = 0; i < rails.size(); i++) {
 		glm::mat4 trans = glm::mat4(1.0f);
 		trans = glm::translate(trans, rails[i]->loc);
@@ -119,20 +129,68 @@ void city::init(object_manger* OBJM, animation_manager* an) {
 		if (i == rails.size() - 1) {
 			glm::vec3 temp_loc = rails[i]->loc;
 			glm::mat4 temp_trans = glm::mat4(1.0f);
+
 			temp_loc.z -= 6;
+			platform_point = temp_loc;
+			platform_point.y += 3.8;
+			
 			temp_loc.y += 8;
+			zap_o_tron = temp_loc;
 			temp_trans = glm::translate(temp_trans, temp_loc);
-			tempdata = OBJM->spawn_item(ZAP_TOWER_T, -1, -1, -1, temp_trans);
-			tempdata = OBJM->spawn_item(ZAP_SPHERE_T, -1, -1, -1, temp_trans);
+			zap_t = OBJM->spawn_item(ZAP_TOWER_T, -1, -1, -1, temp_trans);
+			zap_t->x_rot =0;
+			zap_t->y_rot = 1;
+			zap_t->z_rot =0;
+			zap_t->angle = 0;
+			zap_t->x = temp_loc.x;
+			zap_t->y = temp_loc.y;
+			zap_t->z = temp_loc.z;
+
+			zap_s = OBJM->spawn_item(ZAP_SPHERE_T, -1, -1, -1, temp_trans);
+			zap_s->x_rot = 0;
+			zap_s->y_rot = 1;
+			zap_s->z_rot = 0;
+			zap_s->angle = 0;
+			zap_s->x = temp_loc.x;
+			zap_s->y = temp_loc.y;
+			zap_s->z = temp_loc.z;
 			temp_loc.y -= 8;
 			temp_loc.x += 15;
 
 			temp_trans = glm::mat4(1.0f);
 			temp_trans = glm::translate(temp_trans, temp_loc);
 			temp_trans = glm::rotate(temp_trans, glm::radians(180.0f), rails[i]->rot);
+
 			tempdata = OBJM->spawn_item(CANNON_FRAME_T, -1, -1, -1, temp_trans);
-			tempdata = OBJM->spawn_item(CANNON_PLATFORM_T, -1, -1, -1, temp_trans);
-			tempdata = OBJM->spawn_item(CANNON_T, -1, -1, -1, temp_trans);
+
+			tempdata->x_rot = rails[i]->rot.x;
+			tempdata->y_rot = rails[i]->rot.y;
+			tempdata->z_rot = rails[i]->rot.z;
+			tempdata->angle = 180.0f;
+			tempdata->x = temp_loc.x;
+			tempdata->y = temp_loc.y;
+			tempdata->z = temp_loc.z;
+
+			platform_point_ob = temp_loc;
+			platform = OBJM->spawn_item(CANNON_PLATFORM_T, -1, -1, -1, temp_trans);
+
+			platform->x_rot = rails[i]->rot.x;
+			platform->y_rot = rails[i]->rot.y;
+			platform->z_rot = rails[i]->rot.z;
+			platform->angle = 180.0f;
+			platform->x = temp_loc.x;
+			platform->y = temp_loc.y;
+			platform->z = temp_loc.z;
+
+			cannon = OBJM->spawn_item(CANNON_T, -1, -1, -1, temp_trans);
+
+			cannon->x_rot = rails[i]->rot.x;
+			cannon->y_rot = rails[i]->rot.y;
+			cannon->z_rot = rails[i]->rot.z;
+			cannon->angle = 180.0f;
+			cannon->x = temp_loc.x;
+			cannon->y = temp_loc.y;
+			cannon->z = temp_loc.z;
 		}
 
 
@@ -157,9 +215,21 @@ void city::init(object_manger* OBJM, animation_manager* an) {
 		temp_rails.push_back(temp);
 	}
 
+	//create the routines based off of the rails
 	AM->define_routine(RAIL_ROUTINE, temp_rails);
+	AM->define_routine(CHICKEN_TRANS1_ROUTINE, platform_point);
+	AM->define_routine(ZAP_TOWER_ROUTINE, zap_o_tron);
+	AM->define_routine(ZAP_SPHERE_ROUTINE, zap_o_tron);
 
+	platform_point_ob.x -= 30;
+	AM->define_routine(CANNON_PLATFORM_ROUTINE, platform_point_ob);
+
+
+	//define the objects with routines
 	AM->turn_object_into_actor(cart, RAIL_ROUTINE);
+	AM->turn_object_into_actor(platform, CANNON_PLATFORM_ROUTINE);
+	AM->turn_object_into_actor(zap_t, ZAP_TOWER_ROUTINE);
+	AM->turn_object_into_actor(zap_s, ZAP_SPHERE_ROUTINE);
 
 	std::cout << "spawning in objects" << std::endl;
 	for (int i = 0; i < x_width; i++) {

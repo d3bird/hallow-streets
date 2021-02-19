@@ -24,7 +24,11 @@
 * it will update the possition of the sounds with the possition of the moving models
 */
 
-enum routine_designation { DEFF_ERROR_ROUTINE = 0, DEFF_WORLD_ROUTINE = 1, CHICKEN_ROUTINE = 2, RAIL_ROUTINE =3};
+enum routine_designation {
+	DEFF_ERROR_ROUTINE = 0, DEFF_WORLD_ROUTINE = 1, CHICKEN_ROUTINE = 2, RAIL_ROUTINE = 3,
+	CHICKEN_TRANS1_ROUTINE = 4, CHICKEN_TRANS2_ROUTINE = 5, CANNON_ROUTINE = 6, ZAP_TOWER_ROUTINE = 7, CANNON_PLATFORM_ROUTINE = 8,
+	ZAP_SPHERE_ROUTINE = 9
+};
 
 
 //this struct controlls the checkpoints for the cart to follow
@@ -93,6 +97,8 @@ public:
 
 	void define_routine(routine_designation route, int x_min, int z_min, int x_max, int z_max);
 	void define_routine(routine_designation route, std::vector< rail_check_point*> points);
+	void define_routine(routine_designation route, std::vector<glm::vec3> points);
+	void define_routine(routine_designation route, glm::vec3 point);
 
 	void init();
 
@@ -126,4 +132,27 @@ private:
 	int routine_total_predefined;
 	actor* cart_waiting_loading_station;
 	bool revived_victum;
+
+
+	bool sending_chicken_to_platform;
+	actor* platform;//if there is something on the platform
+	actor* flying_chicken;
+	//platform
+	bool ready_to_lower;
+	bool first_plat_cord;
+	bool lowering;
+	bool raising;
+
+	bool flush;
+
+	bool ready_for_next;
+
+	//zap_o_tron
+	bool lower_zap;
+	bool ready_to_zap;
+
+	bool zapping;
+
+	float animation_time;
+	float animation_time_max;
 };
