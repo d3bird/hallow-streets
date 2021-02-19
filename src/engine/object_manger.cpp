@@ -22,10 +22,11 @@ object_manger::object_manger() {
 	draw_sideroads = true;
 	draw_sky_rail_s = true;
 	draw_sky_rail_c = true;
-	draw_chicken = false;
+	draw_chicken = true;
 	draw_cart = true;
 	draw_cannon = true;
 	draw_zap_tower = true;
+	draw_cursed_chicken = false;//through the normal methode
 
 	cursed = new Shader("cursed.vs", "cursed.fs");
 	u_time = 0;
@@ -94,7 +95,7 @@ void object_manger::draw_cursed_ob() {
 	cursed->setMat4("view", view);
 	u_time += (*deltatime);
 	cursed->setFloat("u_time", u_time);
-	int q = 8;
+	int q = 15;
 		//if (items[q]->draw) {
 			glm::mat4* matrix_temp = items[q]->modelMatrices;
 			glBindBuffer(GL_ARRAY_BUFFER, items[q]->buffer);
@@ -103,7 +104,7 @@ void object_manger::draw_cursed_ob() {
 				items[q]->updatemats = false;
 			}
 
-			common->setInt("texture_diffuse1", 0);
+			cursed->setInt("texture_diffuse1", 0);
 			glActiveTexture(GL_TEXTURE0);
 			glBindTexture(GL_TEXTURE_2D, items[q]->model->textures_loaded[0].id);
 			for (unsigned int i = 0; i < items[q]->model->meshes.size(); i++)
@@ -431,7 +432,60 @@ void object_manger::init() {
 }
 
 void object_manger::create_cursed_object_buffer() {
+	unsigned int buffer;
+	unsigned int buffer_size;
+	unsigned int amount;
+	glm::mat4* modelMatrices;
+	Shader* custom_shader;
+	Model* model;
+	std::string* item_name_t = new std::string("cursed chicken object");
 
+	buffer = 0;
+	buffer_size = 200;
+	amount = 0;
+
+	modelMatrices = new glm::mat4[buffer_size];
+	custom_shader = NULL;
+	model = new Model("resources/objects/chicken_cursed/cursed_chicken.obj");
+
+	glGenBuffers(1, &buffer);
+	glBindBuffer(GL_ARRAY_BUFFER, buffer);
+	glBufferData(GL_ARRAY_BUFFER, amount * sizeof(glm::mat4), &modelMatrices[0], GL_STATIC_DRAW);
+
+	for (unsigned int i = 0; i < model->meshes.size(); i++)
+	{
+		unsigned int VAO = model->meshes[i].VAO;
+		glBindVertexArray(VAO);
+		// set attribute pointers for matrix (4 times vec4)
+		glEnableVertexAttribArray(3);
+		glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)0);
+		glEnableVertexAttribArray(4);
+		glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(sizeof(glm::vec4)));
+		glEnableVertexAttribArray(5);
+		glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(2 * sizeof(glm::vec4)));
+		glEnableVertexAttribArray(6);
+		glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(3 * sizeof(glm::vec4)));
+
+		glVertexAttribDivisor(3, 1);
+		glVertexAttribDivisor(4, 1);
+		glVertexAttribDivisor(5, 1);
+		glVertexAttribDivisor(6, 1);
+
+		glBindVertexArray(0);
+	}
+
+	item* temp = new item;
+	temp->buffer_size = buffer_size;
+	temp->buffer = buffer;
+	temp->amount = amount;
+	temp->model = model;
+	temp->modelMatrices = modelMatrices;
+	temp->custom_shader = custom_shader;
+	temp->item_name = item_name_t;
+	temp->draw = draw_cursed_chicken;
+
+
+	items.push_back(temp);
 
 }
 
@@ -1577,6 +1631,18 @@ item_info* object_manger::spawn_item(item_type type, int x,int y, int z, glm::ma
 		item_id = 14;
 		buffer_loc = items[14]->amount;
 		items[14]->amount++;
+		max_stack_size = 1;
+		stackable = false;
+		y_f = 2;
+		break;
+	case CURSE_CHICKEN_T:
+		if (items[15]->amount >= items[15]->buffer_size) {
+			std::cout << "there are too many cannon " << std::endl;
+			return NULL;
+		}
+		item_id = 15;
+		buffer_loc = items[15]->amount;
+		items[15]->amount++;
 		max_stack_size = 1;
 		stackable = false;
 		y_f = 2;

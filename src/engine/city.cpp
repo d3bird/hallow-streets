@@ -458,6 +458,16 @@ void city::init(object_manger* OBJM, animation_manager* an) {
 	tempdata->z = 10;
 	AM->turn_object_into_actor(tempdata, DEFF_ERROR_ROUTINE);
 
+	trans = glm::translate(trans, glm::vec3((10), 4, (10)));
+	tempdata = OBJM->spawn_item(CURSE_CHICKEN_T, -1, -1, -1, trans);
+	tempdata->x_rot = 0;
+	tempdata->y_rot = 1;
+	tempdata->z_rot = 0;
+	tempdata->angle = 0;
+	tempdata->x = 10;
+	tempdata->y = 4;
+	tempdata->z = 10;
+
 	cube_amount = x_width * z_width;
 
 	terrian_map = new map_tile * [x_width];

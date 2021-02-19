@@ -32,7 +32,7 @@
 enum item_type {CUBE_T, SIDEWALK_T, LIGHT_POST_T, WALL_T, WALL_C_T, SIDESTREET_T, 
 	SKYTRACK_S_T, SKYTRACK_C_T, CHICKEN_T, SKYTRACK_CART,
 	CANNON_FRAME_T, CANNON_PLATFORM_T, CANNON_T,
-	ZAP_TOWER_T, ZAP_SPHERE_T
+	ZAP_TOWER_T, ZAP_SPHERE_T, CURSE_CHICKEN_T
 };
 //the information on each unique object
 struct item_info {
@@ -205,6 +205,8 @@ private:
 	bool draw_sky_rail_c;
 	bool draw_chicken;
 	bool draw_cart;
+
+	bool draw_cursed_chicken;
 
 	bool draw_cannon;
 	bool draw_zap_tower;

@@ -879,7 +879,7 @@ void animation_manager::create_nav_points(actor* act, bool wipe_old_points) {
 					act->holding_somethig = false;
 					act->held_actor = NULL;
 
-					platform->routine = DEFF_ERROR_ROUTINE;
+					platform->routine = CHICKEN_ROUTINE;
 					create_nav_points(platform, true);
 					platform = NULL;
 
