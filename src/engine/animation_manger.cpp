@@ -149,7 +149,7 @@ void animation_manager::update() {
 				if (actors[i]->object->angle == actors[i]->turn_to) {
 					x1 = going_to_x;
 					y1 = going_to_z;
-					create_chicken();
+					//create_chicken();
 					create_nav_points(actors[i]);
 				}
 				else {
@@ -465,7 +465,7 @@ void animation_manager::update() {
 								//lower the platform
 								ready_to_lower = true;
 								lowering = true;
-
+								fire_cannon = true;
 								std::cout << "end of zappng animation" << std::endl;
 							}
 						}
@@ -906,7 +906,7 @@ void animation_manager::create_nav_points(actor* act, bool wipe_old_points) {
 		else if (index == 6) {
 			//rotate the cannon
 			multi_points = true;//does not need to move
-			std::cout << "updating behavor for the cannon" << std::endl;
+			//std::cout << "updating behavor for the cannon" << std::endl;
 			
 			if (fire_cannon) {
 				act->turn_to = create_chicken_to_fire(true);
@@ -917,12 +917,13 @@ void animation_manager::create_nav_points(actor* act, bool wipe_old_points) {
 
 				going_to_z = 0;
 				going_to_x = 1;
-				std::cout << "creating a new batch of chickens" << std::endl;
+				/*std::cout << "creating a new batch of chickens" << std::endl;
 				for (int i = 0; i < 5; i++) {
 					create_chicken_to_fire(true);
 				}
 
-				fire_cannon = true;
+				fire_cannon = true;*/
+
 			}
 		}
 		else if (index == 7) {
@@ -1013,6 +1014,8 @@ int animation_manager::create_chicken_to_fire(bool cursed) {
 	int index = 2;
 	float dest_x = -1;
 	float dest_z = -1;
+
+	fire_cannon = false;
 
 	std::random_device rd;
 	std::mt19937 mt(rd());
