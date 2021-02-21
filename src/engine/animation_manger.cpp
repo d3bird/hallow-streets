@@ -28,6 +28,9 @@ animation_manager::animation_manager() {
 	zapping = false;
 	animation_time = 0;
 	animation_time_max = 2;
+
+	fire_cannon = false;
+	cannon_og = glm::vec3(-1, -1, -1);
 }
 
 animation_manager::~animation_manager() {
@@ -125,6 +128,7 @@ bool determin_direction(float start, float end) {
 	return false;//negative
 }
 
+
 void animation_manager::update() {
 
 	float time_mes = (*deltatime);
@@ -140,6 +144,68 @@ void animation_manager::update() {
 			if (actors[i]->cooldown >= 0) {
 				actors[i]->cooldown -= cool;
 			}
+
+			if (actors[i]->routine == CANNON_ROUTINE) {
+				if (actors[i]->object->angle == actors[i]->turn_to) {
+					x1 = going_to_x;
+					y1 = going_to_z;
+					create_chicken();
+					create_nav_points(actors[i]);
+				}
+				else {
+					/*cannon->x_rot = rails[i]->rot.x;
+					cannon->y_rot = rails[i]->rot.y;
+					cannon->z_rot = rails[i]->rot.z;
+					cannon->angle = 180.0f;
+					cannon->x = temp_loc.x;
+					cannon->y = temp_loc.y;
+					cannon->z = temp_loc.z;
+					trans = glm::translate(trans, rails[i]->loc);
+					trans = glm::rotate(trans, glm::radians(rails[i]->angle), rails[i]->rot);*/
+					glm::vec3 current_loc = glm::vec3(actors[i]->object->x, actors[i]->object->y, actors[i]->object->z);
+					glm::vec3 current_rot_axis = glm::vec3(actors[i]->object->x_rot, actors[i]->object->y_rot, actors[i]->object->z_rot);
+
+					glm::mat4 trans = glm::mat4(1.0f);
+					trans = glm::translate(trans, current_loc);
+
+					bool positive = determin_direction(actors[i]->object->angle, actors[i]->turn_to);
+					
+					if (positive) {
+						actors[i]->object->angle += actors[i]->turn_speed;
+						
+					}
+					else {
+						actors[i]->object->angle -= actors[i]->turn_speed;
+						
+					}
+
+					if (actors[i]->object->angle > 360) {
+						actors[i]->object->angle = 0;
+					}
+					else if (actors[i]->object->angle < 0) {
+						actors[i]->object->angle = 360;
+					}
+
+					std::cout << "current angle " << actors[i]->object->angle << " turning to " << actors[i]->turn_to << std::endl;
+					trans = glm::rotate(trans, glm::radians(actors[i]->object->angle), current_rot_axis);
+					update_pak update_pac;
+
+					update_pac.x = current_loc.x;
+					update_pac.y = current_loc.y;
+					update_pac.z = current_loc.z;
+
+					update_pac.x_scale = 1;
+					update_pac.y_scale = 1;
+					update_pac.z_scale = 1;
+
+					update_pac.buffer_loc = actors[i]->object->buffer_loc;
+					update_pac.item_id = actors[i]->object->item_id;
+
+					OBJM->update_item_matrix(&update_pac, trans);
+
+				}
+
+			}else
 			if (actors[i]->being_held) {
 				actor* holding = actors[i]->being_held_by_actor;
 				glm::vec3 current_loc = glm::vec3(holding->object->x, holding->object->y, holding->object->z);
@@ -450,6 +516,7 @@ int animation_manager::turn_object_into_actor(item_info* obje, routine_designati
 		break;
 	case CANNON_ROUTINE:
 		std::cout << "CANNON_ROUTINE" << std::endl;
+		cannon_og = glm::vec3(obje->x, obje->y, obje->z);
 		break;
 	case ZAP_SPHERE_ROUTINE:
 	case ZAP_TOWER_ROUTINE:
@@ -837,7 +904,26 @@ void animation_manager::create_nav_points(actor* act, bool wipe_old_points) {
 
 		}
 		else if (index == 6) {
+			//rotate the cannon
+			multi_points = true;//does not need to move
+			std::cout << "updating behavor for the cannon" << std::endl;
+			
+			if (fire_cannon) {
+				act->turn_to = create_chicken_to_fire(true);
+			}
+			else {
 
+				act->turn_to = 0;
+
+				going_to_z = 0;
+				going_to_x = 1;
+				std::cout << "creating a new batch of chickens" << std::endl;
+				for (int i = 0; i < 5; i++) {
+					create_chicken_to_fire(true);
+				}
+
+				fire_cannon = true;
+			}
 		}
 		else if (index == 7) {
 			if (lower_zap || ready_to_zap) {//lower the platform down
@@ -923,6 +1009,50 @@ void animation_manager::create_nav_points(actor* act, bool wipe_old_points) {
 	}
 }
 
+int animation_manager::create_chicken_to_fire(bool cursed) {
+	int index = 2;
+	float dest_x = -1;
+	float dest_z = -1;
+
+	std::random_device rd;
+	std::mt19937 mt(rd());
+	std::uniform_real_distribution<float> distribution(routines[index]->x_min, routines[index]->x_max);
+	dest_x = distribution(mt);
+	distribution = std::uniform_real_distribution<float>(routines[index]->z_min, routines[index]->z_max);
+	dest_z = distribution(mt);
+
+	going_to_x = dest_x;
+	going_to_z = dest_z;
+
+	float dot = x1 * dest_x + y1 * dest_z;
+	float det = x1 * dest_z - y1 * dest_x;
+	int angle = atan2(det, dot);
+
+	angle =atan2(dest_z- cannon_og.z, dest_x - cannon_og.x)*(180 / 3.14159265);
+
+	std::cout << "created angle " << angle << std::endl;
+
+	chickens_to_make_angles.push(angle);
+	chickens_to_make.push(cursed);
+
+	return angle;
+}
+
+void animation_manager::create_chicken() {
+	std::cout << "creating a chicken"<<std::endl;
+
+	if (chickens_to_make.empty() || chickens_to_make_angles.empty()) {
+		
+	}
+	else {
+		chickens_to_make.pop();
+		chickens_to_make_angles.pop();
+
+		if (chickens_to_make.empty()) {
+			fire_cannon = false;
+		}
+	}
+}
 
 void animation_manager::print_routines() {
 

@@ -221,6 +221,9 @@ void city::init(object_manger* OBJM, animation_manager* an) {
 	AM->define_routine(ZAP_TOWER_ROUTINE, zap_o_tron);
 	AM->define_routine(ZAP_SPHERE_ROUTINE, zap_o_tron);
 
+	AM->define_routine(CANNON_ROUTINE, platform_point_ob);
+
+
 	platform_point_ob.x -= 30;
 	AM->define_routine(CANNON_PLATFORM_ROUTINE, platform_point_ob);
 
@@ -230,6 +233,8 @@ void city::init(object_manger* OBJM, animation_manager* an) {
 	AM->turn_object_into_actor(platform, CANNON_PLATFORM_ROUTINE);
 	AM->turn_object_into_actor(zap_t, ZAP_TOWER_ROUTINE);
 	AM->turn_object_into_actor(zap_s, ZAP_SPHERE_ROUTINE);
+
+	AM->turn_object_into_actor(cannon, CANNON_ROUTINE);
 
 	std::cout << "spawning in objects" << std::endl;
 	for (int i = 0; i < x_width; i++) {

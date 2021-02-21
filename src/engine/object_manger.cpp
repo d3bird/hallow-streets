@@ -495,13 +495,19 @@ void object_manger::increase_buffer_size() {
 
 }
 
-void object_manger::update_item_matrix(update_pak* data) {
+void object_manger::update_item_matrix(update_pak* data, glm::mat4 given_mat) {
 
 	if (data != NULL && data->item_id < items.size()) {
 		//std::cout << "updateing " << data->item_id << ", bufferloc = " << data->buffer_loc << std::endl;
 		glm::mat4 model = glm::mat4(1.0f);
 		//model = glm::scale(model, glm::vec3(data->x_scale, data->y_scale, data->z_scale));
-		model = glm::translate(model, glm::vec3(data->x, data->y, data->z));
+		if (given_mat == glm::mat4(-1.0f)) {
+			model = glm::translate(model, glm::vec3(data->x, data->y, data->z));
+		}
+		else {
+			model = given_mat;
+		}
+		
 		items[data->item_id]->modelMatrices[data->buffer_loc] = model;
 		items[data->item_id]->updatemats = true;
 		//delete data;//clean mem

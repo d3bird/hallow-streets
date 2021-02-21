@@ -81,6 +81,9 @@ struct actor{
 	float cooldown = 0;
 	float cooldown_max = 10;
 
+	bool need_to_turn = false;
+	float turn_speed = 1.0f;
+	float turn_to = 0.0f;
 
 	//for rail cart
 	bool at_start = true;
@@ -115,6 +118,10 @@ private:
 	int get_routine_index(routine_designation i);
 
 	void create_nav_points(actor* act, bool wipe_old_points = false);
+
+	int create_chicken_to_fire(bool cursed);
+
+	void create_chicken();
 
 	timing* Time;
 	float* deltatime;
@@ -155,4 +162,13 @@ private:
 
 	float animation_time;
 	float animation_time_max;
+
+	bool fire_cannon;
+	glm::vec3 cannon_og;
+	float x1 = 1;
+	float y1 = 0;
+	float going_to_x;
+	float going_to_z;
+	std::queue<bool> chickens_to_make;
+	std::queue<int> chickens_to_make_angles;
 };
