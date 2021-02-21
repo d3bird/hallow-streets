@@ -29,7 +29,8 @@ animation_manager::animation_manager() {
 	animation_time = 0;
 	animation_time_max = 2;
 
-	fire_cannon = false;
+	play_sound = false;
+	create_angle_to_fire = false;
 	cannon_og = glm::vec3(-1, -1, -1);
 }
 
@@ -149,7 +150,12 @@ void animation_manager::update() {
 				if (actors[i]->object->angle == actors[i]->turn_to) {
 					x1 = going_to_x;
 					y1 = going_to_z;
-					//create_chicken();
+					if (play_sound) {
+						std::cout << "playing the sound of the cannon" << std::endl;
+						sound_system->play_sound_effect(Explosion_Large_Blast_1);
+						play_sound = false;
+					}
+
 					create_nav_points(actors[i]);
 				}
 				else {
@@ -186,7 +192,7 @@ void animation_manager::update() {
 						actors[i]->object->angle = 360;
 					}
 
-					std::cout << "current angle " << actors[i]->object->angle << " turning to " << actors[i]->turn_to << std::endl;
+				//	std::cout << "current angle " << actors[i]->object->angle << " turning to " << actors[i]->turn_to << std::endl;
 					trans = glm::rotate(trans, glm::radians(actors[i]->object->angle), current_rot_axis);
 					update_pak update_pac;
 
@@ -202,6 +208,7 @@ void animation_manager::update() {
 					update_pac.item_id = actors[i]->object->item_id;
 
 					OBJM->update_item_matrix(&update_pac, trans);
+
 
 				}
 
@@ -465,7 +472,7 @@ void animation_manager::update() {
 								//lower the platform
 								ready_to_lower = true;
 								lowering = true;
-								fire_cannon = true;
+								create_angle_to_fire = true;
 								std::cout << "end of zappng animation" << std::endl;
 							}
 						}
@@ -908,7 +915,7 @@ void animation_manager::create_nav_points(actor* act, bool wipe_old_points) {
 			multi_points = true;//does not need to move
 			//std::cout << "updating behavor for the cannon" << std::endl;
 			
-			if (fire_cannon) {
+			if (create_angle_to_fire) {
 				act->turn_to = create_chicken_to_fire(true);
 			}
 			else {
@@ -922,7 +929,7 @@ void animation_manager::create_nav_points(actor* act, bool wipe_old_points) {
 					create_chicken_to_fire(true);
 				}
 
-				fire_cannon = true;*/
+				create_angle_to_fire = true;*/
 
 			}
 		}
@@ -1015,8 +1022,8 @@ int animation_manager::create_chicken_to_fire(bool cursed) {
 	float dest_x = -1;
 	float dest_z = -1;
 
-	fire_cannon = false;
-
+	create_angle_to_fire = false;
+	play_sound = true;
 	std::random_device rd;
 	std::mt19937 mt(rd());
 	std::uniform_real_distribution<float> distribution(routines[index]->x_min, routines[index]->x_max);
@@ -1052,7 +1059,7 @@ void animation_manager::create_chicken() {
 		chickens_to_make_angles.pop();
 
 		if (chickens_to_make.empty()) {
-			fire_cannon = false;
+			create_angle_to_fire = false;
 		}
 	}
 }

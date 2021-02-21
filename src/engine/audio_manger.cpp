@@ -133,6 +133,7 @@ void audio_manger::create_sound_data() {
 	}
 	else {
 		temp_sound_data->sound_data->setDefaultVolume(0.5f);
+		temp_sound_data->sound_data->setDefaultMaxDistance(400.0f);
 		effects.push_back(temp_sound_data);
 	}
 

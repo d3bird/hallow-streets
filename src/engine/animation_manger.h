@@ -163,7 +163,8 @@ private:
 	float animation_time;
 	float animation_time_max;
 
-	bool fire_cannon;
+	bool create_angle_to_fire;
+	bool play_sound;
 	glm::vec3 cannon_og;
 	float x1 = 1;
 	float y1 = 0;
