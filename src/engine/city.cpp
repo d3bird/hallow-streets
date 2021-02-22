@@ -87,7 +87,8 @@ void city::init(object_manger* OBJM, animation_manager* an) {
 	chicken_z_e = 188;
 
 	AM->define_routine(DEFF_ERROR_ROUTINE, -1, -1, -1, -1);
-	AM->define_routine(CHICKEN_ROUTINE, chicken_x_s, chicken_z_s, chicken_x_e , chicken_z_e );
+	AM->define_routine(CHICKEN_ROUTINE, chicken_x_s, chicken_z_s, chicken_x_e, chicken_z_e);
+	AM->define_routine(CHICKEN_TRANS2_ROUTINE, chicken_x_s, chicken_z_s, chicken_x_e , chicken_z_e );
 	
 	int low_x = 10000000;
 	int low_z = 10000000;

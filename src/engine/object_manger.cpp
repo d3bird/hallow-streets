@@ -14,11 +14,11 @@ object_manger::object_manger() {
 
 	max_cubes = 0;
 
-	draw_cubes = false;
+	draw_cubes = true;
 	draw_wall = false;
 	draw_wall_c = false;
 	draw_sidewalk = true;
-	draw_light_post = false;
+	draw_light_post = true;
 	draw_sideroads = true;
 	draw_sky_rail_s = true;
 	draw_sky_rail_c = true;
@@ -1688,7 +1688,7 @@ item_info* object_manger::spawn_item(item_type type, int x,int y, int z, glm::ma
 	}
 	
 	items[item_id]->modelMatrices[buffer_loc] = trans;
-
+	items[item_id]->updatemats = true;
 	items[item_id]->item_data.push_back(output);
 	return output;
 }

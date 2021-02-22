@@ -170,6 +170,10 @@ private:
 	float y1 = 0;
 	float going_to_x;
 	float going_to_z;
+	int current_angle;
+
+	float x_t, y_t, z_t;
+
 	std::queue<bool> chickens_to_make;
 	std::queue<int> chickens_to_make_angles;
 };

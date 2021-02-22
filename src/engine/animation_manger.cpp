@@ -151,23 +151,16 @@ void animation_manager::update() {
 					x1 = going_to_x;
 					y1 = going_to_z;
 					if (play_sound) {
+						create_chicken();//fire the chicken
 						std::cout << "playing the sound of the cannon" << std::endl;
 						sound_system->play_sound_effect(Explosion_Large_Blast_1);
 						play_sound = false;
 					}
-
+					
 					create_nav_points(actors[i]);
 				}
 				else {
-					/*cannon->x_rot = rails[i]->rot.x;
-					cannon->y_rot = rails[i]->rot.y;
-					cannon->z_rot = rails[i]->rot.z;
-					cannon->angle = 180.0f;
-					cannon->x = temp_loc.x;
-					cannon->y = temp_loc.y;
-					cannon->z = temp_loc.z;
-					trans = glm::translate(trans, rails[i]->loc);
-					trans = glm::rotate(trans, glm::radians(rails[i]->angle), rails[i]->rot);*/
+
 					glm::vec3 current_loc = glm::vec3(actors[i]->object->x, actors[i]->object->y, actors[i]->object->z);
 					glm::vec3 current_rot_axis = glm::vec3(actors[i]->object->x_rot, actors[i]->object->y_rot, actors[i]->object->z_rot);
 
@@ -418,6 +411,10 @@ void animation_manager::update() {
 						//std::cout << "there is a chicken on the platform" << std::endl;
 						platform = actors[i];
 					}
+					else if (actors[i]->routine == CHICKEN_TRANS2_ROUTINE) {
+						//std::cout << "there is a chicken on the platform" << std::endl;
+						actors[i]->routine = CHICKEN_ROUTINE;
+					}
 					else if (actors[i]->routine == CANNON_PLATFORM_ROUTINE) {
 						
 						if (ready_for_next && !actors[i]->holding_somethig && platform != NULL) {
@@ -520,6 +517,7 @@ int animation_manager::turn_object_into_actor(item_info* obje, routine_designati
 		break;
 	case CHICKEN_TRANS2_ROUTINE:
 		std::cout << "CHICKEN_TRANS2_ROUTINE" << std::endl;
+		move_speed = 5;
 		break;
 	case CANNON_ROUTINE:
 		std::cout << "CANNON_ROUTINE" << std::endl;
@@ -576,6 +574,10 @@ int animation_manager::turn_object_into_actor(item_info* obje, routine_designati
 		new_act->id = id_highest;
 		id_highest++;
 		actors.push_back(new_act);
+	}
+
+	if (route == CHICKEN_TRANS2_ROUTINE) {
+		create_nav_points(new_act, true);
 	}
 
 	return new_act->id;
@@ -894,20 +896,106 @@ void animation_manager::create_nav_points(actor* act, bool wipe_old_points) {
 			distribution = std::uniform_real_distribution<float>(routines[index]->z_min, routines[index]->z_max);
 			dest_z = distribution(mt);
 
+			dest_x = going_to_x;
+
+			dest_z = going_to_z;
 			multi_points = true;
 
 			//act->object->x = dest_x;
-			act->object->y += 10;
+			//act->object->y += 10;
 			//act->object->z = dest_z;
 
-			//double r = 310.0;
-			//int n = 10;
-			//for (int i = 0; i < n; i++)
-			//{
-			//	double x = i * r / n;
-			//	double y = sqrt(r * r - x * x);
-			//	// both (x,y) and (x,-y) are points on the half-circle
-			//}
+			x_t = act->object->x;
+			y_t = act->object->y;
+			z_t = act->object->z;
+
+			float x_distance = diff_btwn_pnt(x_t, dest_x);
+			float y_distance = diff_btwn_pnt(y_t, dest_y);
+			float z_distance = diff_btwn_pnt(z_t, dest_z);
+			float magnitude = sqrt((x_distance * x_distance) + (y_distance * y_distance) + (z_distance * z_distance));
+
+			
+			glm::vec3 center = glm::vec3((x_t+ dest_x) / 2, (y_t + dest_y) / 2, (z_t + dest_z) / 2);
+
+			float temp_x = dest_x - x_t;
+			float temp_y = dest_y - y_t;
+			float temp_z = dest_z - z_t;
+
+			float radius = sqrt((temp_x * temp_x) + (temp_y * temp_y) + (temp_z * temp_z));
+			float diamiter = radius * 2;
+
+			std::cout << std::endl;
+			std::cout << "information to creates the arcs" << std::endl;
+			std::cout << "start: x " << x_t << " y " << y_t << " z " << z_t << std::endl;
+			std::cout << "center: x " << center.x << " y " << center.y << " z " << center.z << std::endl;
+			std::cout << "end: x " << dest_x << " y " << dest_y << " z " << dest_z << std::endl;
+			std::cout << "radius " << radius << std::endl;
+
+			int points = 10;
+			int angle_dec = 180/ points;
+
+			float temp_r = radius /18;
+
+			float y = y_t;
+			float x = x_t;
+			float z = z_t;
+
+			int mul = 1;
+
+			bool pos_x = determin_direction(x_t, center.x);
+			bool pos_z = determin_direction(z_t, center.z);
+
+			
+
+			float temp_r_x = radius *cos(current_angle);
+			float temp_r_z = radius *sin(current_angle);
+
+			temp_r_x /= points;
+			temp_r_z /= points;
+
+			for (int i = 0; i < points; i++) {
+				x += temp_r_x;
+				z += temp_r_z;
+				/*if (pos_x) {
+					x += temp_r_x;
+				}
+				else {
+					x -= temp_r_x;
+
+				}
+				if(pos_z){
+					z += temp_r_z;
+				}
+				else {
+					z -= temp_r_z;
+
+				}*/
+			//	y = temp_r*sin(i);
+
+					/*if (determin_direction(x, dest_x)) {
+						x += incrment_distance;
+					}
+					else {
+						x -= incrment_distance;
+					}
+
+					if (determin_direction(z, dest_z)) {
+						z += incrment_distance;
+					}
+					else {
+						z -= incrment_distance;
+					}*/
+
+					std::cout << "nav_point: x " << x << " y " << y << " z " << z << " (i  " << i << ")" << std::endl;
+					
+				act->nav_points.push_back(glm::vec3(x, y, z));
+				mul++;
+			}
+
+			std::cout <<" points generated "<< act->nav_points.size()<< std::endl;
+			std::cout << std::endl;
+
+			act->nav_points.push_back(glm::vec3(dest_x, dest_y, dest_z));
 
 		}
 		else if (index == 6) {
@@ -930,7 +1018,7 @@ void animation_manager::create_nav_points(actor* act, bool wipe_old_points) {
 				}
 
 				create_angle_to_fire = true;*/
-
+				current_angle = 0;
 			}
 		}
 		else if (index == 7) {
@@ -1045,23 +1133,46 @@ int animation_manager::create_chicken_to_fire(bool cursed) {
 	chickens_to_make_angles.push(angle);
 	chickens_to_make.push(cursed);
 
+	if (angle >= 90 && angle <= 270) {
+		angle + 180;
+	}
+
+	current_angle = angle;
 	return angle;
 }
 
 void animation_manager::create_chicken() {
-	std::cout << "creating a chicken"<<std::endl;
+	std::cout << std::endl;
+	std::cout << "creating a chicken" << std::endl;
+	std::cout << std::endl;
 
-	if (chickens_to_make.empty() || chickens_to_make_angles.empty()) {
-		
-	}
-	else {
-		chickens_to_make.pop();
-		chickens_to_make_angles.pop();
+	int dim = 5;
+	double radius = dim / 2;
 
-		if (chickens_to_make.empty()) {
-			create_angle_to_fire = false;
-		}
-	}
+	//current_angle = 90;
+
+	float x = radius * glm::cos(glm::degrees(float(current_angle)));
+	float z = radius * glm::sin(glm::degrees(float(current_angle)));
+	float y = 6 * 2;
+
+	x += cannon_og.x;
+	z += cannon_og.z;
+
+	std::cout << "angle " << current_angle << std::endl;
+	std::cout << "x " << x << " y " << y << " z " << z << std::endl;
+
+	glm::mat4 mat = glm::mat4(1.0f);
+	mat = glm::translate(mat, glm::vec3(x, y, z));
+	item_info* temp_data = OBJM->spawn_item(CURSE_CHICKEN_T, -1, -1, -1, mat);
+	temp_data->x = x;
+	temp_data->y = y;
+	temp_data->z = z;
+	turn_object_into_actor(temp_data, CHICKEN_TRANS2_ROUTINE);
+
+	x_t = x;
+	y_t = y;
+	z_t = z;
+
 }
 
 void animation_manager::print_routines() {
