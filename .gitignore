@@ -16,3 +16,14 @@ src/mass_rendering_system/sky.*
 src/mass_rendering_system/skymap.*
 src/mass_rendering_system/text_rendering.*
 src/mass_rendering_system/time.*
+
+src/networking_test/camera.*
+src/networking_test/city_gen.*
+src/networking_test/lighting.*
+src/networking_test/mesh.*
+src/networking_test/model.*
+src/networking_test/shader.*
+src/networking_test/shaders
+src/networking_test/sky.*
+src/networking_test/skymap.*
+src/networking_test/text_rendering.*

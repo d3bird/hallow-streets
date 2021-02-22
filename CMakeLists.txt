@@ -72,6 +72,7 @@ set(CHAPTERS
     dialog
     lighting_test
     mass_rendering_system
+    networking_test
 )
 
 foreach(CHAPTER ${CHAPTERS})
