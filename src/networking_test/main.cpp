@@ -33,7 +33,7 @@ int main() {
 
     network->init();
 
-
+    std::cout << "end of program" << std::endl;
     while (true);
 
 }
