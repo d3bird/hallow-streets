@@ -1,5 +1,5 @@
-cmake_minimum_required (VERSION 2.8)
-cmake_policy(VERSION 2.8)
+cmake_minimum_required (VERSION 3.12)
+cmake_policy(VERSION 3.12)
 
 project (hallow_streets)
 
@@ -24,11 +24,19 @@ find_package(GLFW3 REQUIRED)
 message(STATUS "Found GLFW3 in ${GLFW3_INCLUDE_DIR}")
 find_package(ASSIMP REQUIRED)
 message(STATUS "Found ASSIMP in ${ASSIMP_INCLUDE_DIR}")
+
+find_package(Boost 1.74.0 REQUIRED COMPONENTS
+             date_time filesystem iostreams)
+message(STATUS "Found Boost in ${Boost_INCLUDE_DIR}")
+message(STATUS "Found Boost libs in ${Boost_LIBRARY_DIR}")
+message(STATUS "Found Boost includes in ${Boost_INCLUDE_DIRS}")
 # find_package(SOIL REQUIRED)
 # message(STATUS "Found SOIL in ${SOIL_INCLUDE_DIR}")
 
 if(WIN32)
-  set(LIBS glfw3 opengl32 assimp freetype irrKlang)
+  set(LIBS glfw3 opengl32 assimp freetype irrKlang 
+  ${Boost_LIBRARY_DIR}/libboost_regex-vc142-mt-gd-x64-1_74.lib
+  ${Boost_LIBRARY_DIR}/libboost_date_time-vc142-mt-gd-x64-1_74.lib)
 elseif(UNIX AND NOT APPLE)
   set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wall")
   find_package(OpenGL REQUIRED)
@@ -73,6 +81,8 @@ set(CHAPTERS
     lighting_test
     mass_rendering_system
     networking_test
+	client
+	server
 )
 
 foreach(CHAPTER ${CHAPTERS})
@@ -146,4 +156,4 @@ endif()
 endforeach(CHAPTER)
 
 
-include_directories(${CMAKE_SOURCE_DIR}/includes)
+include_directories(${CMAKE_SOURCE_DIR}/includes ${Boost_INCLUDE_DIRS})

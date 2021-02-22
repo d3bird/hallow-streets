@@ -11,7 +11,12 @@
 #endif
 
 #include "time.h"
+#include "network_manager.h"
+
+#include <string>
 #include <iostream>
+#include <iterator>
+#include <algorithm>
 
 timing* Time = NULL;
 float* deltaTime = NULL;
@@ -23,10 +28,14 @@ int main() {
 
     deltaTime = Time->get_time_change_static();
 
-    bool drawsky = true;
-    bool sigle_light_soruce = false;
 
-    std::cout << "creating the objects" << std::endl;
+    network_manager* network = new network_manager();
+
+    network->init();
+
+    network->open_connetion();
+
+    while (true);
 
 }
 
