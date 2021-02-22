@@ -14,9 +14,10 @@ public:
 
 	void init();
 
-	void open_connetion();
-
 private:
+	bool port_in_use(unsigned short port);
 
+	tcp_server* server;
+	client* Client;
 	
 };

@@ -33,7 +33,6 @@ int main() {
 
     network->init();
 
-    network->open_connetion();
 
     while (true);
 

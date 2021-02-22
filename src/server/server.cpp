@@ -1,44 +1,143 @@
+
+#include <ctime>
 #include <iostream>
+#include <string>
+#include <boost/bind/bind.hpp>
+#include <boost/shared_ptr.hpp>
+#include <boost/enable_shared_from_this.hpp>
 #include <boost/asio.hpp>
 
-using namespace boost::asio;
-using ip::tcp;
-using std::string;
-using std::cout;
-using std::endl;
+using boost::asio::ip::tcp;
 
-
-string read_(tcp::socket & socket) {
-  boost::asio::streambuf buf;
-  boost::asio::read_until( socket, buf, "\n" );
-
-string data = boost::asio::buffer_cast<const char*>(buf.data());
-  return data;
+std::string make_daytime_string()
+{
+    using namespace std; // For time_t, time and ctime;
+    time_t now = time(0);
+    return ctime(&now);
 }
 
+class tcp_connection
+    : public boost::enable_shared_from_this<tcp_connection>
+{
+public:
+    typedef boost::shared_ptr<tcp_connection> pointer;
 
-void send_(tcp::socket & socket, const string& message) {
-  const string msg = message + "\n";
-  boost::asio::write( socket, boost::asio::buffer(message) );
+    static pointer create(boost::asio::io_context& io_context)
+    {
+        return pointer(new tcp_connection(io_context));
+    }
+
+    tcp::socket& socket()
+    {
+        return socket_;
+    }
+
+    void start()
+    {
+        message_ = make_daytime_string();
+
+        boost::asio::async_write(socket_, boost::asio::buffer(message_),
+            boost::bind(&tcp_connection::handle_write, shared_from_this(),
+                boost::asio::placeholders::error,
+                boost::asio::placeholders::bytes_transferred));
+    }
+
+private:
+    tcp_connection(boost::asio::io_context& io_context)
+        : socket_(io_context)
+    {
+    }
+
+    void handle_write(const boost::system::error_code& /*error*/,
+        size_t /*bytes_transferred*/)
+    {
+    }
+
+    tcp::socket socket_;
+    std::string message_;
+};
+
+class tcp_server
+{
+public:
+    tcp_server(boost::asio::io_context& io_context)
+        : io_context_(io_context),
+        acceptor_(io_context, tcp::endpoint(tcp::v4(), 1234))
+    {
+        start_accept();
+    }
+
+private:
+    void start_accept()
+    {
+        tcp_connection::pointer new_connection =
+            tcp_connection::create(io_context_);
+
+        acceptor_.async_accept(new_connection->socket(),
+            boost::bind(&tcp_server::handle_accept, this, new_connection,
+                boost::asio::placeholders::error));
+    }
+
+    void handle_accept(tcp_connection::pointer new_connection,
+        const boost::system::error_code& error)
+    {
+        if (!error)
+        {
+            new_connection->start();
+        }
+
+        start_accept();
+    }
+
+    boost::asio::io_context& io_context_;
+    tcp::acceptor acceptor_;
+};
+
+int main()
+{
+    try
+    {
+        boost::asio::io_context io_context;
+        tcp_server server(io_context);
+        io_context.run();
+    }
+    catch (std::exception& e)
+    {
+        std::cerr << e.what() << std::endl;
+    }
+
+    return 0;
 }
-
-int main() {
-  boost::asio::io_service io_service;
-
-  tcp::acceptor acceptor_(io_service, tcp::endpoint(tcp::v4(), 1234 ));
-  
-  tcp::socket socket_(io_service);
-  acceptor_.accept(socket_);
-
- 
-    string message = read_(socket_);
-    cout << message << endl;
-
-    send_(socket_, "Hello From Server!");
-    cout << "Server sent Hello message to Client!" << endl;
-
-    cout << "reached end of program" << std::endl;
-    while (true);
-  return 0;
-}
-
+//
+//string read_(tcp::socket & socket) {
+//  boost::asio::streambuf buf;
+//  boost::asio::read_until( socket, buf, "\n" );
+//
+//string data = boost::asio::buffer_cast<const char*>(buf.data());
+//  return data;
+//}
+//
+//
+//void send_(tcp::socket & socket, const string& message) {
+//  const string msg = message + "\n";
+//  boost::asio::write( socket, boost::asio::buffer(message) );
+//}
+//
+//int main() {
+//  boost::asio::io_service io_service;
+//
+//  tcp::acceptor acceptor_(io_service, tcp::endpoint(tcp::v4(), 1234 ));
+//  
+//  tcp::socket socket_(io_service);
+//  acceptor_.accept(socket_);
+//
+// 
+//    string message = read_(socket_);
+//    cout << message << endl;
+//
+//    send_(socket_, "Hello From Server!");
+//    cout << "Servent sent Hello message to Client!" << endl;
+//    while (true);
+//  return 0;
+//}
+//
