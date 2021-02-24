@@ -68,6 +68,7 @@ void network_manager::init() {
 				msg.encode_header();
 				c.write(msg);
 			}
+			std::cout << "the port was already in use, starting up client" << std::endl;
 
 			c.close();
 			t.join();

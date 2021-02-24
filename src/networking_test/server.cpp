@@ -71,6 +71,7 @@ void chat_session::do_read_body()
         {
             if (!ec)
             {
+                std::cout << "revcived a message from " << self->user_id << std::endl; 
                 room_.deliver(read_msg_);
                 do_read_header();
             }
