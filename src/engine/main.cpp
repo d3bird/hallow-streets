@@ -5,6 +5,8 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+#include <boost/thread.hpp>
+
 #ifndef STB_IMAGE_IMPLEMENTATION
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
@@ -18,6 +20,7 @@
 #include "keyboard_manger.h"
 #include "text_rendering.h"
 #include "skymap.h"
+#include "networking/network_manager.h"
 #include <iostream>
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
@@ -27,6 +30,8 @@ void process_movement(GLFWwindow *window);
 void mouse_button_callback(GLFWwindow* window, int button, int action, int mods);
 
 void key_board_input(GLFWwindow* window, int key, int scancode, int action, int mods);
+
+void start_networking();
 
 // settings
 const unsigned int SCR_WIDTH = 800;
@@ -56,6 +61,8 @@ keyboard_manger* keys;
 bool typing;
 
 text_engine* text_render;
+network_manager* network;
+bool online_play;
 
 int main() {
 
@@ -137,6 +144,14 @@ int main() {
 
     World->set_camera_obj(camera);
 
+    online_play = true;
+
+    if (online_play) {
+        network = new network_manager();
+        //network->init();
+        boost::thread t(start_networking);
+    }
+
     while (!glfwWindowShouldClose(window))
     {
         Time->update_time();
@@ -186,6 +201,11 @@ int main() {
 
     glfwTerminate();
     return 0;
+}
+
+void start_networking() {
+
+    network->init();
 }
 
 //data for the demos

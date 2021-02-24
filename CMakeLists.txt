@@ -36,7 +36,9 @@ message(STATUS "Found Boost includes in ${Boost_INCLUDE_DIRS}")
 if(WIN32)
   set(LIBS glfw3 opengl32 assimp freetype irrKlang 
   ${Boost_LIBRARY_DIR}/libboost_regex-vc142-mt-gd-x64-1_74.lib
-  ${Boost_LIBRARY_DIR}/libboost_date_time-vc142-mt-gd-x64-1_74.lib)
+  ${Boost_LIBRARY_DIR}/libboost_date_time-vc142-mt-gd-x64-1_74.lib
+   ${Boost_LIBRARY_DIR}/libboost_chrono-vc142-mt-gd-x64-1_74.lib
+  ${Boost_LIBRARY_DIR}/libboost_thread-vc142-mt-gd-x64-1_74.lib)
 elseif(UNIX AND NOT APPLE)
   set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wall")
   find_package(OpenGL REQUIRED)
