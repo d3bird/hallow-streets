@@ -57,6 +57,8 @@ public:
 
 	void change_projection(glm::mat4 i);
 	void set_camera_obj(Camera* cam) { ADM->set_cam(cam); AM->set_cam(cam); }
+	void set_text_engine(text_engine* txt) { text_render = txt; }
+
 	//demo functions
 
 #ifdef DEMO1
@@ -78,6 +80,7 @@ private:
 
 	city* City;
 	sky* Sky;
+
 	text_engine* text_render;
 
 	audio_manger* ADM;

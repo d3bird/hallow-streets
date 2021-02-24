@@ -3,10 +3,12 @@
 
 world::world() {
 
+    text_render = NULL;
+
     single = false;
     update_lights = true;
 
-    render_text = false;
+    render_text = true;
     draw_speakers = false;
     draw_lights_debug = false;
     update_projection = false;
@@ -202,11 +204,16 @@ void world::init() {
 	lighting_init();
 
     if (render_text) {
-        text_render = new text_engine();
-        text_render->set_time(Time);
-        text_render->set_projection(projection);
-        text_render->set_cam(view);
-        text_render->init();
+        if (text_render == NULL) {
+            text_render = new text_engine();
+            text_render->set_time(Time);
+            text_render->set_projection(projection);
+            text_render->set_cam(view);
+            text_render->init();
+        }
+        else {
+            std::cout << "using premade text render" << std::endl;
+        }
     }
 
     ADM = new audio_manger();

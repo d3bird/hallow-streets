@@ -6,21 +6,83 @@ text_engine::text_engine(){
 	Time = NULL;
 	deltatime = NULL;
 	
+    typing = false;
+    message = "example";
+    max_history = 10;
+
+    message_history = new std::string[max_history];
+    for (int i = 0; i < max_history; i++) {
+        message_history[i] = "";
+    }
 }
 
 text_engine::~text_engine(){
-
+    delete[] message_history;
 }
 
 
 void text_engine::draw() {
-    RenderText(shader, "This is sample text", 25.0f, 25.0f, 1.0f, glm::vec3(0.5, 0.8f, 0.2f));
+    float y_spot = 25.0f;
+    for (int i = 0; i < max_history; i++) {
+        if (message_history[i].compare("") != 0) {
+            y_spot += 40;
+            RenderText(shader, message_history[i], 25.0f, y_spot, 0.60f, glm::vec3(0.5, 0.8f, 0.2f));
+
+        }
+        else {
+            break;
+        }
+    }
+
+    if (typing) {
+        RenderText(shader, message, 25.0f, 25.0f, 0.75f, glm::vec3(0.5, 0.8f, 0.2f));
+    }
+    /*else {
+        RenderText(shader, "This is sample text", 25.0f, 25.0f, 1.0f, glm::vec3(0.5, 0.8f, 0.2f));
+    }*/
 }
 
 void text_engine::update() {
 
 
 
+}
+
+void text_engine::send_meeage() {
+    std::cout << "sending message" << std::endl;
+    std::string temp = message;
+    std::string temp2 = message;
+    if (message.compare("") == 0) {
+        return;
+    }
+    message = "";
+    for (int i = 0; i < max_history; i++) {
+        if (message_history[i].compare("") == 0) {
+            message_history[i] = temp;
+            return;
+        }
+        else {
+            temp2 = message_history[i];
+            message_history[i] = temp;
+            temp = temp2;
+        }
+
+    }
+    std::cout << "removing old message" << std::endl;
+}
+
+
+void text_engine::add_char_to_message(char *i, bool remove) {
+    if (i != NULL) {
+        if (remove && message.length() > 0) {
+            message.pop_back();
+        }
+        else {
+            message += i[0];
+        }
+        
+        delete i;
+    }
 }
 
 

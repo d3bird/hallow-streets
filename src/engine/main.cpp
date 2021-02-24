@@ -15,6 +15,8 @@
 #include "model.h"
 #include "world.h"
 #include "time.h"
+#include "keyboard_manger.h"
+#include "text_rendering.h"
 #include "skymap.h"
 #include <iostream>
 
@@ -50,11 +52,16 @@ world* World = NULL;
 timing* Time = NULL;
 skymap* sky = NULL;
 float* deltaTime = NULL;
+keyboard_manger* keys;
+bool typing;
+
+text_engine* text_render;
 
 int main() {
 
     camera= new Camera(glm::vec3(7.9019, 29.3491, 18.9233), glm::vec3(0.0f, 1.0f, 0.0f), -89.2999, -71.7001);//looking at the whole World
-
+    keys = new keyboard_manger();
+    typing = false;
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
@@ -105,6 +112,12 @@ int main() {
 
     std::cout << "creating the objects" << std::endl;
 
+    text_render = new text_engine();
+    text_render->set_time(Time);
+    text_render->set_projection(projection);
+    text_render->set_cam(view);
+    text_render->init();
+
     if (drawsky) {
         sky = new skymap();
         sky->set_cam(view);
@@ -119,6 +132,7 @@ int main() {
     if (sigle_light_soruce) {
         World->set_single_draw();
     }
+    World->set_text_engine(text_render);
     World->init();
 
     World->set_camera_obj(camera);
@@ -126,8 +140,9 @@ int main() {
     while (!glfwWindowShouldClose(window))
     {
         Time->update_time();
-        process_movement(window);
-
+        if (!typing) {
+            process_movement(window);
+        }
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
@@ -206,8 +221,30 @@ void key_board_input(GLFWwindow* window, int key, int scancode, int action, int 
     }
 #endif // DEMO1
 
+
+
     if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
+    if (key == GLFW_KEY_ENTER && action == GLFW_PRESS) {
+        if (typing) {
+            text_render->send_meeage();
+        }
+        typing = !typing;
+        std::cout << "enter was clicked " << typing << std::endl;
+        text_render->set_typing(typing);
+    }
+
+    if (typing) {
+        if (key == GLFW_KEY_BACKSPACE && action == GLFW_PRESS) {
+            char* tchar = new char(' ');
+            text_render->add_char_to_message(tchar, true);
+        }
+        else {
+            text_render->add_char_to_message(keys->key_board_input(key, action));
+        }
+        return;
+    }
+
     //timimng changes
     if (key == GLFW_KEY_0 && action == GLFW_PRESS)
         Time->set_time_multipler(0);

@@ -43,12 +43,24 @@ public:
 
 	void set_time(timing* i) { Time = i; }
 
+	void set_typing(bool i) { typing = i; }
+
+	void add_char_to_message(char *i, bool remove = false);
+
+	void send_meeage();
+
 private:
 
 	glm::mat4 view;
 	glm::mat4 projection;
 	bool update_projection;
 	bool update_cam;
+
+	bool typing;
+
+	std::string message;
+	std::string *message_history;
+	int max_history;
 
 	timing* Time;
 	float* deltatime;
