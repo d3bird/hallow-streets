@@ -1,58 +1,97 @@
 #pragma once
-
-#include <ctime>
+#include <cstdlib>
+#include <deque>
 #include <iostream>
-#include <string>
-#include <boost/bind/bind.hpp>
-#include <boost/shared_ptr.hpp>
-#include <boost/enable_shared_from_this.hpp>
+#include <list>
+#include <memory>
+#include <set>
+#include <utility>
 #include <boost/asio.hpp>
+#include "chat_message.hpp"
 
 using boost::asio::ip::tcp;
 
-class tcp_connection
-    : public boost::enable_shared_from_this<tcp_connection>
+//----------------------------------------------------------------------
+
+typedef std::deque<chat_message> chat_message_queue;
+
+//----------------------------------------------------------------------
+
+static unsigned int id_count = 0;
+
+class chat_participant
 {
 public:
+    virtual ~chat_participant() {}
+    virtual void deliver(const chat_message& msg) = 0;
 
-    typedef boost::shared_ptr<tcp_connection> pointer;
+    unsigned int user_id;
+};
 
-    static pointer create(boost::asio::io_context& io_context) { return pointer(new tcp_connection(io_context)); }
-    tcp::socket& socket() { return socket_; }
+typedef std::shared_ptr<chat_participant> chat_participant_ptr;
+
+//----------------------------------------------------------------------
+
+class chat_room
+{
+public:
+    void join(chat_participant_ptr participant);
+
+    void leave(chat_participant_ptr participant);
+
+    void deliver(const chat_message& msg);
+
+private:
+    std::set<chat_participant_ptr> participants_;
+    enum { max_recent_msgs = 100 };
+    chat_message_queue recent_msgs_;
+};
+
+//----------------------------------------------------------------------
+
+class chat_session
+    : public chat_participant,
+    public std::enable_shared_from_this<chat_session>
+{
+public:
+    chat_session(tcp::socket socket, chat_room& room)
+        : socket_(std::move(socket)),
+        room_(room)
+    {
+    }
 
     void start();
 
+    void deliver(const chat_message& msg);
+
 private:
+    void do_read_header();
 
-    std::string make_daytime_string();
+    void do_read_body();
 
-    tcp_connection(boost::asio::io_context& io_context)
-        : socket_(io_context)
-    {
-    }
-
-    void handle_write(const boost::system::error_code& /*error*/, size_t /*bytes_transferred*/)
-    {
-    }
+    void do_write();
 
     tcp::socket socket_;
-    std::string message_;
+    chat_room& room_;
+    chat_message read_msg_;
+    chat_message_queue write_msgs_;
 };
 
-class tcp_server
+//----------------------------------------------------------------------
+
+class chat_server
 {
 public:
-    tcp_server(boost::asio::io_context& io_context): io_context_(io_context), acceptor_(io_context, tcp::endpoint(tcp::v4(), 1234)){
-        std::cout << "starting up tcp server" << std::endl;
-        start_accept();
+    chat_server(boost::asio::io_context& io_context,
+        const tcp::endpoint& endpoint)
+        : acceptor_(io_context, endpoint)
+    {
+        do_accept();
     }
 
 private:
-    void start_accept();
+    void do_accept();
 
-    void handle_accept(tcp_connection::pointer new_connection,
-        const boost::system::error_code& error);
-
-    boost::asio::io_context& io_context_;
     tcp::acceptor acceptor_;
+    chat_room room_;
 };

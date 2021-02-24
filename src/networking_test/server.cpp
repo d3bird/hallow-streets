@@ -1,40 +1,122 @@
 #include "server.h"
 
-std::string tcp_connection::make_daytime_string()
+void chat_room::join(chat_participant_ptr participant)
 {
-    using namespace std; // For time_t, time and ctime;
-    time_t now = time(0);
-    return ctime(&now);
+    participant->user_id = id_count;
+    id_count++;
+    std::cout << "user " << participant->user_id << " has just joined" << std::endl;
+    participants_.insert(participant);
+    for (auto msg : recent_msgs_)
+        participant->deliver(msg);
 }
 
-void tcp_connection::start()
+void chat_room::leave(chat_participant_ptr participant)
 {
-    message_ = make_daytime_string();
-
-    boost::asio::async_write(socket_, boost::asio::buffer(message_),
-        boost::bind(&tcp_connection::handle_write, shared_from_this(),
-            boost::asio::placeholders::error,
-            boost::asio::placeholders::bytes_transferred));
+    std::cout << "user " << participant->user_id << " has just left" << std::endl;
+    participants_.erase(participant);
 }
 
-
-void tcp_server::start_accept()
+void chat_room::deliver(const chat_message& msg)
 {
-    tcp_connection::pointer new_connection =
-        tcp_connection::create(io_context_);
+    recent_msgs_.push_back(msg);
+    while (recent_msgs_.size() > max_recent_msgs)
+        recent_msgs_.pop_front();
 
-    acceptor_.async_accept(new_connection->socket(),
-        boost::bind(&tcp_server::handle_accept, this, new_connection,
-            boost::asio::placeholders::error));
+    for (auto participant : participants_)
+        participant->deliver(msg);
 }
 
-void tcp_server::handle_accept(tcp_connection::pointer new_connection,
-    const boost::system::error_code& error)
+//----------------------------------------------------------------------
+
+void chat_session::start()
 {
-    if (!error)
+    room_.join(shared_from_this());
+    do_read_header();
+}
+
+void chat_session::deliver(const chat_message& msg)
+{
+    bool write_in_progress = !write_msgs_.empty();
+    write_msgs_.push_back(msg);
+    if (!write_in_progress)
     {
-        new_connection->start();
+        do_write();
     }
+}
 
-    start_accept();
+void chat_session::do_read_header()
+{
+    auto self(shared_from_this());
+    boost::asio::async_read(socket_,
+        boost::asio::buffer(read_msg_.data(), chat_message::header_length),
+        [this, self](boost::system::error_code ec, std::size_t /*length*/)
+        {
+            if (!ec && read_msg_.decode_header())
+            {
+                do_read_body();
+            }
+            else
+            {
+                room_.leave(shared_from_this());
+            }
+        });
+}
+
+void chat_session::do_read_body()
+{
+    auto self(shared_from_this());
+    boost::asio::async_read(socket_,
+        boost::asio::buffer(read_msg_.body(), read_msg_.body_length()),
+        [this, self](boost::system::error_code ec, std::size_t /*length*/)
+        {
+            if (!ec)
+            {
+                room_.deliver(read_msg_);
+                do_read_header();
+            }
+            else
+            {
+                room_.leave(shared_from_this());
+            }
+        });
+}
+
+void chat_session::do_write()
+{
+    auto self(shared_from_this());
+    boost::asio::async_write(socket_,
+        boost::asio::buffer(write_msgs_.front().data(),
+            write_msgs_.front().length()),
+        [this, self](boost::system::error_code ec, std::size_t /*length*/)
+        {
+            if (!ec)
+            {
+                write_msgs_.pop_front();
+                if (!write_msgs_.empty())
+                {
+                    do_write();
+                }
+            }
+            else
+            {
+                room_.leave(shared_from_this());
+            }
+        });
+}
+
+//----------------------------------------------------------------------
+
+void chat_server::do_accept()
+{
+    std::cout << "do_accept from chat sever run" << std::endl;
+    acceptor_.async_accept(
+        [this](boost::system::error_code ec, tcp::socket socket)
+        {
+            if (!ec)
+            {
+                std::make_shared<chat_session>(std::move(socket), room_)->start();
+            }
+
+            do_accept();
+        });
 }

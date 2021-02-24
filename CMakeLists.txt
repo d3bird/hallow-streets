@@ -90,6 +90,7 @@ foreach(CHAPTER ${CHAPTERS})
 file(GLOB_RECURSE SOURCE
     "src/${CHAPTER}/*.h"
     "src/${CHAPTER}/*.cpp"
+    "src/${CHAPTER}/*.hpp"
     "src/${CHAPTER}/*.vs"
     "src/${CHAPTER}/*.fs"
     "src/${CHAPTER}/*.gs"

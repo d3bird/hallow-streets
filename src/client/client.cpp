@@ -1,86 +1,160 @@
 
+#include <cstdlib>
+#include <deque>
 #include <iostream>
-#include <boost/array.hpp>
+#include <thread>
 #include <boost/asio.hpp>
+#include "../networking_test/chat_message.hpp"
 
 using boost::asio::ip::tcp;
+
+typedef std::deque<chat_message> chat_message_queue;
+
+class chat_client
+{
+public:
+    chat_client(boost::asio::io_context& io_context,
+        const tcp::resolver::results_type& endpoints)
+        : io_context_(io_context),
+        socket_(io_context)
+    {
+        do_connect(endpoints);
+    }
+
+    void write(const chat_message& msg)
+    {
+        boost::asio::post(io_context_,
+            [this, msg]()
+            {
+                bool write_in_progress = !write_msgs_.empty();
+                write_msgs_.push_back(msg);
+                if (!write_in_progress)
+                {
+                    do_write();
+                }
+            });
+    }
+
+    void close()
+    {
+        boost::asio::post(io_context_, [this]() { socket_.close(); });
+    }
+
+private:
+    void do_connect(const tcp::resolver::results_type& endpoints)
+    {
+        boost::asio::async_connect(socket_, endpoints,
+            [this](boost::system::error_code ec, tcp::endpoint)
+            {
+                if (!ec)
+                {
+                    do_read_header();
+                }
+            });
+    }
+
+    void do_read_header()
+    {
+        boost::asio::async_read(socket_,
+            boost::asio::buffer(read_msg_.data(), chat_message::header_length),
+            [this](boost::system::error_code ec, std::size_t /*length*/)
+            {
+                if (!ec && read_msg_.decode_header())
+                {
+                    do_read_body();
+                }
+                else
+                {
+                    socket_.close();
+                }
+            });
+    }
+
+    void do_read_body()
+    {
+        boost::asio::async_read(socket_,
+            boost::asio::buffer(read_msg_.body(), read_msg_.body_length()),
+            [this](boost::system::error_code ec, std::size_t /*length*/)
+            {
+                if (!ec)
+                {
+                    std::cout.write(read_msg_.body(), read_msg_.body_length());
+                    std::cout << "\n";
+                    do_read_header();
+                }
+                else
+                {
+                    socket_.close();
+                }
+            });
+    }
+
+    void do_write()
+    {
+        boost::asio::async_write(socket_,
+            boost::asio::buffer(write_msgs_.front().data(),
+                write_msgs_.front().length()),
+            [this](boost::system::error_code ec, std::size_t /*length*/)
+            {
+                if (!ec)
+                {
+                    write_msgs_.pop_front();
+                    if (!write_msgs_.empty())
+                    {
+                        do_write();
+                    }
+                }
+                else
+                {
+                    socket_.close();
+                }
+            });
+    }
+
+private:
+    boost::asio::io_context& io_context_;
+    tcp::socket socket_;
+    chat_message read_msg_;
+    chat_message_queue write_msgs_;
+};
 
 int main(int argc, char* argv[])
 {
     try
     {
-       /* if (argc != 2)
+        int port = 1234;
+        std::string ip_adress = "127.0.0.1";
+       /* if (argc != 3)
         {
-            std::cerr << "Usage: client <host>" << std::endl;
+            std::cerr << "Usage: chat_client <host> <port>\n";
             return 1;
         }*/
 
         boost::asio::io_context io_context;
 
-      /*  tcp::resolver resolver(io_context);
-        tcp::resolver::results_type endpoints =
-            resolver.resolve(argv[1], "daytime");*/
+        tcp::resolver resolver(io_context);
+        auto endpoints = resolver.resolve(tcp::endpoint(boost::asio::ip::address::from_string(ip_adress), port));
+        chat_client c(io_context, endpoints);
 
-        tcp::socket socket(io_context);
+        std::thread t([&io_context]() { io_context.run(); });
 
-       // boost::asio::connect(socket, endpoints);
-
-        socket.connect(tcp::endpoint(boost::asio::ip::address::from_string("127.0.0.1"), 1234));
-
-        for (;;)
+        char line[chat_message::max_body_length + 1];
+        while (std::cin.getline(line, chat_message::max_body_length + 1))
         {
-            boost::array<char, 128> buf;
-            boost::system::error_code error;
-
-            size_t len = socket.read_some(boost::asio::buffer(buf), error);
-
-            if (error == boost::asio::error::eof) {
-                std::cout << "Connection closed cleanly by peer" << std::endl;
-
-                break; // Connection closed cleanly by peer.
-            }
-            else if (error)
-                throw boost::system::system_error(error); // Some other error.
-
-            std::cout.write(buf.data(), len);
+            chat_message msg;
+            msg.body_length(std::strlen(line));
+            std::memcpy(msg.body(), line, msg.body_length());
+            msg.encode_header();
+            c.write(msg);
         }
+
+        c.close();
+        t.join();
     }
     catch (std::exception& e)
     {
-        std::cerr << e.what() << std::endl;
+        std::cerr << "Exception: " << e.what() << "\n";
     }
-    std::cout << "end of program" << std::endl;
-    while (true);
+
     return 0;
 }
-//
-//int main() {
-//  boost::asio::io_service io_service;
-//  tcp::socket socket(io_service);
-//
-//  socket.connect( tcp::endpoint( boost::asio::ip::address::from_string("127.0.0.1"), 1234 ) );
-//
-//  const string msg = "Hello from Client!\n";
-//  boost::system::error_code error;
-//  boost::asio::write( socket, boost::asio::buffer(msg), error );
-//
-//  if( !error ) {
-//    cout << "Client sent hello message!" << endl;
-//  }
-//  else {
-//    cout << "send failed: " << error.message() << endl;
-//  }
-//
-//  boost::asio::streambuf receive_buffer;
-//  boost::asio::read(socket, receive_buffer, boost::asio::transfer_all(), error);
-//
-//  if( error && error != boost::asio::error::eof ) {
-//    cout << "receive failed: " << error.message() << endl;
-//  }
-//  else {
-//    const char* data = boost::asio::buffer_cast<const char*>(receive_buffer.data());
-//    cout << data << endl;
-//  }
-//  while (true);
-//  return 0;
-//}

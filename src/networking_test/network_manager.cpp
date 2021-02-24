@@ -29,19 +29,53 @@ void network_manager::init() {
 	if (!port_in_use(port)) {
 		try
 		{
+
 			boost::asio::io_context io_context;
-			server = new tcp_server(io_context);
+
+			std::list<chat_server> servers;
+			// for (int i = 1; i < argc; ++i)
+			// {
+			tcp::endpoint endpoint(tcp::v4(), port);
+			servers.emplace_back(io_context, endpoint);
+			//}
+
 			io_context.run();
 		}
 		catch (std::exception& e)
 		{
-			std::cerr << e.what() << std::endl;
+			std::cerr << "Exception: " << e.what() << "\n";
 		}
 	}
 	else {
 		std::cout << "the port was already in use, starting up client" << std::endl;
-		Client = new client(ip_adress, port);
-		Client->connect();
+		try
+		{
+
+			boost::asio::io_context io_context;
+
+			tcp::resolver resolver(io_context);
+			auto endpoints = resolver.resolve(tcp::endpoint(boost::asio::ip::address::from_string(ip_adress), port));
+			chat_client c(io_context, endpoints);
+
+			std::thread t([&io_context]() { io_context.run(); });
+
+			char line[chat_message::max_body_length + 1];
+			while (std::cin.getline(line, chat_message::max_body_length + 1))
+			{
+				chat_message msg;
+				msg.body_length(std::strlen(line));
+				std::memcpy(msg.body(), line, msg.body_length());
+				msg.encode_header();
+				c.write(msg);
+			}
+
+			c.close();
+			t.join();
+		}
+		catch (std::exception& e)
+		{
+			std::cerr << "Exception: " << e.what() << "\n";
+		}
 	}
 }
 

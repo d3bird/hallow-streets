@@ -1,43 +1,87 @@
 #include "client.h"
 
-
-client::client(std::string i, int por) {
-	ip = i;
-	port = por;
-}
-
-client::~client(){
-
-}
-
-void client::connect() {
-
-    try
-    {
-        boost::asio::io_context io_context;
-        tcp::socket socket(io_context);
-        socket.connect(tcp::endpoint(boost::asio::ip::address::from_string(ip), port));
-
-        for (;;)
+void chat_client::write(const chat_message& msg)
+{
+    boost::asio::post(io_context_,
+        [this, msg]()
         {
-            boost::array<char, 128> buf;
-            boost::system::error_code error;
-
-            size_t len = socket.read_some(boost::asio::buffer(buf), error);
-
-            if (error == boost::asio::error::eof) {
-                std::cout << "Connection closed cleanly by peer" << std::endl;
-
-                break; // Connection closed cleanly by peer.
+            bool write_in_progress = !write_msgs_.empty();
+            write_msgs_.push_back(msg);
+            if (!write_in_progress)
+            {
+                do_write();
             }
-            else if (error)
-                throw boost::system::system_error(error); // Some other error.
-
-            std::cout.write(buf.data(), len);
-        }
-    }
-    catch (std::exception& e)
-    {
-
-    }
+        });
 }
+
+
+void chat_client::do_connect(const tcp::resolver::results_type& endpoints)
+{
+    boost::asio::async_connect(socket_, endpoints,
+        [this](boost::system::error_code ec, tcp::endpoint)
+        {
+            if (!ec)
+            {
+                do_read_header();
+            }
+        });
+}
+
+void chat_client::do_read_header()
+{
+    boost::asio::async_read(socket_,
+        boost::asio::buffer(read_msg_.data(), chat_message::header_length),
+        [this](boost::system::error_code ec, std::size_t /*length*/)
+        {
+            if (!ec && read_msg_.decode_header())
+            {
+                do_read_body();
+            }
+            else
+            {
+                socket_.close();
+            }
+        });
+}
+
+void chat_client::do_read_body()
+{
+    boost::asio::async_read(socket_,
+        boost::asio::buffer(read_msg_.body(), read_msg_.body_length()),
+        [this](boost::system::error_code ec, std::size_t /*length*/)
+        {
+            if (!ec)
+            {
+                std::cout.write(read_msg_.body(), read_msg_.body_length());
+                std::cout << "\n";
+                do_read_header();
+            }
+            else
+            {
+                socket_.close();
+            }
+        });
+}
+
+void chat_client::do_write()
+{
+    boost::asio::async_write(socket_,
+        boost::asio::buffer(write_msgs_.front().data(),
+            write_msgs_.front().length()),
+        [this](boost::system::error_code ec, std::size_t /*length*/)
+        {
+            if (!ec)
+            {
+                write_msgs_.pop_front();
+                if (!write_msgs_.empty())
+                {
+                    do_write();
+                }
+            }
+            else
+            {
+                socket_.close();
+            }
+        });
+}
+

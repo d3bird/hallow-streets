@@ -17,7 +17,7 @@ public:
 private:
 	bool port_in_use(unsigned short port);
 
-	tcp_server* server;
-	client* Client;
+	bool* server;
+	bool* Client;
 	
 };
