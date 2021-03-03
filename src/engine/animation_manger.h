@@ -16,6 +16,7 @@
 
 #include "object_manger.h"
 #include "audio_manger.h"
+#include  "networking/network_manager.h"
 #include "time.h"
 
 
@@ -95,7 +96,7 @@ public:
 	~animation_manager();
 
 	void update();
-
+	void update_from_server();
 	int turn_object_into_actor(item_info* obje, routine_designation route = DEFF_ERROR_ROUTINE, sound* soun = NULL );
 
 	void define_routine(routine_designation route, int x_min, int z_min, int x_max, int z_max);
@@ -103,7 +104,7 @@ public:
 	void define_routine(routine_designation route, std::vector<glm::vec3> points);
 	void define_routine(routine_designation route, glm::vec3 point);
 
-	void init();
+	void init(network_manager* net = NULL);
 
 	void print_routines();
 
@@ -128,8 +129,10 @@ private:
 	Camera* cam;
 
 	audio_manger *sound_system;
-
+	network_manager* network;
 	object_manger* OBJM;
+
+	bool server;
 
 	int id_highest;
 	std::vector<int> openIDs;

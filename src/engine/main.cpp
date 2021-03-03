@@ -61,7 +61,7 @@ keyboard_manger* keys;
 bool typing;
 
 text_engine* text_render;
-network_manager* network;
+network_manager* network = NULL;
 bool online_play;
 
 int main() {
@@ -132,6 +132,24 @@ int main() {
         sky->init();
     }
 
+    online_play = true;
+    bool server = false;
+
+    if (online_play) {
+        network = new network_manager();
+        //network->init();
+        boost::thread t(start_networking);
+        
+    }
+
+    if (network != NULL) {
+        server = network->is_server();
+    }
+    else {
+        server = true;
+    }
+
+
     World = new world();
     World->set_time(Time);
     World->set_cam(view);
@@ -140,17 +158,16 @@ int main() {
         World->set_single_draw();
     }
     World->set_text_engine(text_render);
-    World->init();
+    
+    if (online_play) {
+        World->init(network, server);
+    }
+    else {
+        World->init();
+    }
 
     World->set_camera_obj(camera);
 
-    online_play = true;
-
-    if (online_play) {
-        network = new network_manager();
-        //network->init();
-        boost::thread t(start_networking);
-    }
 
     while (!glfwWindowShouldClose(window))
     {
@@ -286,14 +303,22 @@ void key_board_input(GLFWwindow* window, int key, int scancode, int action, int 
         World->play_sound_effect(2);
     if (key == GLFW_KEY_9 && action == GLFW_RELEASE)
         World->play_sound_effect(3);
-    if (key == GLFW_KEY_0 && action == GLFW_RELEASE)
-        World->play_sound_effect(4);
+
 
     if (key == GLFW_KEY_O && action == GLFW_RELEASE)
         World->increase_background_music();
 
     if (key == GLFW_KEY_L && action == GLFW_RELEASE)
         World->decrease_background_music();
+
+    if (network != NULL) {
+        if (key == GLFW_KEY_Z && action == GLFW_RELEASE) {
+            network->send_message();
+        }
+    }
+    else {
+        std::cout << "networ is null" << std::endl;
+    }
 }
 
 

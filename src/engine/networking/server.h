@@ -1,4 +1,5 @@
 #pragma once
+
 #include <cstdlib>
 #include <deque>
 #include <iostream>
@@ -6,6 +7,7 @@
 #include <memory>
 #include <set>
 #include <utility>
+#include <string>
 #include <boost/asio.hpp>
 #include "chat_message.hpp"
 
@@ -88,6 +90,8 @@ public:
     {
         do_accept();
     }
+
+    void send_message_to_clients();
 
 private:
     void do_accept();

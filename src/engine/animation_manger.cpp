@@ -32,6 +32,8 @@ animation_manager::animation_manager() {
 	play_sound = false;
 	create_angle_to_fire = false;
 	cannon_og = glm::vec3(-1, -1, -1);
+	network = NULL;
+	server = true;
 }
 
 animation_manager::~animation_manager() {
@@ -49,8 +51,13 @@ animation_manager::~animation_manager() {
 	routines.clear();
 }
 
-void animation_manager::init() {
+void animation_manager::init(network_manager* net) {
 	std::cout << "creating the animation manager"<< std::endl;
+
+	if (net != NULL) {
+		network = net;
+		server = network->is_server();
+	}
 
 	//create the blank routines
 	routine* def_routine;
@@ -130,7 +137,16 @@ bool determin_direction(float start, float end) {
 }
 
 
+void animation_manager::update_from_server() {
+	//std::cout << "updating from server" << std::endl;
+}
+
 void animation_manager::update() {
+
+	if (!server) {
+		update_from_server();
+		return;
+	}
 
 	float time_mes = (*deltatime);
 	float cool = (*deltatime) * 5;
@@ -152,7 +168,7 @@ void animation_manager::update() {
 					y1 = going_to_z;
 					if (play_sound) {
 						create_chicken();//fire the chicken
-						std::cout << "playing the sound of the cannon" << std::endl;
+						//std::cout << "playing the sound of the cannon" << std::endl;
 						sound_system->play_sound_effect(Explosion_Large_Blast_1);
 						play_sound = false;
 					}
@@ -392,7 +408,7 @@ void animation_manager::update() {
 						}else
 						if (!actors[i]->at_start && actors[i]->holding_somethig) {
 							if (!sending_chicken_to_platform) {//if there is no chicken on the platform
-								std::cout << "updating the cart to unload" << std::endl;
+								//std::cout << "updating the cart to unload" << std::endl;
 								actors[i]->held_actor->routine = CHICKEN_TRANS1_ROUTINE;
 								actors[i]->held_actor->being_held = false;
 								actors[i]->held_actor->being_held_by_actor = NULL;
@@ -418,7 +434,7 @@ void animation_manager::update() {
 					else if (actors[i]->routine == CANNON_PLATFORM_ROUTINE) {
 						
 						if (ready_for_next && !actors[i]->holding_somethig && platform != NULL) {
-							std::cout << "there is a chicken on the platform" << std::endl;
+						//	std::cout << "there is a chicken on the platform" << std::endl;
 							actors[i]->holding_somethig = true;
 							actors[i]->held_actor = platform;
 
@@ -430,13 +446,13 @@ void animation_manager::update() {
 
 						if (ready_to_lower && actors[i]->holding_somethig) {
 							if (lowering) {
-								std::cout << "finished lowering down" << std::endl;
+							//	std::cout << "finished lowering down" << std::endl;
 								lowering = false;
 								raising = true;					
 								flush = true;
 							}
 							else {
-								std::cout << "finished rasing up" << std::endl;
+								//std::cout << "finished rasing up" << std::endl;
 								lowering = true;
 								raising = false;
 
@@ -455,7 +471,7 @@ void animation_manager::update() {
 							lower_zap = false;
 							ready_to_zap = true;
 							zapping = true;
-							std::cout << "start of zappng animation" << std::endl;
+							//std::cout << "start of zappng animation" << std::endl;
 
 						}
 
@@ -470,7 +486,7 @@ void animation_manager::update() {
 								ready_to_lower = true;
 								lowering = true;
 								create_angle_to_fire = true;
-								std::cout << "end of zappng animation" << std::endl;
+								//std::cout << "end of zappng animation" << std::endl;
 							}
 						}
 					}
@@ -493,44 +509,44 @@ void animation_manager::update() {
 
 //takes a object and add an animation pattern
 int animation_manager::turn_object_into_actor(item_info* obje, routine_designation route , sound* soun) {
-	std::cout << "turning object into an actor following ";
+	//std::cout << "turning object into an actor following ";
 
 	float move_speed =-1;
 	switch (route)
 	{
 	case DEFF_ERROR_ROUTINE:
-		std::cout << "DEFF_ERROR_ROUTINE" << std::endl;
+	//	std::cout << "DEFF_ERROR_ROUTINE" << std::endl;
 		break;
 	case DEFF_WORLD_ROUTINE:
-		std::cout << "DEFF_WORLD_ROUTINE" << std::endl;
+		//std::cout << "DEFF_WORLD_ROUTINE" << std::endl;
 		break;
 	case CHICKEN_ROUTINE:
-		std::cout << "CHICKEN_ROUTINE" << std::endl;
+		//std::cout << "CHICKEN_ROUTINE" << std::endl;
 		move_speed = 5;
 		break;
 	case RAIL_ROUTINE:
-		std::cout << "RAIL_ROUTINE" << std::endl;
+		//std::cout << "RAIL_ROUTINE" << std::endl;
 		move_speed = 15;
 		break;
 	case CHICKEN_TRANS1_ROUTINE:
-		std::cout << "CHICKEN_TRANS1_ROUTINE" << std::endl;
+		//std::cout << "CHICKEN_TRANS1_ROUTINE" << std::endl;
 		break;
 	case CHICKEN_TRANS2_ROUTINE:
-		std::cout << "CHICKEN_TRANS2_ROUTINE" << std::endl;
+		//std::cout << "CHICKEN_TRANS2_ROUTINE" << std::endl;
 		move_speed = 5;
 		break;
 	case CANNON_ROUTINE:
-		std::cout << "CANNON_ROUTINE" << std::endl;
+		//std::cout << "CANNON_ROUTINE" << std::endl;
 		cannon_og = glm::vec3(obje->x, obje->y, obje->z);
 		break;
 	case ZAP_SPHERE_ROUTINE:
 	case ZAP_TOWER_ROUTINE:
-		std::cout << "ZAP_TOWER_ROUTINE" << std::endl;
+		//std::cout << "ZAP_TOWER_ROUTINE" << std::endl;
 		move_speed = 5;
 
 		break;
 	case CANNON_PLATFORM_ROUTINE:
-		std::cout << "CANNON_PLATFORM_ROUTINE" << std::endl;
+		//std::cout << "CANNON_PLATFORM_ROUTINE" << std::endl;
 		move_speed = 5;
 		break;
 	default:
@@ -731,9 +747,9 @@ void animation_manager::define_routine(routine_designation route, int x_min, int
 		buffer_loc = 2;
 		break;
 	case RAIL_ROUTINE:
-std::cout << "can not define a RAIL_ROUTINE because needs points of rails" << std::endl;
-return;
-break;
+		std::cout << "can not define a RAIL_ROUTINE because needs points of rails" << std::endl;
+		return;
+		break;
 	default:
 		std::cout << "not a recognised routine" << std::endl;
 		return;
@@ -924,12 +940,12 @@ void animation_manager::create_nav_points(actor* act, bool wipe_old_points) {
 			float radius = sqrt((temp_x * temp_x) + (temp_y * temp_y) + (temp_z * temp_z));
 			float diamiter = radius * 2;
 
-			std::cout << std::endl;
+			/*std::cout << std::endl;
 			std::cout << "information to creates the arcs" << std::endl;
 			std::cout << "start: x " << x_t << " y " << y_t << " z " << z_t << std::endl;
 			std::cout << "center: x " << center.x << " y " << center.y << " z " << center.z << std::endl;
 			std::cout << "end: x " << dest_x << " y " << dest_y << " z " << dest_z << std::endl;
-			std::cout << "radius " << radius << std::endl;
+			std::cout << "radius " << radius << std::endl;*/
 
 			int points = 10;
 			int angle_dec = 180/ points;
@@ -986,14 +1002,14 @@ void animation_manager::create_nav_points(actor* act, bool wipe_old_points) {
 						z -= incrment_distance;
 					}*/
 
-					std::cout << "nav_point: x " << x << " y " << y << " z " << z << " (i  " << i << ")" << std::endl;
+					//std::cout << "nav_point: x " << x << " y " << y << " z " << z << " (i  " << i << ")" << std::endl;
 					
 				act->nav_points.push_back(glm::vec3(x, y, z));
 				mul++;
 			}
 
-			std::cout <<" points generated "<< act->nav_points.size()<< std::endl;
-			std::cout << std::endl;
+			//std::cout <<" points generated "<< act->nav_points.size()<< std::endl;
+			//std::cout << std::endl;
 
 			act->nav_points.push_back(glm::vec3(dest_x, dest_y, dest_z));
 
@@ -1128,7 +1144,7 @@ int animation_manager::create_chicken_to_fire(bool cursed) {
 
 	angle =atan2(dest_z- cannon_og.z, dest_x - cannon_og.x)*(180 / 3.14159265);
 
-	std::cout << "created angle " << angle << std::endl;
+	//std::cout << "created angle " << angle << std::endl;
 
 	chickens_to_make_angles.push(angle);
 	chickens_to_make.push(cursed);
@@ -1142,9 +1158,9 @@ int animation_manager::create_chicken_to_fire(bool cursed) {
 }
 
 void animation_manager::create_chicken() {
-	std::cout << std::endl;
-	std::cout << "creating a chicken" << std::endl;
-	std::cout << std::endl;
+//	std::cout << std::endl;
+	//std::cout << "creating a chicken" << std::endl;
+	//std::cout << std::endl;
 
 	int dim = 5;
 	double radius = dim / 2;
@@ -1158,8 +1174,8 @@ void animation_manager::create_chicken() {
 	x += cannon_og.x;
 	z += cannon_og.z;
 
-	std::cout << "angle " << current_angle << std::endl;
-	std::cout << "x " << x << " y " << y << " z " << z << std::endl;
+	//std::cout << "angle " << current_angle << std::endl;
+	//std::cout << "x " << x << " y " << y << " z " << z << std::endl;
 
 	glm::mat4 mat = glm::mat4(1.0f);
 	mat = glm::translate(mat, glm::vec3(x, y, z));

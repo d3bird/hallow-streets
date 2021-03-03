@@ -167,7 +167,6 @@ void world::draw_objects() {
     OBJM->draw();
 }
 
-
 void world::update() {
 	Sky->update();
     City->update();
@@ -196,7 +195,7 @@ void world::change_projection(glm::mat4 i) {
     //lighting_in
 }
 
-void world::init() {
+void world::init(network_manager* net, bool ser) {
 
    // lighting_in = new Shader("lighting_instance.vs", "lighting_instance.fs");
     lighting_in = new Shader("lighting_instances.vs", "lighting_instances.fs");
@@ -219,10 +218,19 @@ void world::init() {
     ADM = new audio_manger();
     ADM->init();
 
+    if (net != NULL) {
+        network = net;
+        server = ser;
+    }
+    else {
+        network = NULL;
+    }
+
+
     AM = new animation_manager();
     AM->set_sound_engine(ADM);
     AM->set_time(Time);
-    AM->init();
+    AM->init(network);
 
     City = new city();
 

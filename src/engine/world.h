@@ -22,6 +22,7 @@
 #include "text_rendering.h"
 #include "object_manger.h"
 #include "audio_manger.h"
+#include "networking/network_manager.h"
 
 class world {
 public:
@@ -34,7 +35,7 @@ public:
 
 	void draw_objects();
 
-	void init();
+	void init(network_manager* net = NULL, bool ser = true);
 
 	//misc functions
 
@@ -80,6 +81,9 @@ private:
 
 	city* City;
 	sky* Sky;
+
+	bool server;
+	network_manager* network;
 
 	text_engine* text_render;
 

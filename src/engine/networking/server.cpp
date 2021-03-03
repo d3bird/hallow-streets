@@ -121,3 +121,19 @@ void chat_server::do_accept()
             do_accept();
         });
 }
+
+//this function will send a message to every person in the sever
+void chat_server::send_message_to_clients() {
+    //char* line;// [chat_message::max_body_length + 1] ;
+    //std::string temp_line = "hello from the sever";
+    //line = &temp_line[0];
+    std::cout << "server sending a message" << std::endl;
+    char line[] = "server send this";
+    chat_message msg;
+    msg.body_length((std::strlen(line)));
+    std::memcpy(msg.body(), line, msg.body_length());
+    msg.encode_header();
+
+    room_.deliver(msg);
+
+}

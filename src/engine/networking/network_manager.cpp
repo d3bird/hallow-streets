@@ -7,39 +7,61 @@ using std::cout;
 using std::endl;
 
 network_manager::network_manager() {
-	server = NULL;
-	Client = NULL;
+	server = false;
+	port = 1234;
+	ip_adress = "127.0.0.1";
+	servers = NULL;
+	client = NULL;
 }
 
 network_manager::~network_manager(){
-	if (server != NULL) {
-		delete server;
+
+}
+
+void network_manager::send_message() {
+	std::cout << "sending a message" << std::endl;
+	if (server) {
+		if (servers != NULL) {
+			servers->front().send_message_to_clients();
+		}
 	}
-	if (Client != NULL) {
-		delete Client;
+	else {
+		if (client != NULL) {
+			std::cout << "client sending a message" << std::endl;
+			char line[] = "client send this";
+			chat_message msg;
+			msg.body_length((std::strlen(line)));
+			std::memcpy(msg.body(), line, msg.body_length());
+			msg.encode_header();
+			client->write(msg);
+		}
 	}
 }
 
+
 void network_manager::init() {
 	std::cout << "creating network_manager" << std::endl;
-	int port = 1234;
-	std::string ip_adress = "127.0.0.1";
+//	int port = 1234;
+	//std::string ip_adress = "127.0.0.1";
 	std::cout << "testing to see if a server is up on ip: "<< ip_adress <<" port: " << port<< std::endl;
 
 	if (!port_in_use(port)) {
+		std::cout << "starting up server" << std::endl;
+		server = true;
 		try
 		{
 
 			boost::asio::io_context io_context;
 
-			std::list<chat_server> servers;
+			servers = new std::list<chat_server>();
 			// for (int i = 1; i < argc; ++i)
 			// {
 			tcp::endpoint endpoint(tcp::v4(), port);
-			servers.emplace_back(io_context, endpoint);
+			servers->emplace_back(io_context, endpoint);
 			//}
 
 			io_context.run();
+			//std::cout << "made it past the run"  << std::endl;
 		}
 		catch (std::exception& e)
 		{
@@ -55,7 +77,7 @@ void network_manager::init() {
 
 			tcp::resolver resolver(io_context);
 			auto endpoints = resolver.resolve(tcp::endpoint(boost::asio::ip::address::from_string(ip_adress), port));
-			chat_client c(io_context, endpoints);
+			client = new chat_client(io_context, endpoints);
 
 			std::thread t([&io_context]() { io_context.run(); });
 
@@ -66,11 +88,10 @@ void network_manager::init() {
 				msg.body_length(std::strlen(line));
 				std::memcpy(msg.body(), line, msg.body_length());
 				msg.encode_header();
-				c.write(msg);
+				client->write(msg);
 			}
-			std::cout << "the port was already in use, starting up client" << std::endl;
 
-			c.close();
+			client->close();
 			t.join();
 		}
 		catch (std::exception& e)
