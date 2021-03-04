@@ -131,7 +131,6 @@ private:
 
 	std::vector<command*>* commands_from_server;
 
-	void processes_command(command* com);
 
 	//demo data
 #ifdef DEMO1

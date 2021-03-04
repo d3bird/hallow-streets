@@ -110,7 +110,7 @@ void chat_client::parse_message(const chat_message& msg, unsigned int user_id) {
         s.erase(0, 2);
         token[0] = s;
         //std::cout << "parsed message length = " << msg.body_length() << std::endl;
-        things_to_do->push_back(generate_command(token, com));
+        things_to_do->push(generate_command(token, com));
       //  std::cout << "the message is: "<<s << std::endl;
         break;
     case '1':
@@ -139,7 +139,7 @@ void chat_client::parse_message(const chat_message& msg, unsigned int user_id) {
         token[3] = s;
 
         //lock();
-        things_to_do->push_back(generate_command(token, com));
+        things_to_do->push(generate_command(token, com));
         //unlock();
 
         break;

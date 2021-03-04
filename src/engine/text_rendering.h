@@ -11,6 +11,7 @@
 #include <vector>
 #include <map>
 #include <string>
+#include <queue>
 
 #include <ft2build.h>
 #include FT_FREETYPE_H
@@ -18,7 +19,7 @@
 #include "model.h"
 #include "shader.h"
 #include "time.h"
-#include "networking/network_manager.h"
+
 
 struct Character {
 	unsigned int TextureID; // ID handle of the glyph texture
@@ -35,7 +36,7 @@ public:
 
 	void draw();
 	void update();
-	void init(network_manager* net = NULL);
+	void init();
 
 	void RenderText(Shader* shader, std::string text, float x, float y, float scale, glm::vec3 color);
 
@@ -51,9 +52,11 @@ public:
 	void send_meeage();
 	void recive_message(std::string in);
 
+	std::queue<std::string>* get_messages_to_send() { return messages_to_send; }
+
 private:
 
-
+	void add_message_to_history(std::string in);
 
 	glm::mat4 view;
 	glm::mat4 projection;
@@ -64,9 +67,10 @@ private:
 
 	std::string message;
 	std::string *message_history;
+	std::queue<std::string>* messages_to_send;
+
 	int max_history;
 
-	network_manager* network;
 	timing* Time;
 	float* deltatime;
 

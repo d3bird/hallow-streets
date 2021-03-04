@@ -171,17 +171,12 @@ void world::draw_objects() {
 void world::update() {
     Sky->update();
     City->update();
-    if (commands_from_server != NULL && !commands_from_server->empty()) {
 
-        // network->lock();
-        for (int i = 0; i < commands_from_server->size(); i++) {
-            processes_command(commands_from_server->at(i));
-        }
-        commands_from_server->clear();
-        // network->lock();
-
+    if (network != NULL) {
+        network->update();
     }
-    else if (server) {
+
+    if (server) {
         AM->update();
     }
     ADM->update();
@@ -191,27 +186,6 @@ void world::update() {
         OBJM->update_demo1();
     }
 #endif
-}
-
-
-void world::processes_command(command* com) {
-    if (com != NULL) {
-        switch (com->com)
-        {
-        case SPAWN_ITEM:
-            std::cout << "proccessing SPAWN_ITEM" << std::endl;
-            break;
-        case UPDATE_ITEM:
-            std::cout << "proccessing UPDATE_ITEM" << std::endl;
-            break;
-        case MESSAGE:
-        default:
-            std::cout << "proccessing MESSAGE" << std::endl;
-            text_render->recive_message(com->msg);
-            break;
-        }
-        delete com;
-    }
 }
 
 void world::change_projection(glm::mat4 i) {
@@ -243,7 +217,7 @@ void world::init(network_manager* net, bool ser) {
             text_render->set_time(Time);
             text_render->set_projection(projection);
             text_render->set_cam(view);
-            text_render->init(net);
+            text_render->init();
         }
         else {
             std::cout << "using premade text render" << std::endl;
@@ -256,15 +230,17 @@ void world::init(network_manager* net, bool ser) {
     if (net != NULL) {
         network = net;
         server = ser;
-        if (!ser) {
-            commands_from_server = network->get_inputed_cmmand_list();
-            if (commands_from_server == NULL) {
-                server = true;
-            }
+        std::cout << "starting up world in ";
+        if (server) {
+            std::cout << "server mode " << std::endl;
         }
+        else {
+            std::cout << "client mode " << std::endl;
+        }
+        //commands_from_server = network->get_inputed_cmmand_list();
     }
     else {
-        network = NULL;
+        server = true;
     }
 
 
@@ -311,6 +287,10 @@ void world::init(network_manager* net, bool ser) {
 
 	Sky->pause_time_at_noon();
 
+    if (network != NULL) {
+        network->set_text_engine(text_render);
+        network->set_command_input();
+    }
 
     draw_speakers = ADM->draw_speaker_locations();
     speakers_locs = ADM->get_speaker_locations();

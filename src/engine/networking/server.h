@@ -8,6 +8,8 @@
 #include <set>
 #include <utility>
 #include <string>
+#include <queue>
+
 #include <boost/asio.hpp>
 #include "chat_message.hpp"
 
@@ -48,8 +50,8 @@ public:
 
     void deliver(const chat_message& msg);
 
-    std::vector<command*>* things_to_do = new std::vector<command*>();
-    std::vector<command*>* get_inputed_commands() { return things_to_do; }
+    std::queue<command*>* things_to_do = new std::queue<command*>();
+    std::queue<command*>* get_inputed_commands() { return things_to_do; }
 
 private:
     std::set<chat_participant_ptr> participants_;
@@ -75,7 +77,7 @@ public:
 
     void deliver(const chat_message& msg);
 
-    std::vector<command*>* get_inputed_commands_from_session() { return things_to_do; }
+    std::queue<command*>* get_inputed_commands_from_session() { return things_to_do; }
 
 private:
 
@@ -88,7 +90,7 @@ private:
     void do_read_body();
 
     void do_write();
-    std::vector<command*>* things_to_do;
+    std::queue<command*>* things_to_do;
     tcp::socket socket_;
     chat_room& room_;
     chat_message read_msg_;
@@ -107,14 +109,14 @@ public:
         do_accept();
     }
 
-    std::vector<command*>* get_inputed_commands_from_session() { return room_.get_inputed_commands(); }
+    std::queue<command*>* get_inputed_commands_from_session() { return room_.get_inputed_commands(); }
 
     void send_message_to_clients(const chat_message& msg);
 
 private:
     void do_accept();
 
-    std::vector<command*>* things_to_do;
+    std::queue<command*>* things_to_do;
 
     tcp::acceptor acceptor_;
     chat_room room_;

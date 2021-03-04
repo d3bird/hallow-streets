@@ -3,7 +3,7 @@
 #include <cstdlib>
 #include <deque>
 #include <iostream>
-
+#include <queue>
 #include <boost/asio.hpp>
 #include <boost/thread.hpp>
 #include "chat_message.hpp"
@@ -20,7 +20,7 @@ public:
         : io_context_(io_context),
         socket_(io_context)
     {
-        things_to_do = new std::vector<command*>();
+        things_to_do = new std::queue<command*>();
         do_connect(endpoints);
     }
 
@@ -31,7 +31,7 @@ public:
         boost::asio::post(io_context_, [this]() { socket_.close(); });
     }
 
-    std::vector<command*>* get_given_command_pointer() { return things_to_do; }
+    std::queue<command*>* get_given_command_pointer() { return things_to_do; }
 
     void lock() {
         mtx_.lock();
@@ -63,5 +63,5 @@ private:
 
     boost::mutex mtx_;
 
-    std::vector<command*>* things_to_do;
+    std::queue<command*>* things_to_do;
 };

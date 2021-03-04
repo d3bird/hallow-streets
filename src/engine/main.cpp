@@ -123,24 +123,21 @@ int main() {
 
     if (online_play) {
         network = new network_manager();
+        server = !network->is_server_on_this_port();
         //network->init();
         boost::thread t(start_networking);
-        
-    }
-
-    if (network != NULL) {
-        server = network->is_server();
         
     }
     else {
         server = true;
     }
 
+
     text_render = new text_engine();
     text_render->set_time(Time);
     text_render->set_projection(projection);
     text_render->set_cam(view);
-    text_render->init(network);
+    text_render->init();
 
     if (drawsky) {
         sky = new skymap();

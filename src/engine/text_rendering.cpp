@@ -5,7 +5,6 @@ text_engine::text_engine(){
 	update_cam = false;
 	Time = NULL;
 	deltatime = NULL;
-    network = NULL;
     typing = false;
     message = "example";
     max_history = 10;
@@ -14,10 +13,13 @@ text_engine::text_engine(){
     for (int i = 0; i < max_history; i++) {
         message_history[i] = "";
     }
+    messages_to_send = new  std::queue<std::string>();
+
 }
 
 text_engine::~text_engine(){
     delete[] message_history;
+    delete messages_to_send;
 }
 
 
@@ -48,16 +50,9 @@ void text_engine::update() {
 
 }
 
-void text_engine::send_meeage() {
-    std::cout << "sending message" << std::endl;
-    if (network != NULL) {
-        network->send_message_txt(message);
-    }
-    else {
-        std::cout << "can not send message because network is null" << std::endl;
-    }
-    std::string temp = message;
-    std::string temp2 = message;
+void text_engine::add_message_to_history(std::string in) {
+    std::string temp = in;
+    std::string temp2 = in;
     if (message.compare("") == 0) {
         return;
     }
@@ -74,13 +69,21 @@ void text_engine::send_meeage() {
         }
 
     }
+   // std::cout << "removing old message" << std::endl;
+}
+
+
+void text_engine::send_meeage() {
+    std::cout << "sending message" << std::endl;
+    messages_to_send->push(message);
+    add_message_to_history(message);
+    message = "exmaple";
     std::cout << "removing old message" << std::endl;
 }
 
 void text_engine::recive_message(std::string in) {
     std::cout << "addeding " << in << " to chat" << std::endl;
-    message = in;
-    send_meeage();
+    add_message_to_history(in);
 }
 
 
@@ -145,10 +148,8 @@ void text_engine::RenderText(Shader* shader, std::string text, float x, float y,
     glBindTexture(GL_TEXTURE_2D, 0);
 }
 
-void text_engine::init(network_manager* net) {
+void text_engine::init() {
 	std::cout << "creating text rendering system" << std::endl;
-
-     network = net;
 
     shader = new Shader("text.vs", "text.fs");
     glm::mat4 projection = glm::ortho(0.0f, static_cast<float>(SCR_WIDTH), 0.0f, static_cast<float>(SCR_HEIGHT));

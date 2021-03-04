@@ -19,12 +19,49 @@ network_manager::network_manager() {
 	update_item = new command;
 	update_item->com = UPDATE_ITEM;
 
+	text_render = NULL;
+	messages_to_send = NULL;
+
 }
 
 network_manager::~network_manager(){
 	delete send_message;
 	delete spwan_item;
 	delete update_item;
+}
+
+void network_manager::update() {
+	if (commands_recived != NULL) {
+
+		while (!commands_recived->empty()) {
+			std::cout << "size: " << commands_recived->size() << std::endl;
+			command* com = commands_recived->front();
+			processes_command(com);
+			commands_recived->pop();
+			delete com;
+		}
+
+		if (messages_to_send != NULL && !messages_to_send->empty()) {
+			while (!messages_to_send->empty()) {
+				send_message_txt(messages_to_send->front());
+				messages_to_send->pop();
+			}
+		}
+	}
+}
+
+void network_manager::processes_command(command* com) {
+	std::cout << "processesing a given command" << std::endl;
+	switch (com->com) {
+	case MESSAGE:
+		std::cout << "you got mail saying: "<<com->msg << std::endl;
+		text_render->recive_message(com->msg);
+		break;
+	default:
+		std::cout << "could not undersatnd command" << std::endl;
+		break;
+	}
+
 }
 
 void network_manager::send_message_txt(std::string in) {
@@ -37,12 +74,8 @@ void network_manager::send_message_txt(std::string in) {
 	}
 	else {
 		if (client != NULL) {
-			std::cout << "client sending a message" << std::endl;
-			char line[] = "client send this";
-			chat_message msg;
-			msg.body_length((std::strlen(line)));
-			std::memcpy(msg.body(), line, msg.body_length());
-			msg.encode_header();
+			send_message->msg = in;
+			chat_message msg = create_message(send_message);
 			client->write(msg);
 		}
 	}
