@@ -12,20 +12,27 @@ network_manager::network_manager() {
 	ip_adress = "127.0.0.1";
 	servers = NULL;
 	client = NULL;
+
+	send_message = new command;
+	spwan_item = new command;
+	spwan_item->com = SPAWN_ITEM;
+	update_item = new command;
+	update_item->com = UPDATE_ITEM;
+
 }
 
 network_manager::~network_manager(){
-
+	delete send_message;
+	delete spwan_item;
+	delete update_item;
 }
 
 void network_manager::send_message_txt(std::string in) {
 	std::cout << "sending a message" << std::endl;
 	if (server) {
 		if (servers != NULL) {
-			command* com = new command;
-			com->com = MESSAGE;
-			com->msg = in;
-			servers->front().send_message_to_clients(com);
+			send_message->msg = in;
+			servers->front().send_message_to_clients(create_message(send_message));
 		}
 	}
 	else {
@@ -41,6 +48,65 @@ void network_manager::send_message_txt(std::string in) {
 	}
 }
 
+chat_message network_manager::create_message(command* input) {
+	chat_message output;
+
+	std::string message = "0:";
+
+	bool update_comm = false;;
+	switch (input->com) {
+	case SPAWN_ITEM://since they both use most of the same info
+	case UPDATE_ITEM:
+		update_comm = true;
+		message += std::to_string(input->x);
+		message += ",";
+		message += std::to_string(input->y);
+		message += ",";
+		message += std::to_string(input->z);
+		message += "/";
+
+		message += std::to_string(input->rot_x);
+		message += ",";
+		message += std::to_string(input->rot_y);
+		message += ",";
+		message += std::to_string(input->rot_z);
+		message += "/";
+		message += std::to_string(input->angle);
+		message += "/";
+
+		if (input->com == SPAWN_ITEM) {
+			message += std::to_string(input->item);
+		}
+		else {
+			message += std::to_string(input->actor_id);
+		}
+
+		break;
+	case MESSAGE:
+	default:
+		message += input->msg;
+		break;
+	}
+
+	if (update_comm) {
+		switch (input->com) {
+
+		case SPAWN_ITEM:
+			message[0] = '1';
+			break;
+		case UPDATE_ITEM:
+			message[0] = '2';
+			break;
+		}
+	}
+
+	output.body_length(message.length());
+	std::memcpy(output.body(), message.c_str(), output.body_length());
+	output.encode_header();
+	std::cout << "created message length " << message.length() << std::endl;
+	std::cout << "message: " << output.body() << std::endl;
+	return output;
+}
 
 void network_manager::init() {
 	std::cout << "creating network_manager" << std::endl;

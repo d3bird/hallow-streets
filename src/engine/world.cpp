@@ -169,16 +169,16 @@ void world::draw_objects() {
 }
 
 void world::update() {
-	Sky->update();
+    Sky->update();
     City->update();
     if (commands_from_server != NULL && !commands_from_server->empty()) {
 
-      // network->lock();
+        // network->lock();
         for (int i = 0; i < commands_from_server->size(); i++) {
             processes_command(commands_from_server->at(i));
         }
         commands_from_server->clear();
-      // network->lock();
+        // network->lock();
 
     }
     else if (server) {

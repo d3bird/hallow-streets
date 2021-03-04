@@ -28,7 +28,7 @@ public:
 			return client->get_given_command_pointer();
 		}
 		else {
-			return NULL;
+			return servers->front().get_inputed_commands_from_session();
 		}
 	}
 
@@ -42,7 +42,12 @@ public:
 
 private:
 	bool port_in_use(unsigned short port);
-	
+	chat_message create_message(command* input);
+
+	command* send_message;
+	command* spwan_item;
+	command* update_item;
+
 	bool server;
 
 	int port;

@@ -48,6 +48,9 @@ public:
 
     void deliver(const chat_message& msg);
 
+    std::vector<command*>* things_to_do = new std::vector<command*>();
+    std::vector<command*>* get_inputed_commands() { return things_to_do; }
+
 private:
     std::set<chat_participant_ptr> participants_;
     enum { max_recent_msgs = 100 };
@@ -65,23 +68,27 @@ public:
         : socket_(std::move(socket)),
         room_(room)
     {
+        things_to_do = room.get_inputed_commands();;
     }
 
     void start();
 
     void deliver(const chat_message& msg);
 
+    std::vector<command*>* get_inputed_commands_from_session() { return things_to_do; }
+
 private:
 
     //if returns then pass on the messsage to other particpants 
-    bool parse_message(const chat_message& msg, unsigned int user_id);
+    void parse_message(const chat_message& msg, unsigned int user_id);
+    command* generate_command(std::string data[], chat_commands com);
 
     void do_read_header();
 
     void do_read_body();
 
     void do_write();
-
+    std::vector<command*>* things_to_do;
     tcp::socket socket_;
     chat_room& room_;
     chat_message read_msg_;
@@ -97,34 +104,15 @@ public:
         const tcp::endpoint& endpoint)
         : acceptor_(io_context, endpoint)
     {
-
-        send_message = new command;
-        spwan_item = new command;
-        spwan_item->com = SPAWN_ITEM;
-        update_item = new command;
-        update_item->com = UPDATE_ITEM;
         do_accept();
     }
 
-    ~chat_server() {
-        delete send_message;
-        delete spwan_item;
-        delete update_item;
-    }
+    std::vector<command*>* get_inputed_commands_from_session() { return room_.get_inputed_commands(); }
 
-    void send_message_to_clients(command* output);
+    void send_message_to_clients(const chat_message& msg);
 
 private:
     void do_accept();
-
-    void parse_message(const chat_message& msg, unsigned int user_id);
-    command* generate_command(std::string data[], chat_commands com);
-
-    chat_message create_message(command* input);
-
-    command* send_message;
-    command* spwan_item;
-    command* update_item;
 
     std::vector<command*>* things_to_do;
 
