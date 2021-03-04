@@ -92,30 +92,25 @@ void chat_client::parse_message(const chat_message& msg, unsigned int user_id) {
 
     std::string s = msg.body();
     std::string delimiter = "/";
-    std::string delimiter2 = "2";
     size_t pos = 0;
-    size_t pos2 = 0;
     std::string token[4];
-    std::string token_num[3];
     int token_id = 0;
-    int token_id2 = 0;
 
     bool spawn_item = false;
 
     chat_commands com = MESSAGE;
 
     float x, y, z;
-    float rot_x, rot_y, rot_z;
-    float angle;
-    int item;
-    int actor_id;
-    std::string message_txt;
 
     switch (message[0]) {
     case '0':
       //  std::cout << "chat message" << std::endl;
         com = MESSAGE;
+        s = s.substr(0, msg.body_length());
         s.erase(0, 2);
+        token[0] = s;
+        //std::cout << "parsed message length = " << msg.body_length() << std::endl;
+        things_to_do->push_back(generate_command(token, com));
       //  std::cout << "the message is: "<<s << std::endl;
         break;
     case '1':
@@ -142,7 +137,10 @@ void chat_client::parse_message(const chat_message& msg, unsigned int user_id) {
         }
 
         token[3] = s;
+
+        //lock();
         things_to_do->push_back(generate_command(token, com));
+        //unlock();
 
         break;
     default:
@@ -155,7 +153,16 @@ void chat_client::parse_message(const chat_message& msg, unsigned int user_id) {
 
 command* chat_client::generate_command(std::string data[], chat_commands com) {
     command* output = new command;
+
     output->com = com;
+
+    if (com == MESSAGE) {
+        output->msg = data[0];
+        //std::cout << "parsed message length " << output->msg.length() << std::endl;
+
+        return output;
+    }
+
     std::string delimiter = ",";
     size_t pos = 0;
     int token_id = 0;

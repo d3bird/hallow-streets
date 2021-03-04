@@ -173,16 +173,45 @@ void world::update() {
     City->update();
     if (commands_from_server != NULL && !commands_from_server->empty()) {
 
+      // network->lock();
+        for (int i = 0; i < commands_from_server->size(); i++) {
+            processes_command(commands_from_server->at(i));
+        }
+        commands_from_server->clear();
+      // network->lock();
+
     }
     else if (server) {
         AM->update();
     }
     ADM->update();
+
 #ifdef DEMO1
     if (start_demo1) {
         OBJM->update_demo1();
     }
 #endif
+}
+
+
+void world::processes_command(command* com) {
+    if (com != NULL) {
+        switch (com->com)
+        {
+        case SPAWN_ITEM:
+            std::cout << "proccessing SPAWN_ITEM" << std::endl;
+            break;
+        case UPDATE_ITEM:
+            std::cout << "proccessing UPDATE_ITEM" << std::endl;
+            break;
+        case MESSAGE:
+        default:
+            std::cout << "proccessing MESSAGE" << std::endl;
+            text_render->recive_message(com->msg);
+            break;
+        }
+        delete com;
+    }
 }
 
 void world::change_projection(glm::mat4 i) {
@@ -214,7 +243,7 @@ void world::init(network_manager* net, bool ser) {
             text_render->set_time(Time);
             text_render->set_projection(projection);
             text_render->set_cam(view);
-            text_render->init();
+            text_render->init(net);
         }
         else {
             std::cout << "using premade text render" << std::endl;

@@ -18,11 +18,14 @@ network_manager::~network_manager(){
 
 }
 
-void network_manager::send_message() {
+void network_manager::send_message_txt(std::string in) {
 	std::cout << "sending a message" << std::endl;
 	if (server) {
 		if (servers != NULL) {
-			servers->front().send_message_to_clients();
+			command* com = new command;
+			com->com = MESSAGE;
+			com->msg = in;
+			servers->front().send_message_to_clients(com);
 		}
 	}
 	else {

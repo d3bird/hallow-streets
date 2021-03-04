@@ -3,8 +3,9 @@
 #include <cstdlib>
 #include <deque>
 #include <iostream>
-#include <thread>
+
 #include <boost/asio.hpp>
+#include <boost/thread.hpp>
 #include "chat_message.hpp"
 
 using boost::asio::ip::tcp;
@@ -29,7 +30,16 @@ public:
     {
         boost::asio::post(io_context_, [this]() { socket_.close(); });
     }
+
     std::vector<command*>* get_given_command_pointer() { return things_to_do; }
+
+    void lock() {
+        mtx_.lock();
+    }
+
+    void unlock() {
+        mtx_.unlock();
+    }
 
 private:
     void do_connect(const tcp::resolver::results_type& endpoints);
@@ -50,6 +60,8 @@ private:
     tcp::socket socket_;
     chat_message read_msg_;
     chat_message_queue write_msgs_;
+
+    boost::mutex mtx_;
 
     std::vector<command*>* things_to_do;
 };

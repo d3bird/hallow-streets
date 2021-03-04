@@ -5,7 +5,7 @@ text_engine::text_engine(){
 	update_cam = false;
 	Time = NULL;
 	deltatime = NULL;
-	
+    network = NULL;
     typing = false;
     message = "example";
     max_history = 10;
@@ -50,6 +50,12 @@ void text_engine::update() {
 
 void text_engine::send_meeage() {
     std::cout << "sending message" << std::endl;
+    if (network != NULL) {
+        network->send_message_txt(message);
+    }
+    else {
+        std::cout << "can not send message because network is null" << std::endl;
+    }
     std::string temp = message;
     std::string temp2 = message;
     if (message.compare("") == 0) {
@@ -69,6 +75,12 @@ void text_engine::send_meeage() {
 
     }
     std::cout << "removing old message" << std::endl;
+}
+
+void text_engine::recive_message(std::string in) {
+    std::cout << "addeding " << in << " to chat" << std::endl;
+    message = in;
+    send_meeage();
 }
 
 
@@ -133,8 +145,10 @@ void text_engine::RenderText(Shader* shader, std::string text, float x, float y,
     glBindTexture(GL_TEXTURE_2D, 0);
 }
 
-void text_engine::init() {
+void text_engine::init(network_manager* net) {
 	std::cout << "creating text rendering system" << std::endl;
+
+     network = net;
 
     shader = new Shader("text.vs", "text.fs");
     glm::mat4 projection = glm::ortho(0.0f, static_cast<float>(SCR_WIDTH), 0.0f, static_cast<float>(SCR_HEIGHT));

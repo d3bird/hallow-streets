@@ -18,6 +18,7 @@
 #include "model.h"
 #include "shader.h"
 #include "time.h"
+#include "networking/network_manager.h"
 
 struct Character {
 	unsigned int TextureID; // ID handle of the glyph texture
@@ -34,7 +35,7 @@ public:
 
 	void draw();
 	void update();
-	void init();
+	void init(network_manager* net = NULL);
 
 	void RenderText(Shader* shader, std::string text, float x, float y, float scale, glm::vec3 color);
 
@@ -48,8 +49,11 @@ public:
 	void add_char_to_message(char *i, bool remove = false);
 
 	void send_meeage();
+	void recive_message(std::string in);
 
 private:
+
+
 
 	glm::mat4 view;
 	glm::mat4 projection;
@@ -62,6 +66,7 @@ private:
 	std::string *message_history;
 	int max_history;
 
+	network_manager* network;
 	timing* Time;
 	float* deltatime;
 

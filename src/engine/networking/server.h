@@ -112,16 +112,21 @@ public:
         delete update_item;
     }
 
-    void send_message_to_clients();
+    void send_message_to_clients(command* output);
 
 private:
     void do_accept();
+
+    void parse_message(const chat_message& msg, unsigned int user_id);
+    command* generate_command(std::string data[], chat_commands com);
 
     chat_message create_message(command* input);
 
     command* send_message;
     command* spwan_item;
     command* update_item;
+
+    std::vector<command*>* things_to_do;
 
     tcp::acceptor acceptor_;
     chat_room room_;

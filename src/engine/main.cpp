@@ -118,20 +118,6 @@ int main() {
     bool sigle_light_soruce = false;
 
     std::cout << "creating the objects" << std::endl;
-
-    text_render = new text_engine();
-    text_render->set_time(Time);
-    text_render->set_projection(projection);
-    text_render->set_cam(view);
-    text_render->init();
-
-    if (drawsky) {
-        sky = new skymap();
-        sky->set_cam(view);
-        sky->set_projection(projection);
-        sky->init();
-    }
-
     online_play = true;
     bool server = true;
 
@@ -150,6 +136,18 @@ int main() {
         server = true;
     }
 
+    text_render = new text_engine();
+    text_render->set_time(Time);
+    text_render->set_projection(projection);
+    text_render->set_cam(view);
+    text_render->init(network);
+
+    if (drawsky) {
+        sky = new skymap();
+        sky->set_cam(view);
+        sky->set_projection(projection);
+        sky->init();
+    }
 
     World = new world();
     World->set_time(Time);
@@ -314,7 +312,7 @@ void key_board_input(GLFWwindow* window, int key, int scancode, int action, int 
 
     if (network != NULL) {
         if (key == GLFW_KEY_Z && action == GLFW_RELEASE) {
-            network->send_message();
+            //network->send_message();
         }
     }
     else {

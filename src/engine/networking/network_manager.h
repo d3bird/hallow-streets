@@ -20,7 +20,8 @@ public:
 
 	bool is_server() { return server; }
 
-	void send_message();
+	void send_message_txt(std::string in);
+
 
 	std::vector<command*>* get_inputed_cmmand_list() {
 		if (client != NULL) {
@@ -32,11 +33,11 @@ public:
 	}
 
 	void lock() {
-		mtx_.lock();
+		client->lock();
 	}
 
 	void unlock() {
-		mtx_.unlock();
+		client->unlock();
 	}
 
 private:
