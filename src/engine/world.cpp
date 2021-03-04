@@ -12,6 +12,7 @@ world::world() {
     draw_speakers = false;
     draw_lights_debug = false;
     update_projection = false;
+    commands_from_server = NULL;
 }
 
 world::~world(){
@@ -170,7 +171,12 @@ void world::draw_objects() {
 void world::update() {
 	Sky->update();
     City->update();
-    AM->update();
+    if (commands_from_server != NULL && !commands_from_server->empty()) {
+
+    }
+    else if (server) {
+        AM->update();
+    }
     ADM->update();
 #ifdef DEMO1
     if (start_demo1) {
@@ -221,6 +227,12 @@ void world::init(network_manager* net, bool ser) {
     if (net != NULL) {
         network = net;
         server = ser;
+        if (!ser) {
+            commands_from_server = network->get_inputed_cmmand_list();
+            if (commands_from_server == NULL) {
+                server = true;
+            }
+        }
     }
     else {
         network = NULL;
@@ -459,7 +471,6 @@ void world::lighting_init() {
 
 
 }
-
 
 void world::renderQuad()
 {

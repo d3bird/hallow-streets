@@ -5,6 +5,34 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+#include <string>
+
+enum chat_commands { MESSAGE = 0, SPAWN_ITEM = 1, UPDATE_ITEM = 2 };
+
+struct command {
+    chat_commands com = MESSAGE;
+
+    float x, y, z;
+    float rot_x, rot_y, rot_z;
+    float angle;
+    int item;
+    int actor_id;
+    std::string msg = "non";
+
+    void set_cords(float x_t, float y_t, float z_t) {
+        x = x_t;
+        y = y_t;
+        z = z_t;
+    }
+
+    void set_rot(float x_t, float y_t, float z_t, float angle_t) {
+        rot_x = x_t;
+        rot_y = y_t;
+        rot_z = z_t;
+        angle = angle_t;
+    }
+};
+
 
 class chat_message
 {
@@ -78,5 +106,7 @@ private:
   char data_[header_length + max_body_length];
   std::size_t body_length_;
 };
+
+
 
 #endif // CHAT_MESSAGE_HPP

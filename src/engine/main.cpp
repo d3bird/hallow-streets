@@ -133,7 +133,7 @@ int main() {
     }
 
     online_play = true;
-    bool server = false;
+    bool server = true;
 
     if (online_play) {
         network = new network_manager();
@@ -144,6 +144,7 @@ int main() {
 
     if (network != NULL) {
         server = network->is_server();
+        
     }
     else {
         server = true;

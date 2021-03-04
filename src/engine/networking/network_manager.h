@@ -22,6 +22,15 @@ public:
 
 	void send_message();
 
+	std::vector<command*>* get_inputed_cmmand_list() {
+		if (client != NULL) {
+			return client->get_given_command_pointer();
+		}
+		else {
+			return NULL;
+		}
+	}
+
 	void lock() {
 		mtx_.lock();
 	}

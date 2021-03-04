@@ -19,6 +19,7 @@ public:
         : io_context_(io_context),
         socket_(io_context)
     {
+        things_to_do = new std::vector<command*>();
         do_connect(endpoints);
     }
 
@@ -28,6 +29,7 @@ public:
     {
         boost::asio::post(io_context_, [this]() { socket_.close(); });
     }
+    std::vector<command*>* get_given_command_pointer() { return things_to_do; }
 
 private:
     void do_connect(const tcp::resolver::results_type& endpoints);
@@ -38,9 +40,16 @@ private:
 
     void do_write();
 
-private:
+
+
+
+    void parse_message(const chat_message& msg, unsigned int user_id);
+    command* generate_command(std::string data[4], chat_commands com);
+
     boost::asio::io_context& io_context_;
     tcp::socket socket_;
     chat_message read_msg_;
     chat_message_queue write_msgs_;
+
+    std::vector<command*>* things_to_do;
 };

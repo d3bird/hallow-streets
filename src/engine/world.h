@@ -129,6 +129,8 @@ private:
 	bool draw_speakers;
 	std::vector<glm::vec3> speakers_locs;
 
+	std::vector<command*>* commands_from_server;
+
 	//demo data
 #ifdef DEMO1
 	bool start_demo1;

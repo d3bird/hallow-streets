@@ -32,6 +32,11 @@ public:
 
 typedef std::shared_ptr<chat_participant> chat_participant_ptr;
 
+struct chat_participant_data {
+    unsigned int user_id;
+
+};
+
 //----------------------------------------------------------------------
 
 class chat_room
@@ -67,6 +72,10 @@ public:
     void deliver(const chat_message& msg);
 
 private:
+
+    //if returns then pass on the messsage to other particpants 
+    bool parse_message(const chat_message& msg, unsigned int user_id);
+
     void do_read_header();
 
     void do_read_body();
@@ -88,13 +97,31 @@ public:
         const tcp::endpoint& endpoint)
         : acceptor_(io_context, endpoint)
     {
+
+        send_message = new command;
+        spwan_item = new command;
+        spwan_item->com = SPAWN_ITEM;
+        update_item = new command;
+        update_item->com = UPDATE_ITEM;
         do_accept();
+    }
+
+    ~chat_server() {
+        delete send_message;
+        delete spwan_item;
+        delete update_item;
     }
 
     void send_message_to_clients();
 
 private:
     void do_accept();
+
+    chat_message create_message(command* input);
+
+    command* send_message;
+    command* spwan_item;
+    command* update_item;
 
     tcp::acceptor acceptor_;
     chat_room room_;
