@@ -119,6 +119,7 @@ void chat_client::parse_message(const chat_message& msg, unsigned int user_id) {
         if (spawn_item) {
           //  std::cout << "update item message" << std::endl;
             com = SPAWN_ITEM;
+
         }
         else {
          //   std::cout << "update item message" << std::endl;
@@ -186,7 +187,7 @@ command* chat_client::generate_command(std::string data[], chat_commands com) {
     y = std::stof(token[1]);
   //  z = std::stof(token[2]);
     z = std::stof(s);
-    std::cout << "command to print at x: " << x << " " << y << " " << z << std::endl;
+ //   std::cout << "command to print at x: " << x << " " << y << " " << z << std::endl;
     // z = x = std::stof(s);
      //std::cout <<s << std::endl;
 
@@ -210,7 +211,7 @@ command* chat_client::generate_command(std::string data[], chat_commands com) {
     y = std::stof(token[1]);
     //z = std::stof(token[2]);
     z = std::stof(s);
-    std::cout << "command to print at rot x: " << x << " " << y << " " << z << std::endl;
+ //   std::cout << "command to print at rot x: " << x << " " << y << " " << z << std::endl;
     //  std::cout << s << std::endl;
 
 
@@ -222,6 +223,8 @@ command* chat_client::generate_command(std::string data[], chat_commands com) {
     if (com == SPAWN_ITEM) {
         //  std::cout << "grabbing item code" << std::endl;
         output->item = std::stoi(data[3]);
+        std::cout << "spawn_item_from message = " << data[3] << " interpided as " << output->item << std::endl;
+
     }
     else {
         //   std::cout << "grabbing actor id" << std::endl;

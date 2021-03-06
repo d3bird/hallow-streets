@@ -31,6 +31,7 @@ public:
 
 	void send_message_spawn_object(int item, glm::vec3 &loc, glm::vec3 &rot_angle, float angle);
 
+	void spawn_in_ours_and_conned_to(int item, glm::vec3& loc, glm::vec3& rot_angle, float angle);
 
 	//getters
 	std::queue<command*>* get_inputed_cmmand_list() {

@@ -312,6 +312,11 @@ void key_board_input(GLFWwindow* window, int key, int scancode, int action, int 
             glm::vec3 rot(0, 1, 0);
             network->send_message_spawn_object(0, camera->get_pos(), rot, 0);
         }
+        if (key == GLFW_KEY_X && action == GLFW_RELEASE) {
+            glm::vec3 rot(0, 1, 0);
+            network->spawn_in_ours_and_conned_to(15, camera->get_pos(), rot, 0);
+        }
+
     }
     else {
         std::cout << "networ is null" << std::endl;

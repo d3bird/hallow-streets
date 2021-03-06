@@ -86,6 +86,7 @@ void network_manager::send_message_spawn_object(int item, glm::vec3 &loc, glm::v
 
 	spwan_item->item = item;
 
+	spwan_item->com = SPAWN_ITEM;
 	chat_message msg = create_message(spwan_item);
 
 	if (server) {
@@ -154,7 +155,7 @@ void network_manager::spawn_object_from_command(command* com) {
 			type = CURSE_CHICKEN_T;
 			break;
 		default:
-			std::cout << "not a understood item type" << std::endl;
+			std::cout << com->item<<" : not a understood item type" << std::endl;
 			return;
 			break;
 		}
@@ -163,7 +164,7 @@ void network_manager::spawn_object_from_command(command* com) {
 		glm::vec3 rot_angle = glm::vec3(com->rot_x, com->rot_y, com->rot_z);
 		glm::mat4 model = glm::mat4(1.0f);
 
-		std::cout << "telling to spawn item at " << loc.x << " , " << loc.y << " , " << loc.z << " , " << std::endl;
+		//std::cout << "telling to spawn item at " << loc.x << " , " << loc.y << " , " << loc.z << " , " << std::endl;
 
 
 		model = glm::translate(model, loc);
@@ -183,6 +184,82 @@ void network_manager::spawn_object_from_command(command* com) {
 	}
 }
 
+void network_manager::spawn_in_ours_and_conned_to(int item, glm::vec3& loc, glm::vec3& rot_angle, float angle) {
+	send_message_spawn_object(item, loc, rot_angle, angle);
+
+	item_type type;
+	switch (item)
+	{
+	case 0:
+		type = CUBE_T;
+		break;
+	case 1:
+		type = SIDEWALK_T;
+		break;
+	case  2:
+		type = LIGHT_POST_T;
+		break;
+	case  3:
+		type = WALL_T;
+		break;
+	case  4:
+		type = WALL_C_T;
+		break;
+	case  5:
+		type = SIDESTREET_T;
+		break;
+	case  6:
+		type = SKYTRACK_S_T;
+		break;
+	case  7:
+		type = SKYTRACK_C_T;
+		break;
+	case  8:
+		type = CHICKEN_T;
+		break;
+	case  9:
+		type = SKYTRACK_CART;
+		break;
+	case  10:
+		type = CANNON_FRAME_T;
+		break;
+	case  11:
+		type = CANNON_PLATFORM_T;
+		break;
+	case  12:
+		type = CANNON_T;
+		break;
+	case  13:
+		type = ZAP_TOWER_T;
+		break;
+	case  14:
+		type = ZAP_SPHERE_T;
+		break;
+	case  15:
+		type = CURSE_CHICKEN_T;
+		break;
+	default:
+		std::cout << "not a understood item type" << std::endl;
+		return;
+		break;
+	}
+
+
+	glm::mat4 model = glm::mat4(1.0f);
+
+	model = glm::translate(model, loc);
+	//model = glm::rotate(model, glm::radians(com->angle), rot_angle);
+
+	item_info* item_data = OBJM->spawn_item(type, -1, -1, -1, model);
+	item_data->x_rot = rot_angle.x;
+	item_data->y_rot = rot_angle.y;
+	item_data->z_rot = rot_angle.z;
+	item_data->angle = angle;
+	item_data->x = loc.x;
+	item_data->y = loc.y;
+	item_data->z = loc.z;
+
+}
 
 void network_manager::send_message_txt(std::string in) {
 	std::cout << "sending a message" << std::endl;
