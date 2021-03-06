@@ -311,6 +311,10 @@ chat_message network_manager::create_message(command* input) {
 			message += std::to_string(input->actor_id);
 		}
 
+		message += "/";
+		message += "end";
+		message += "/";
+
 		break;
 	case MESSAGE:
 	default:

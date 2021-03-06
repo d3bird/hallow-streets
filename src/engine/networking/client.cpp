@@ -87,13 +87,13 @@ void chat_client::do_write()
 }
 
 void chat_client::parse_message(const chat_message& msg, unsigned int user_id) {
-   // std::cout << "parsing message from user " << user_id << std::endl;
+    // std::cout << "parsing message from user " << user_id << std::endl;
     const char* message = msg.body();
 
     std::string s = msg.body();
     std::string delimiter = "/";
     size_t pos = 0;
-    std::string token[4];
+    std::string token[6];
     int token_id = 0;
 
     bool spawn_item = false;
@@ -104,40 +104,41 @@ void chat_client::parse_message(const chat_message& msg, unsigned int user_id) {
 
     switch (message[0]) {
     case '0':
-      //  std::cout << "chat message" << std::endl;
+        //  std::cout << "chat message" << std::endl;
         com = MESSAGE;
         s = s.substr(0, msg.body_length());
         s.erase(0, 2);
         token[0] = s;
         //std::cout << "parsed message length = " << msg.body_length() << std::endl;
         things_to_do->push(generate_command(token, com));
-      //  std::cout << "the message is: "<<s << std::endl;
+        //  std::cout << "the message is: "<<s << std::endl;
         break;
     case '1':
         spawn_item = true;
     case '2':
         if (spawn_item) {
-          //  std::cout << "update item message" << std::endl;
+            //  std::cout << "update item message" << std::endl;
             com = SPAWN_ITEM;
-
         }
         else {
-         //   std::cout << "update item message" << std::endl;
+            //   std::cout << "update item message" << std::endl;
             com = UPDATE_ITEM;
         }
-        
+
         s.erase(0, 2);
         while ((pos = s.find(delimiter)) != std::string::npos) {
             token[token_id] = s.substr(0, pos);
             //std::cout << token[token_id] << std::endl;
             s.erase(0, pos + delimiter.length());
             token_id++;
-            if (token_id >= 4) {
+            if (token_id >= 6) {
                 break;
             }
         }
 
-        token[3] = s;
+        token[5] = s;
+
+
 
         //lock();
         things_to_do->push(generate_command(token, com));

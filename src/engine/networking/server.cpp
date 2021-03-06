@@ -117,7 +117,7 @@ void chat_session::parse_message(const chat_message& msg, unsigned int user_id) 
     std::string s = msg.body();
     std::string delimiter = "/";
     size_t pos = 0;
-    std::string token[4];
+    std::string token[6];
     int token_id = 0;
 
     bool spawn_item = false;
@@ -155,12 +155,14 @@ void chat_session::parse_message(const chat_message& msg, unsigned int user_id) 
             //std::cout << token[token_id] << std::endl;
             s.erase(0, pos + delimiter.length());
             token_id++;
-            if (token_id >= 4) {
+            if (token_id >= 6) {
                 break;
             }
         }
 
-        token[3] = s;
+        token[5] = s;
+
+ 
 
         //lock();
         things_to_do->push(generate_command(token, com));
