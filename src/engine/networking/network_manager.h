@@ -8,6 +8,7 @@
 
 #include "server.h"
 #include "client.h"
+#include "../object_manger.h"
 #include "../text_rendering.h"
 
 class network_manager {
@@ -28,13 +29,7 @@ public:
 
 	void send_message_txt(std::string in);
 
-	//setters
-	void set_text_engine(text_engine* txt) { 
-		text_render = txt; 
-		if (text_render != NULL) {
-			messages_to_send = text_render->get_messages_to_send();
-		}
-	}
+	void send_message_spawn_object(int item, glm::vec3 &loc, glm::vec3 &rot_angle, float angle);
 
 
 	//getters
@@ -47,6 +42,16 @@ public:
 		}
 	}
 
+	//setters
+	void set_text_engine(text_engine* txt) {
+		text_render = txt;
+		if (text_render != NULL) {
+			messages_to_send = text_render->get_messages_to_send();
+		}
+	}
+
+	void set_command_input(){ commands_recived = get_inputed_cmmand_list(); }
+	void set_OBJM(object_manger* i) { OBJM = i; }
 	//misc
 
 	void lock() {
@@ -57,9 +62,9 @@ public:
 		client->unlock();
 	}
 
-	void set_command_input(){ commands_recived = get_inputed_cmmand_list(); }
-
 private:
+
+	void spawn_object_from_command(command* com);
 	bool port_in_use(unsigned short port);
 	chat_message create_message(command* input);
 	void processes_command(command* com);
@@ -68,6 +73,7 @@ private:
 	command* update_item;
 
 	text_engine* text_render;
+	object_manger* OBJM;
 
 	std::queue<command*>* commands_recived;
 

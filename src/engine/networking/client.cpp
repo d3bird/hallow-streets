@@ -171,29 +171,24 @@ command* chat_client::generate_command(std::string data[], chat_commands com) {
     float x, y, z;
 
     std::string s = data[0];
-   // std::cout << "grabbing cord data" << std::endl;
+    // std::cout << "grabbing cord data" << std::endl;
     while ((pos = s.find(delimiter)) != std::string::npos) {
         token[token_id] = s.substr(0, pos);
         // std::cout << token[token_id] << std::endl;
-        switch (token_id) {
-        case 0:
-            x = std::stof(token[token_id]);
-            break;
-        case 1:
-            y = std::stof(token[token_id]);
-            break;
-        case 2:
-            z = std::stof(token[token_id]);
-            break;
-        }
+
         s.erase(0, pos + delimiter.length());
         token_id++;
         if (token_id >= 3) {
             break;
         }
     }
-    z = x = std::stof(s);
-    //std::cout <<s << std::endl;
+    x = std::stof(token[0]);
+    y = std::stof(token[1]);
+  //  z = std::stof(token[2]);
+    z = std::stof(s);
+    std::cout << "command to print at x: " << x << " " << y << " " << z << std::endl;
+    // z = x = std::stof(s);
+     //std::cout <<s << std::endl;
 
     output->set_cords(x, y, z);
 
@@ -204,29 +199,23 @@ command* chat_client::generate_command(std::string data[], chat_commands com) {
     while ((pos = s.find(delimiter)) != std::string::npos) {
         token[token_id] = s.substr(0, pos);
         //std::cout << token[token_id] << std::endl;
-        switch (token_id) {
-        case 0:
-            x = std::stof(token[token_id]);
-            break;
-        case 1:
-            y = std::stof(token[token_id]);
-            break;
-        case 2:
-            z = std::stof(token[token_id]);
-            break;
-        }
+       
         s.erase(0, pos + delimiter.length());
         token_id++;
         if (token_id >= 3) {
             break;
         }
     }
+    x = std::stof(token[0]);
+    y = std::stof(token[1]);
+    //z = std::stof(token[2]);
     z = std::stof(s);
+    std::cout << "command to print at rot x: " << x << " " << y << " " << z << std::endl;
     //  std::cout << s << std::endl;
 
 
-  //  std::cout << "grabbing angle data" << std::endl;
-      //  std::cout << data[2] << std::endl;
+//  std::cout << "grabbing angle data" << std::endl;
+    //  std::cout << data[2] << std::endl;
 
     output->set_rot(x, y, z, std::stof(data[2]));
 
@@ -239,8 +228,6 @@ command* chat_client::generate_command(std::string data[], chat_commands com) {
         output->actor_id = std::stoi(data[3]);
     }
     // std::cout << std::stoi(data[3]) << std::endl;
-
-
 
     return output;
 }

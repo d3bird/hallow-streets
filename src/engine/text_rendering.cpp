@@ -56,7 +56,6 @@ void text_engine::add_message_to_history(std::string in) {
     if (message.compare("") == 0) {
         return;
     }
-    message = "";
     for (int i = 0; i < max_history; i++) {
         if (message_history[i].compare("") == 0) {
             message_history[i] = temp;

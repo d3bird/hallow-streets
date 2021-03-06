@@ -309,7 +309,8 @@ void key_board_input(GLFWwindow* window, int key, int scancode, int action, int 
 
     if (network != NULL) {
         if (key == GLFW_KEY_Z && action == GLFW_RELEASE) {
-            //network->send_message();
+            glm::vec3 rot(0, 1, 0);
+            network->send_message_spawn_object(0, camera->get_pos(), rot, 0);
         }
     }
     else {

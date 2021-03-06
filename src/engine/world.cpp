@@ -290,6 +290,7 @@ void world::init(network_manager* net, bool ser) {
     if (network != NULL) {
         network->set_text_engine(text_render);
         network->set_command_input();
+        network->set_OBJM(OBJM);
     }
 
     draw_speakers = ADM->draw_speaker_locations();
