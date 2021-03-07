@@ -3,15 +3,36 @@
 main devolopment O.S. is windows 10 (64 bit)
 
 # controls
-w: move the camera the direction of where it was loooking
+w: move the camera the direction of where it was looking
 
 a: move the camera to the left
 
-s: move the camera in the inverse direction of where it was loooking.
+s: move the camera in the inverse direction of where it was looking.
 
 d: move the camera to the right
 
-enter: start the demo
+o: increases the volume
+
+l: decreases the volume
+
+0: pauses time
+
+1: sets to normal speed
+
+2: sets time to 2x
+
+3: sets time to 3x
+
+4: sets time to 4x
+
+5-9: play sound effect
+mouse: move the mouse to look around
+
+z: spawns a object in the other players world
+
+x: spawns a chicken with a custom shaders in both worlds
+
+enter: allows for typing on the screen, press enter again to send the message
 
 mouse: move the mouse to look around
 
