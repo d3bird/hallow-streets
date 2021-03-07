@@ -13,6 +13,8 @@ world::world() {
     draw_lights_debug = false;
     update_projection = false;
     commands_from_server = NULL;
+
+    online = false;
 }
 
 world::~world(){
@@ -172,13 +174,15 @@ void world::update() {
     Sky->update();
     City->update();
 
+    if (server) {
+        AM->update();
+    }
+
     if (network != NULL) {
         network->update();
     }
 
-    if (server) {
-        AM->update();
-    }
+    
     ADM->update();
 
 #ifdef DEMO1
@@ -247,7 +251,7 @@ void world::init(network_manager* net, bool ser) {
     AM = new animation_manager();
     AM->set_sound_engine(ADM);
     AM->set_time(Time);
-    AM->init(network);
+    AM->init();
 
     City = new city();
 
@@ -270,6 +274,9 @@ void world::init(network_manager* net, bool ser) {
 	City->set_time(Time);
 	City->set_projection(projection);
 	City->set_cam(view);
+    City->set_server(server);
+    City->set_online(online);
+
     if (single) {
         City->set_shader(lighting_in);
     }
@@ -291,6 +298,9 @@ void world::init(network_manager* net, bool ser) {
         network->set_text_engine(text_render);
         network->set_command_input();
         network->set_OBJM(OBJM);
+        network->set_AM(AM);
+
+       // network->update_commands_to_share_world();
     }
 
     draw_speakers = ADM->draw_speaker_locations();
@@ -307,6 +317,7 @@ void world::init(network_manager* net, bool ser) {
     std::cout << std::endl;
 #endif // DEMO1
 }
+
 
 void world::lighting_init() {
 

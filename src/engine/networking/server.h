@@ -9,7 +9,7 @@
 #include <utility>
 #include <string>
 #include <queue>
-
+#include <vector>
 #include <boost/asio.hpp>
 #include "chat_message.hpp"
 
@@ -113,10 +113,16 @@ public:
 
     void send_message_to_clients(const chat_message& msg);
 
+    void set_world_messages(std::vector<chat_message>  i) { send_world_commands = i; }
+
 private:
     void do_accept();
 
+    void send_world();
+
     std::queue<command*>* things_to_do;
+
+    std::vector<chat_message> send_world_commands;
 
     tcp::acceptor acceptor_;
     chat_room room_;

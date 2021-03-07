@@ -10,6 +10,8 @@ animation_manager::animation_manager() {
 	id_highest = 0;
 	routine_total_predefined = 20;
 
+	actors = new std::vector<actor*>();
+
 	flying_chicken = NULL;
 	//misc vars
 	ready_for_next = true;
@@ -32,32 +34,27 @@ animation_manager::animation_manager() {
 	play_sound = false;
 	create_angle_to_fire = false;
 	cannon_og = glm::vec3(-1, -1, -1);
-	network = NULL;
 	server = true;
 }
 
 animation_manager::~animation_manager() {
 
-	for (int i = 0; i < actors.size(); i++) {
-		delete actors[i];
-		actors[i] = NULL;
-	}
-	actors.clear();
+	//for (int i = 0; i < actors[0]->size(); i++) {
+	//	delete actors[0][i];
+	//	actors[0][i] = NULL;
+	//}
+	//actors[0].clear();
 
-	for (int i = 0; i < routines.size(); i++) {
-		delete routines[i];
-		routines[i] = NULL;
-	}
-	routines.clear();
+	//for (int i = 0; i < routines.size(); i++) {
+	//	delete routines[i];
+	//	routines[i] = NULL;
+	//}
+	//routines.clear();
 }
 
-void animation_manager::init(network_manager* net) {
+void animation_manager::init() {
 	std::cout << "creating the animation manager"<< std::endl;
 
-	if (net != NULL) {
-		network = net;
-		server = network->is_server();
-	}
 
 	//create the blank routines
 	routine* def_routine;
@@ -152,18 +149,18 @@ void animation_manager::update() {
 	float cool = (*deltatime) * 5;
 	glm::mat4 trans = glm::mat4(1.0f);
 
-	for (int i = 0; i < actors.size(); i++) {
-		if (!actors[i]->empty) {
+	for (int i = 0; i < actors[0].size(); i++) {
+		if (!actors[0][i]->empty) {
 			//std::cout << "updatting actor "<<i << std::endl;
-			float speed = actors[i]->move_speed * time_mes;
+			float speed = actors[0][i]->move_speed * time_mes;
 			//checkout cooldown
 
-			if (actors[i]->cooldown >= 0) {
-				actors[i]->cooldown -= cool;
+			if (actors[0][i]->cooldown >= 0) {
+				actors[0][i]->cooldown -= cool;
 			}
 
-			if (actors[i]->routine == CANNON_ROUTINE) {
-				if (actors[i]->object->angle == actors[i]->turn_to) {
+			if (actors[0][i]->routine == CANNON_ROUTINE) {
+				if (actors[0][i]->object->angle == actors[0][i]->turn_to) {
 					x1 = going_to_x;
 					y1 = going_to_z;
 					if (play_sound) {
@@ -173,36 +170,36 @@ void animation_manager::update() {
 						play_sound = false;
 					}
 					
-					create_nav_points(actors[i]);
+					create_nav_points(actors[0][i]);
 				}
 				else {
 
-					glm::vec3 current_loc = glm::vec3(actors[i]->object->x, actors[i]->object->y, actors[i]->object->z);
-					glm::vec3 current_rot_axis = glm::vec3(actors[i]->object->x_rot, actors[i]->object->y_rot, actors[i]->object->z_rot);
+					glm::vec3 current_loc = glm::vec3(actors[0][i]->object->x, actors[0][i]->object->y, actors[0][i]->object->z);
+					glm::vec3 current_rot_axis = glm::vec3(actors[0][i]->object->x_rot, actors[0][i]->object->y_rot, actors[0][i]->object->z_rot);
 
 					glm::mat4 trans = glm::mat4(1.0f);
 					trans = glm::translate(trans, current_loc);
 
-					bool positive = determin_direction(actors[i]->object->angle, actors[i]->turn_to);
+					bool positive = determin_direction(actors[0][i]->object->angle, actors[0][i]->turn_to);
 					
 					if (positive) {
-						actors[i]->object->angle += actors[i]->turn_speed;
+						actors[0][i]->object->angle += actors[0][i]->turn_speed;
 						
 					}
 					else {
-						actors[i]->object->angle -= actors[i]->turn_speed;
+						actors[0][i]->object->angle -= actors[0][i]->turn_speed;
 						
 					}
 
-					if (actors[i]->object->angle > 360) {
-						actors[i]->object->angle = 0;
+					if (actors[0][i]->object->angle > 360) {
+						actors[0][i]->object->angle = 0;
 					}
-					else if (actors[i]->object->angle < 0) {
-						actors[i]->object->angle = 360;
+					else if (actors[0][i]->object->angle < 0) {
+						actors[0][i]->object->angle = 360;
 					}
 
-				//	std::cout << "current angle " << actors[i]->object->angle << " turning to " << actors[i]->turn_to << std::endl;
-					trans = glm::rotate(trans, glm::radians(actors[i]->object->angle), current_rot_axis);
+				//	std::cout << "current angle " << actors[0][i]->object->angle << " turning to " << actors[0][i]->turn_to << std::endl;
+					trans = glm::rotate(trans, glm::radians(actors[0][i]->object->angle), current_rot_axis);
 					update_pak update_pac;
 
 					update_pac.x = current_loc.x;
@@ -213,8 +210,8 @@ void animation_manager::update() {
 					update_pac.y_scale = 1;
 					update_pac.z_scale = 1;
 
-					update_pac.buffer_loc = actors[i]->object->buffer_loc;
-					update_pac.item_id = actors[i]->object->item_id;
+					update_pac.buffer_loc = actors[0][i]->object->buffer_loc;
+					update_pac.item_id = actors[0][i]->object->item_id;
 
 					OBJM->update_item_matrix(&update_pac, trans);
 
@@ -222,8 +219,8 @@ void animation_manager::update() {
 				}
 
 			}else
-			if (actors[i]->being_held) {
-				actor* holding = actors[i]->being_held_by_actor;
+			if (actors[0][i]->being_held) {
+				actor* holding = actors[0][i]->being_held_by_actor;
 				glm::vec3 current_loc = glm::vec3(holding->object->x, holding->object->y, holding->object->z);
 
 				current_loc.y += 3;
@@ -234,9 +231,9 @@ void animation_manager::update() {
 					current_loc.y += 0.8;
 				}
 
-				actors[i]->object->x = current_loc.x;
-				actors[i]->object->y = current_loc.y;
-				actors[i]->object->z = current_loc.z;
+				actors[0][i]->object->x = current_loc.x;
+				actors[0][i]->object->y = current_loc.y;
+				actors[0][i]->object->z = current_loc.z;
 
 
 				update_pak update_pac;
@@ -249,35 +246,35 @@ void animation_manager::update() {
 				update_pac.y_scale = 1;
 				update_pac.z_scale = 1;
 
-				update_pac.buffer_loc = actors[i]->object->buffer_loc;
-				update_pac.item_id = actors[i]->object->item_id;
+				update_pac.buffer_loc = actors[0][i]->object->buffer_loc;
+				update_pac.item_id = actors[0][i]->object->item_id;
 
 				OBJM->update_item_matrix(&update_pac);
 
 				//check if it needs to play a sound if the 
-				int route_index = get_routine_index(actors[i]->routine);
+				int route_index = get_routine_index(actors[0][i]->routine);
 				if (routines[route_index]->behavior == 1) {
 					glm::vec3 cam_loc = cam->get_pos();
 					if ((diff_btwn_pnt(current_loc.x, cam_loc.x) >= 0 && diff_btwn_pnt(current_loc.x, cam_loc.x) <= 10)
 						&& (diff_btwn_pnt(current_loc.z, cam_loc.z) >= 0 && diff_btwn_pnt(current_loc.z, cam_loc.z) <= 10)) {
-						if (actors[i]->cooldown <= 0) {
+						if (actors[0][i]->cooldown <= 0) {
 							//std::cout << "playing sound" << std::endl;
 							sound_system->play_3D_sound(chicken_alarm_call, current_loc);
-							actors[i]->cooldown = actors[i]->cooldown_max;
+							actors[0][i]->cooldown = actors[0][i]->cooldown_max;
 						}
 					}
 				}
 
 			}else
-			if (actors[i]->nav_points.empty()) {//get the next set of nav points
+			if (actors[0][i]->nav_points.empty()) {//get the next set of nav points
 				//std::cout << "out of nav points" << i << std::endl;
-				create_nav_points(actors[i]);
+				create_nav_points(actors[0][i]);
 			}
 			else {//move to the next destination
 
-				glm::vec3 current_loc = glm::vec3(actors[i]->object->x, actors[i]->object->y, actors[i]->object->z);
+				glm::vec3 current_loc = glm::vec3(actors[0][i]->object->x, actors[0][i]->object->y, actors[0][i]->object->z);
 
-				int route_index = get_routine_index(actors[i]->routine);
+				int route_index = get_routine_index(actors[0][i]->routine);
 
 				//std::cout << "updateing " << route_index<<" with behavior "<< routines[route_index]->behavior << std::endl;
 				//if (routines[route_index]->behavior == 1) {
@@ -291,29 +288,29 @@ void animation_manager::update() {
 						&& (diff_btwn_pnt(current_loc.z, cam_loc.z) >= 0 && diff_btwn_pnt(current_loc.z, cam_loc.z) <= 10)) {
 
 						if (determin_direction(current_loc.x, cam_loc.x)) {
-							actors[i]->nav_points[0].x = current_loc.x - 4.0f;
+							actors[0][i]->nav_points[0].x = current_loc.x - 4.0f;
 						}
 						else {
-							actors[i]->nav_points[0].x = current_loc.x + 4.0f;
+							actors[0][i]->nav_points[0].x = current_loc.x + 4.0f;
 						}
 
 						if (determin_direction(current_loc.z, cam_loc.z)) {
-							actors[i]->nav_points[0].z = current_loc.z - 4.0f;
+							actors[0][i]->nav_points[0].z = current_loc.z - 4.0f;
 						}
 						else {
-							actors[i]->nav_points[0].z = current_loc.z + 4.0f;
+							actors[0][i]->nav_points[0].z = current_loc.z + 4.0f;
 						}
 
-						if (actors[i]->cooldown <= 0) {
+						if (actors[0][i]->cooldown <= 0) {
 							//std::cout << "playing sound" << std::endl;
 							sound_system->play_3D_sound(chicken_alarm_call, current_loc);
-							actors[i]->cooldown = actors[i]->cooldown_max;
+							actors[0][i]->cooldown = actors[0][i]->cooldown_max;
 						}
 					}
 				}
 
 
-				glm::vec3 nav_point = actors[i]->nav_points[0];
+				glm::vec3 nav_point = actors[0][i]->nav_points[0];
 				bool reached_x = false;
 				bool reached_y = false;
 				bool reached_z = false;
@@ -379,9 +376,9 @@ void animation_manager::update() {
 				//std::cout << "c_loc: " << current_loc.x << " " << current_loc.y << " " << current_loc.z <<" || nav " << nav_point.x << " " << nav_point.y << " " << nav_point.z << std::endl;
 
 
-				actors[i]->object->x = current_loc.x;
-				actors[i]->object->y = current_loc.y;
-				actors[i]->object->z = current_loc.z;
+				actors[0][i]->object->x = current_loc.x;
+				actors[0][i]->object->y = current_loc.y;
+				actors[0][i]->object->z = current_loc.z;
 
 				update_pak update_pac;
 
@@ -393,29 +390,29 @@ void animation_manager::update() {
 				update_pac.y_scale = 1;
 				update_pac.z_scale = 1;
 
-				update_pac.buffer_loc = actors[i]->object->buffer_loc;
-				update_pac.item_id = actors[i]->object->item_id;
+				update_pac.buffer_loc = actors[0][i]->object->buffer_loc;
+				update_pac.item_id = actors[0][i]->object->item_id;
 
 				OBJM->update_item_matrix(&update_pac);
 
 				if (reached_z && reached_x && reached_y) {
 					//std::cout << "reached the distination" << i << std::endl;
 
-					if (actors[i]->routine == RAIL_ROUTINE) {
+					if (actors[0][i]->routine == RAIL_ROUTINE) {
 
-						if (actors[i]->at_start) {
-							cart_waiting_loading_station = actors[i];
+						if (actors[0][i]->at_start) {
+							cart_waiting_loading_station = actors[0][i];
 						}else
-						if (!actors[i]->at_start && actors[i]->holding_somethig) {
+						if (!actors[0][i]->at_start && actors[0][i]->holding_somethig) {
 							if (!sending_chicken_to_platform) {//if there is no chicken on the platform
 								//std::cout << "updating the cart to unload" << std::endl;
-								actors[i]->held_actor->routine = CHICKEN_TRANS1_ROUTINE;
-								actors[i]->held_actor->being_held = false;
-								actors[i]->held_actor->being_held_by_actor = NULL;
+								actors[0][i]->held_actor->routine = CHICKEN_TRANS1_ROUTINE;
+								actors[0][i]->held_actor->being_held = false;
+								actors[0][i]->held_actor->being_held_by_actor = NULL;
 
-								create_nav_points(actors[i]->held_actor, true);
-								actors[i]->holding_somethig = false;
-								actors[i]->held_actor = NULL;
+								create_nav_points(actors[0][i]->held_actor, true);
+								actors[0][i]->holding_somethig = false;
+								actors[0][i]->held_actor = NULL;
 
 
 								cart_waiting_loading_station = NULL;
@@ -423,28 +420,28 @@ void animation_manager::update() {
 							}
 						}
 					}
-					else if (actors[i]->routine == CHICKEN_TRANS1_ROUTINE) {
+					else if (actors[0][i]->routine == CHICKEN_TRANS1_ROUTINE) {
 						//std::cout << "there is a chicken on the platform" << std::endl;
-						platform = actors[i];
+						platform = actors[0][i];
 					}
-					else if (actors[i]->routine == CHICKEN_TRANS2_ROUTINE) {
+					else if (actors[0][i]->routine == CHICKEN_TRANS2_ROUTINE) {
 						//std::cout << "there is a chicken on the platform" << std::endl;
-						actors[i]->routine = CHICKEN_ROUTINE;
+						actors[0][i]->routine = CHICKEN_ROUTINE;
 					}
-					else if (actors[i]->routine == CANNON_PLATFORM_ROUTINE) {
+					else if (actors[0][i]->routine == CANNON_PLATFORM_ROUTINE) {
 						
-						if (ready_for_next && !actors[i]->holding_somethig && platform != NULL) {
+						if (ready_for_next && !actors[0][i]->holding_somethig && platform != NULL) {
 						//	std::cout << "there is a chicken on the platform" << std::endl;
-							actors[i]->holding_somethig = true;
-							actors[i]->held_actor = platform;
+							actors[0][i]->holding_somethig = true;
+							actors[0][i]->held_actor = platform;
 
 							platform->being_held = true;
-							platform->being_held_by_actor = actors[i];
+							platform->being_held_by_actor = actors[0][i];
 							lower_zap = true;
 							ready_for_next = false;
 						}
 
-						if (ready_to_lower && actors[i]->holding_somethig) {
+						if (ready_to_lower && actors[0][i]->holding_somethig) {
 							if (lowering) {
 							//	std::cout << "finished lowering down" << std::endl;
 								lowering = false;
@@ -465,7 +462,7 @@ void animation_manager::update() {
 						}
 
 					}
-					else if (actors[i]->routine == ZAP_TOWER_ROUTINE ) {
+					else if (actors[0][i]->routine == ZAP_TOWER_ROUTINE ) {
 						if (lower_zap) {
 							//std::cout << "finished lowering down" << std::endl;
 							lower_zap = false;
@@ -492,11 +489,11 @@ void animation_manager::update() {
 					}
 
 
-					if(actors[i]->nav_points.size() == 1){
-						actors[i]->nav_points.pop_back();
+					if(actors[0][i]->nav_points.size() == 1){
+						actors[0][i]->nav_points.pop_back();
 					}
 					else {
-						actors[i]->nav_points.erase(actors[i]->nav_points.begin());
+						actors[0][i]->nav_points.erase(actors[0][i]->nav_points.begin());
 					}
 				}
 
@@ -576,9 +573,9 @@ int animation_manager::turn_object_into_actor(item_info* obje, routine_designati
 	if (openIDs.size() >= 1) {
 		new_act->id = openIDs[openIDs.size() - 1];
 
-		if (actors[new_act->id]->empty) {
-			delete actors[new_act->id];//remove the old
-			actors[new_act->id] = new_act;//in with the new
+		if (actors[0][new_act->id]->empty) {
+			delete actors[0][new_act->id];//remove the old
+			actors[0][new_act->id] = new_act;//in with the new
 		}
 		else {
 			std::cout << "actor was not delete proporly, tried to overwrite actor!" << std::endl;
@@ -589,7 +586,7 @@ int animation_manager::turn_object_into_actor(item_info* obje, routine_designati
 	else {
 		new_act->id = id_highest;
 		id_highest++;
-		actors.push_back(new_act);
+		actors[0].push_back(new_act);
 	}
 
 	if (route == CHICKEN_TRANS2_ROUTINE) {
@@ -1190,6 +1187,31 @@ void animation_manager::create_chicken() {
 	z_t = z;
 
 }
+
+void animation_manager::update_actor_id(int id, glm::vec3& loc, glm::vec3& rot, float angle) {
+	if (id > 0 && id < actors[0].size()) {
+		update_pak update_pac;
+		glm::mat4 trans = glm::mat4(1.0f);
+		trans = glm::translate(trans, loc);
+		trans = glm::rotate(trans, glm::radians(angle), rot);
+		update_pac.x = loc.x;
+		update_pac.y = loc.y;
+		update_pac.z = loc.z;
+
+		update_pac.x_scale = 1;
+		update_pac.y_scale = 1;
+		update_pac.z_scale = 1;
+
+		update_pac.buffer_loc = actors[0][id]->object->buffer_loc;
+		update_pac.item_id = actors[0][id]->object->item_id;
+
+		OBJM->update_item_matrix(&update_pac, trans);
+	}
+	else {
+		std::cout << "could not updated " << id << ", it was out of bounds of actors" << std::endl;
+	}
+}
+
 
 void animation_manager::print_routines() {
 

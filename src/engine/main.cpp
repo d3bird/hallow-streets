@@ -150,6 +150,7 @@ int main() {
     World->set_time(Time);
     World->set_cam(view);
     World->set_projection(projection);
+    World->set_online(online_play);
     if (sigle_light_soruce) {
         World->set_single_draw();
     }

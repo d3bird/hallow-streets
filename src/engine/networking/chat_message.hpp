@@ -7,7 +7,7 @@
 #include <cstring>
 #include <string>
 
-enum chat_commands { MESSAGE = 0, SPAWN_ITEM = 1, UPDATE_ITEM = 2 };
+enum chat_commands { MESSAGE = 0, SPAWN_ITEM = 1, UPDATE_ITEM = 2, SPAWN_ACTOR =3 };
 
 struct command {
     chat_commands com = MESSAGE;

@@ -42,15 +42,15 @@ struct item_info {
 	unsigned int amount;
 	float x_m, y_m, z_m;// the location in the world
 	float x, y, z;//the location on the screen
-	float x_scale;
-	float y_scale;
-	float z_scale;
+	float x_scale=1;
+	float y_scale=1;
+	float z_scale=1;
 
-	float x_rot;
-	float y_rot;
-	float z_rot;
+	float x_rot =0;
+	float y_rot =1;
+	float z_rot=0;
 
-	float angle;
+	float angle =0;
 
 	std::string* item_name;
 	item_type type;
@@ -146,6 +146,8 @@ public:
 
 	void set_time(timing* i) { Time = i; }
 	void delete_item_from_buffer(item_info* it);
+
+	std::vector< item*>* get_all_item_info() { return &items; }
 
 #ifdef DEMO1
 	void update_demo1();

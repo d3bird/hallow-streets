@@ -97,10 +97,15 @@ public:
 	void set_time(timing* i) { Time = i; }
 	void set_shader(Shader* i) { cube_shader = i; }
 
+	void set_online(bool i) { online = i; }
+	void set_server(bool i) { server = i; }
+
 private:
 
 	bool objects_inited;
 	bool objects_representations_craeted;
+
+	void init_client_world(object_manger* OBJM, animation_manager* an);
 
 	//check function to makesure that everything was inited
 	void check();
@@ -126,7 +131,8 @@ private:
 
 	unsigned int cube_amount;//the amount of cubes that there are to display
 
-
+	bool online;
+	bool server;
 	//city debug information
 	bool draw_wall;
 	bool draw_wall_c;

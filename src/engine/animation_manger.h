@@ -16,7 +16,6 @@
 
 #include "object_manger.h"
 #include "audio_manger.h"
-#include  "networking/network_manager.h"
 #include "time.h"
 
 
@@ -104,15 +103,21 @@ public:
 	void define_routine(routine_designation route, std::vector<glm::vec3> points);
 	void define_routine(routine_designation route, glm::vec3 point);
 
-	void init(network_manager* net = NULL);
+	void init();
 
 	void print_routines();
 
+	//setters
 	void set_cam(Camera* c) { cam = c; }
 	void set_time(timing* i) { Time = i; }
 
 	void set_sound_engine(audio_manger* i) { sound_system = i; }
 	void set_object_manger(object_manger*i) { OBJM = i; }
+
+	//getters
+	std::vector<actor*> *get_actor_list() { return actors; }
+
+	void update_actor_id(int id,glm::vec3& loc, glm::vec3& rot,float angle);
 
 private:
 
@@ -129,7 +134,6 @@ private:
 	Camera* cam;
 
 	audio_manger *sound_system;
-	network_manager* network;
 	object_manger* OBJM;
 
 	bool server;
@@ -137,7 +141,7 @@ private:
 	int id_highest;
 	std::vector<int> openIDs;
 
-	std::vector<actor*> actors;
+	std::vector<actor*> *actors;
 	std::vector<routine*> routines;
 	int routine_total_predefined;
 	actor* cart_waiting_loading_station;

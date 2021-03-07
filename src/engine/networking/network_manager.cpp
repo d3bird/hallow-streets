@@ -14,20 +14,29 @@ network_manager::network_manager() {
 	client = NULL;
 
 	send_message = new command;
+
 	spwan_item = new command;
 	spwan_item->com = SPAWN_ITEM;
+
 	update_item = new command;
 	update_item->com = UPDATE_ITEM;
+
+	spawn_actor = new command;
+	spawn_actor->com = SPAWN_ACTOR;
 
 	text_render = NULL;
 	messages_to_send = NULL;
 	OBJM = NULL;
+	AM = NULL;
+
+	actors = NULL;
 }
 
 network_manager::~network_manager(){
 	delete send_message;
 	delete spwan_item;
 	delete update_item;
+	delete spawn_actor;
 }
 
 void network_manager::update() {
@@ -47,6 +56,13 @@ void network_manager::update() {
 				messages_to_send->pop();
 			}
 		}
+
+
+		//update the actors
+		if (server) {
+			//update_all_actors();
+		}
+
 		mtx_.unlock();
 	}
 }
@@ -62,12 +78,67 @@ void network_manager::processes_command(command* com) {
 			spawn_object_from_command(com);
 		break;
 	case UPDATE_ITEM:
-
+		update_actor_from_command(com);
 		break;
+	case SPAWN_ACTOR:
+		spawn_actor_from_command(com);
 	default:
 		std::cout << "could not undersatnd command" << std::endl;
 		break;
 	}
+
+}
+
+void network_manager::update_all_actors() {
+	item_info* object;
+	glm::vec3 loc;
+	glm::vec3 rot;
+	float angle = 0;
+	for (int i = 0; i < actors[0].size(); i++) {
+		object =actors[0][i]->object;
+		loc.x = object->x;
+		loc.y = object->y;
+		loc.z = object->z;
+
+		rot.x = object->x_rot;
+		rot.y = object->y_rot;
+		rot.z = object->z_rot;
+
+		angle = object->angle;
+		send_message_update_actor(i, loc, rot, angle);
+	}
+
+}
+
+
+void network_manager::send_message_spawn_actor(int item, glm::vec3& loc, glm::vec3& rot_angle, float angle, int id) {
+
+
+}
+
+void network_manager::send_message_update_actor(int id, glm::vec3& loc, glm::vec3& rot_angle, float angle) {
+
+	update_item->x = loc.x;
+	update_item->y = loc.y;
+	update_item->z = loc.z;
+
+	update_item->x = rot_angle.x;
+	update_item->y = rot_angle.y;
+	update_item->z = rot_angle.z;
+
+	update_item->angle = angle;
+
+	update_item->actor_id = id;
+
+	chat_message msg = create_message(update_item);
+	servers->front().send_message_to_clients(msg);
+}
+
+void network_manager::update_actor_from_command(command* com) {
+
+}
+
+void network_manager::spawn_actor_from_command(command* com) {
 
 }
 
@@ -415,4 +486,45 @@ bool network_manager::port_in_use(unsigned short port) {
 	a.open(tcp::v4(), ec) || a.bind({ tcp::v4(), port }, ec);
 
 	return ec == error::address_in_use;
+}
+
+void network_manager::update_commands_to_share_world() {
+
+	if (servers == NULL) {
+		return;
+	}
+	std::cout << "updating commands to share world" << std::endl;
+	std::vector< item*>* items = OBJM->get_all_item_info();
+
+	int item_index = 0;
+
+	command* com = new command;
+	com->com = SPAWN_ITEM;
+
+	float angle = 0;
+	int item_spawn_value = 1;
+
+	item_info* object;
+	if (items != NULL) {
+		//should only spawn in item at index 0 (cubes)
+		for (int i = 0; i < items[0][item_index]->amount; i++) {
+			object =items[0][item_index]->item_data[i];
+			
+
+			com->x = object->x;
+			com->y = object->y;
+			com->z = object->z;
+
+			com->rot_x = object->x_rot;
+			com->rot_y = object->y_rot;
+			com->rot_z = object->z_rot;
+			com->angle = object->angle;
+
+			com->item = item_spawn_value;
+
+			send_world_messages.push_back(create_message(com));
+		}
+	}
+
+	servers->front().set_world_messages(send_world_messages);
 }

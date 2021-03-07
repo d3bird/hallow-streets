@@ -270,13 +270,20 @@ void chat_server::do_accept()
             if (!ec)
             {
                 std::make_shared<chat_session>(std::move(socket), room_)->start();
+                //send_world();
             }
 
             do_accept();
         });
 }
 
+void chat_server::send_world() {
 
+    for (int i = 0; i < send_world_commands.size(); i++) {
+        room_.deliver(send_world_commands[i]);
+    }
+
+}
 
 void chat_server::send_message_to_clients(const chat_message& msg) {
     room_.deliver(msg);

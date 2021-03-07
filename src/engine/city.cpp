@@ -24,6 +24,9 @@ city::city() {
 	draw_path_cubes = true;
 	draw_light_posts = true;
 	draw_sidewalk = true;
+
+	server = true;
+	online = false;
 }
 
 city::~city(){
@@ -50,6 +53,11 @@ void city::update() {
 void city::init(object_manger* OBJM, animation_manager* an) {
 	std::cout << "creating city" << std::endl;
 	std::cout << "creating city info" << std::endl;
+
+	/*if (online && !server) {
+		init_client_world(OBJM, an);
+			return;
+	}*/
 
 	if (city_info == NULL) {
 		city_info = new city_gen();
@@ -560,6 +568,192 @@ void city::init(object_manger* OBJM, animation_manager* an) {
 	//while (true);
 }
 
+void city::init_client_world(object_manger* OBJM, animation_manager* an) {
+	std::cout << "creating city (client side)" << std::endl;
+	std::cout << "creating city info" << std::endl;
+
+	if (city_info == NULL) {
+		city_info = new city_gen();
+	}
+
+	city_info->set_time(Time);
+	city_info->set_projection(projection);
+	city_info->init();
+
+
+	layout = city_info->get_layout();
+	int** layout_expanded = city_info->get_expanded_layout();
+
+	//x_width = 9;// ROW;//rows
+	//z_width = 10;//COL;//collums
+	int key = city_info->get_expandion_key();
+	x_width = city_info->get_height() * key;
+	z_width = city_info->get_width() * key;
+
+
+	int chicken_x_s = -1;
+	int chicken_z_s = -1;
+
+	int chicken_x_e = -1;
+	int chicken_z_e = -1;
+
+
+	//hard coded for now
+	//134,150 || hig 188,188
+	chicken_x_s = 134;
+	chicken_z_s = 150;
+
+	chicken_x_e = 188;
+	chicken_z_e = 188;
+
+
+	int low_x = 10000000;
+	int low_z = 10000000;
+	int hig_x = 0;
+	int hig_z = 0;
+
+	int num_chickens = 0;
+
+	std::vector< rail_section*> rails = city_info->get_rails();
+	item_info* tempdata = NULL;
+	item_info* cart = NULL;
+	item_info* zap_t = NULL;
+	item_info* zap_s = NULL;
+	item_info* platform = NULL;
+	item_info* cannon = NULL;
+	std::vector<rail_check_point*> temp_rails;
+
+	glm::vec3 platform_point = glm::vec3(-1, -1, -1);
+	glm::vec3 platform_point_ob = glm::vec3(-1, -1, -1);
+
+	glm::vec3 zap_o_tron = glm::vec3(-1, -1, -1);
+
+	for (int i = 0; i < rails.size(); i++) {
+
+
+		if (i == rails.size() - 1) {
+			glm::vec3 temp_loc = rails[i]->loc;
+
+			temp_loc.z -= 6;
+			platform_point = temp_loc;
+			platform_point.y += 3.8;
+
+			temp_loc.y += 8;
+			zap_o_tron = temp_loc;
+			
+			temp_loc.y -= 8;
+			temp_loc.x += 15;
+
+			platform_point_ob = temp_loc;
+		}
+
+
+	
+
+		rail_check_point* temp = new rail_check_point;
+		temp->loc = rails[i]->loc;
+		temp->rail_type = rails[i]->type;
+
+		temp_rails.push_back(temp);
+	}
+
+	//create the routines based off of the rails
+
+
+
+	platform_point_ob.x -= 30;
+
+	
+	std::cout << std::endl;
+
+	std::cout << "done " << std::endl;
+	std::cout << "creating pathfinding data" << std::endl;
+
+	cube_amount = x_width * z_width;
+
+	terrian_map = new map_tile * [x_width];
+	for (int i = 0; i < x_width; i++) {
+		terrian_map[i] = new map_tile[z_width];
+	}
+
+	float cube_offset = 2.0f;
+	float x = 0;
+	float y = 0;
+	float z = 0;
+
+	bool first = true;
+
+	int xloc = 0;
+	int zloc = 0;
+
+	//generate the pathfinding data structure
+	for (unsigned int i = 0; i < cube_amount; i++) {
+		map_tile temp;
+		temp.x = x;
+		temp.y = y;
+		temp.z = z;
+		temp.g_cost = 1;
+		temp.blocked = false;
+		temp.buffer_loc = i;
+		temp.type = 1;
+		terrian_map[xloc][zloc] = temp;
+
+		x += cube_offset;
+		xloc++;
+		if (x == (cube_offset * x_width)) {
+			z += cube_offset;
+			zloc++;
+			x = 0;
+			xloc = 0;
+		}
+
+	}
+
+	//generate the complete path finding refference map
+	for (int x = 0; x < x_width; x++) {
+		for (int z = 0; z < z_width; z++) {
+			switch (layout_expanded[x][z])
+			{
+			case 0:
+				terrian_map[x][z].blocked = true;
+				terrian_map[x][z].type = 0;
+				break;
+			case 1:
+				terrian_map[x][z].blocked = false;
+				break;
+			default:
+				break;
+			}
+
+		}
+	}
+
+	city_info->print_layout();
+	//city_info->print_expanded_layout();
+	//print_map();
+
+	// Source is the left-most bottom-most corner 
+	Pair src = make_pair(8, 0);
+
+	// Destination is the left-most top-most corner 
+	Pair dest = make_pair(0, 0);
+
+	aStarSearch(src, dest);
+	std::cout << "done" << std::endl;
+	std::cout << "creating the model buffer" << std::endl;
+
+	if (cube_shader == NULL) {
+		cube_shader = new Shader("asteroids.vs", "asteroids.fs");
+	}
+	else {
+		std::cout << "using premade shader for the cubes" << std::endl;
+	}
+
+	std::cout << "done creating city" << std::endl;
+
+	check();
+	//while (true);
+}
 
 void city::check() {
 	std::cout << "checking to maksure that all vars were inited" << std::endl;

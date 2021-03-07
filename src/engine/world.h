@@ -60,6 +60,8 @@ public:
 	void set_camera_obj(Camera* cam) { ADM->set_cam(cam); AM->set_cam(cam); }
 	void set_text_engine(text_engine* txt) { text_render = txt; }
 
+	void set_online(bool i) { online = i; }
+
 	//demo functions
 
 #ifdef DEMO1
@@ -69,6 +71,7 @@ public:
 
 
 private:
+
 
 	void lighting_init();
 
@@ -90,6 +93,9 @@ private:
 	audio_manger* ADM;
 	object_manger* OBJM;
 	animation_manager* AM;
+
+	bool online;
+
 	bool single;
 	bool render_text;
 	//single source
