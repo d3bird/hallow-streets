@@ -186,6 +186,8 @@ void audio_manger::create_sound_data() {
 
 	engine->play3D(newspeaker->audio->sound_data, temp_loc, true);
 
+
+	engine->setSoundVolume(0.f);
 }
 
 

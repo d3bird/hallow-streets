@@ -23,8 +23,8 @@
 #include "networking/network_manager.h"
 #include <iostream>
 
-#include "gui/imgui.h"
-#include "gui/imgui_impl_glfw_gl3.h"
+#include "gui/GUI.h"
+
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
@@ -59,6 +59,7 @@ bool firstMouse = true;
 world* World = NULL;
 timing* Time = NULL;
 skymap* sky = NULL;
+GUI* gui;
 float* deltaTime = NULL;
 keyboard_manger* keys;
 bool typing;
@@ -96,7 +97,7 @@ int main() {
     glfwSetScrollCallback(window, scroll_callback);
     glfwSetMouseButtonCallback(window, mouse_button_callback);
     glfwSetKeyCallback(window, key_board_input);
-    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
         std::cout << "Failed to initialize GLAD" << std::endl;
@@ -177,15 +178,14 @@ int main() {
     ImGui_ImplGlfwGL3_Init(window, true);
     ImGui::StyleColorsDark();
 
-    bool show_demo_window = true;
-    bool show_another_window = false;
-    ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+    gui = new GUI();
+    gui->set_time(Time);
+    gui->init();
 
     while (!glfwWindowShouldClose(window))
     {
 
         ImGui_ImplGlfwGL3_NewFrame();
-
         Time->update_time();
         if (!typing) {
             process_movement(window);
@@ -213,23 +213,7 @@ int main() {
 
         World->update();
 
-        {
-            static float f = 0.0f;
-            static int counter = 0;
-            ImGui::Text("Hello, world!");                           // Display some text (you can use a format string too)
-            ImGui::SliderFloat("float", &f, 0.0f, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f    
-            ImGui::ColorEdit3("clear color", (float*)&clear_color); // Edit 3 floats representing a color
-
-            ImGui::Checkbox("Demo Window", &show_demo_window);      // Edit bools storing our windows open/close state
-            ImGui::Checkbox("Another Window", &show_another_window);
-
-            if (ImGui::Button("Button"))                            // Buttons return true when clicked (NB: most widgets return true when edited/activated)
-                counter++;
-            ImGui::SameLine();
-            ImGui::Text("counter = %d", counter);
-
-            ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
-        }
+        gui->draw();
 
         ImGui::Render();
         ImGui_ImplGlfwGL3_RenderDrawData(ImGui::GetDrawData());

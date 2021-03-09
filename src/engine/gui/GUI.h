@@ -10,6 +10,9 @@
 #include "../time.h"
 #include "../text_rendering.h"
 
+#include "imgui.h"
+#include "imgui_impl_glfw_gl3.h"
+
 class GUI{
 public:
 	GUI();
@@ -29,12 +32,38 @@ public:
 
 private:
 
+	void update_values();
+
+	void draw_demo_window();
+	void draw_example_from_class();
+
+	void debug_info();
+	//debug_info vars
+	int tab;
+	bool my_tool_active;
+	//ImVec4 my_color;
+	float* my_color;
+	float* my_values;
+
+	float* overal;
+	float* effect;
+	float* effects_3D;
+
+
+	std::vector<float> last_frames;
+	int number_of_values;
+	float passed_time;
+	float record_check_point;
 	glm::mat4 view;
 	glm::mat4 projection;
 	glm::vec3 cam_pos;
 
 	timing* Time;
 	float* deltatime;
+
+	bool show_demo_window;
+	bool show_another_window;
+	ImVec4 clear_color;
 
 	bool online;
 	bool server;
