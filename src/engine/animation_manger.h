@@ -13,6 +13,7 @@
 #include <cstdlib>
 #include <ctime>
 #include <random>
+#include <string>
 
 #include "object_manger.h"
 #include "audio_manger.h"
@@ -116,6 +117,7 @@ public:
 
 	//getters
 	std::vector<actor*> *get_actor_list() { return actors; }
+	std::string routine_designation_tostring(routine_designation i);
 
 	void update_actor_id(int id,glm::vec3& loc, glm::vec3& rot,float angle);
 

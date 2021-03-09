@@ -137,6 +137,8 @@ int main() {
         server = true;
     }
 
+    gui = new GUI();
+    gui->set_time(Time);
 
     text_render = new text_engine();
     text_render->set_time(Time);
@@ -162,10 +164,10 @@ int main() {
     World->set_text_engine(text_render);
     
     if (online_play) {
-        World->init(network, server);
+        World->init(gui,network, server);
     }
     else {
-        World->init();
+        World->init(gui);
     }
 
     World->set_camera_obj(camera);
@@ -178,8 +180,7 @@ int main() {
     ImGui_ImplGlfwGL3_Init(window, true);
     ImGui::StyleColorsDark();
 
-    gui = new GUI();
-    gui->set_time(Time);
+   
     gui->init();
 
     while (!glfwWindowShouldClose(window))
@@ -323,12 +324,13 @@ void key_board_input(GLFWwindow* window, int key, int scancode, int action, int 
     if (key == GLFW_KEY_9 && action == GLFW_RELEASE)
         World->play_sound_effect(3);
 
-
     if (key == GLFW_KEY_O && action == GLFW_RELEASE)
         World->increase_background_music();
-
     if (key == GLFW_KEY_L && action == GLFW_RELEASE)
         World->decrease_background_music();
+
+    if (key == GLFW_KEY_TAB && action == GLFW_RELEASE)
+        gui->set_draw_debug_info(true);
 
     if (network != NULL) {
         if (key == GLFW_KEY_Z && action == GLFW_RELEASE) {

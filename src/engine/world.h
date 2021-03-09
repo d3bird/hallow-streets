@@ -23,6 +23,7 @@
 #include "object_manger.h"
 #include "audio_manger.h"
 #include "networking/network_manager.h"
+#include "gui/GUI.h"
 
 class world {
 public:
@@ -35,7 +36,7 @@ public:
 
 	void draw_objects();
 
-	void init(network_manager* net = NULL, bool ser = true);
+	void init(GUI* g, network_manager* net = NULL, bool ser = true);
 
 	//misc functions
 
@@ -84,6 +85,7 @@ private:
 
 	city* City;
 	sky* Sky;
+	GUI* gui;
 
 	bool server;
 	network_manager* network;

@@ -35,6 +35,18 @@ GUI::GUI() {
     }
     passed_time = 0;
     record_check_point = 1;
+    draw_debug_info = false;
+    draw_server_windows = false;
+    draw_model_windows = false;
+    show_item_stats = false;
+    edit_cell = false;
+    spawn_item = false;
+    show_animation_stats = false;
+    OBJM = NULL;
+    AM = NULL;
+    item_info = NULL;
+    actors = NULL;
+    routines = NULL;
 }
 
 GUI::~GUI(){
@@ -47,7 +59,6 @@ GUI::~GUI(){
 
 void GUI::draw() {
     update_values();
-
     debug_info();
     //draw_demo_window();
 }
@@ -70,9 +81,190 @@ void GUI::update_values() {
     // Edit a color (stored as ~4 floats)
   //  ImGui::ColorEdit4("Color", my_color);
 
+void GUI::draw_server_window() {
+
+    static float w = 200.0f;
+    static float h = 300.0f;
+
+    ImGui::Begin("server settings", &draw_server_windows);
+
+    ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0, 0));
+    ImGui::BeginChild("child1", ImVec2(w, h), true);
+    ImGui::EndChild();
+    ImGui::SameLine();
+    ImGui::InvisibleButton("vsplitter", ImVec2(8.0f, h));
+    if (ImGui::IsItemActive())
+        w += ImGui::GetIO().MouseDelta.x;
+    ImGui::SameLine();
+    ImGui::BeginChild("child2", ImVec2(0, h), true);
+    ImGui::EndChild();
+    ImGui::InvisibleButton("hsplitter", ImVec2(-1, 8.0f));
+    if (ImGui::IsItemActive())
+        h += ImGui::GetIO().MouseDelta.y;
+    ImGui::BeginChild("child3", ImVec2(0, 0), true);
+    ImGui::EndChild();
+    ImGui::PopStyleVar();
+
+    ImGui::End();
+}
+
+void GUI::draw_model_window() {
+
+    static float width = 200.0f;
+    static float height = 300.0f;
+
+    ImGui::Begin("server settings", &draw_model_windows);
+
+    ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0, 0));
+    ImGui::BeginChild("option_selection", ImVec2(width, height), true);
+    if (ImGui::Button("spawn item")) {
+        show_item_stats = false;
+        edit_cell = false;
+        spawn_item = true;
+    }
+    if (ImGui::Button("edit cell")) {
+        spawn_item = false;
+        show_item_stats = false;
+        edit_cell = true;
+    }
+    if (ImGui::Button("show item stats")) {
+        spawn_item = false;
+        edit_cell = false;
+        show_item_stats = true;
+    }
+    if (ImGui::Button("show animation stats")) {
+        spawn_item = false;
+        edit_cell = false;
+        show_item_stats = false;
+        show_animation_stats = true;
+    }
+    ImGui::EndChild();
+    ImGui::SameLine();
+    ImGui::InvisibleButton("vsplitter", ImVec2(8.0f, height));
+    if (ImGui::IsItemActive())
+        width += ImGui::GetIO().MouseDelta.x;
+    ImGui::SameLine();
+    ImGui::BeginChild("option options", ImVec2(0, height), true);
+    if (spawn_item) {
+        ImGui::Text("spawn item:");
+    }
+    else if (edit_cell) {
+        ImGui::Text("edit cell:");
+    }
+    else if (show_item_stats) {
+        ImGui::Text("show item stats:");
+        if (OBJM == NULL) {
+            ImGui::Text("can not show info, OBJM is NULL");
+        }
+        else {
+            if (item_info == NULL) {
+                item_info = OBJM->get_all_item_info();
+                ImGui::Text("item_info was null");
+            }
+            else {
+                ImGui::BeginChild("Scrolling 1");
+                for (int n = 0; n < item_info[0].size(); n++) {
+                    std::string temp = "item_name ";
+                    if (item_info[0][n]->item_name != NULL) {
+                        temp += *item_info[0][n]->item_name;
+                    }
+                    ImGui::Text(temp.c_str());
+
+                    temp = "max amount: ";
+                    temp += std::to_string(item_info[0][n]->buffer_size);
+                    ImGui::Text(temp.c_str());
+
+                    temp = "currently spawned: ";
+                    temp += std::to_string(item_info[0][n]->amount);
+
+                    ImGui::Text(temp.c_str());
+                    if (item_info[0][n]->draw) {
+                        ImGui::Text("drawling: true");
+                    }
+                    else {
+                        ImGui::Text("drawling: false");
+                    }
+                    ImGui::NewLine();
+                }
+                ImGui::EndChild();
+            }
+        }
+    }
+    else if (show_animation_stats) {
+        if (AM == NULL) {
+            ImGui::Text("can not show animation info, AM is NULL");
+        }
+        else {
+            ImGui::Text("show animation stats:");
+            if (actors == NULL) {
+                ImGui::Text("actors pointer was null");
+                actors = AM->get_actor_list();
+            }
+            else {
+                std::string temp;
+                ImGui::BeginChild("Scrolling 3");
+                for (int n = 0; n < actors[0].size(); n++) {
+                    temp ="id: ";
+                    temp += std::to_string(actors[0][n]->id);
+                    ImGui::Text(temp.c_str());
+                    temp = "model: ";
+                    temp += *(actors[0][n]->object->item_name);
+                    ImGui::Text(temp.c_str());
+                    temp = "has_sound: ";
+                    if (actors[0][n]->has_sound) {
+                        temp += "true";
+                    }
+                    else {
+                        temp += "false";
+                    }
+                    ImGui::Text(temp.c_str());
+                    temp = "routine: ";
+                    temp += AM->routine_designation_tostring(actors[0][n]->routine);
+                    ImGui::Text(temp.c_str());
+                    temp = "move_speed: ";
+                    temp += std::to_string(actors[0][n]->move_speed);
+                    ImGui::Text(temp.c_str());
+                    temp = "being_held: ";
+                    if (actors[0][n]->being_held) {
+                        temp += "true";
+                    }
+                    else {
+                        temp += "false";
+                    }
+                    ImGui::Text(temp.c_str());
+                    temp = "holding_somethig: ";
+                    if (actors[0][n]->holding_somethig) {
+                        temp += "true";
+                    }
+                    else {
+                        temp += "false";
+                    }
+                    ImGui::Text(temp.c_str());
+                    temp = "cooldown: ";
+                    temp += std::to_string(actors[0][n]->cooldown);
+                    ImGui::Text(temp.c_str());
+                    temp = "cooldown_max: ";
+                    temp += std::to_string(actors[0][n]->cooldown_max);
+                    ImGui::Text(temp.c_str());
+                    ImGui::NewLine();
+                }
+            ImGui::EndChild();
+            }
+
+        }
+    }
+    ImGui::EndChild();
+    ImGui::InvisibleButton("hsplitter", ImVec2(-1, 8.0f));
+    if (ImGui::IsItemActive())
+        height += ImGui::GetIO().MouseDelta.y;
+    ImGui::BeginChild("child3", ImVec2(0, 0), true);
+    ImGui::EndChild();
+    ImGui::PopStyleVar();
+
+    ImGui::End();
+}
 
 void GUI::debug_info() {
-    
     ImGui::Begin("Debug Information", &my_tool_active, ImGuiWindowFlags_MenuBar);
     if (ImGui::BeginMenuBar())
     {
@@ -84,62 +276,48 @@ void GUI::debug_info() {
             if (ImGui::MenuItem("server information", "")) { tab = 3; }
             ImGui::EndMenu();
         }
-        if (ImGui::BeginMenu("open window"))
-        {
-            if (ImGui::MenuItem("spawn_object", "")) { tab = 0; }
-            ImGui::EndMenu();
-        }
+
         ImGui::EndMenuBar();
     }
 
-    static float w = 200.0f;
-    static float h = 300.0f;
 
-    switch (tab){
+    switch (tab) {
     case 1:
-        ImGui::SliderFloat("over all", overal, 0.0f, 1.0f);
-        ImGui::SliderFloat("sound effects", effect, 0.0f, 1.0f);
-        ImGui::SliderFloat("3D sound effects", effects_3D, 0.0f, 1.0f);
+        ImGui::Text("over all");
+        ImGui::SliderFloat("", overal, 0.0f, 1.0f);
+        ImGui::Text("sound effects:");
+        ImGui::SliderFloat("", effect, 0.0f, 1.0f);
+        ImGui::Text("3D sound effects");
+        ImGui::SliderFloat("", effects_3D, 0.0f, 1.0f);
         ImGui::Text("3D sound min range:");
         ImGui::Text("3D sound max range:");
 
         ImGui::TextColored(ImVec4(1, 1, 0, 1), "current sounds in engine");
-      
+
         ImGui::BeginChild("Scrolling 1");
         for (int n = 0; n < 20; n++)
             ImGui::Text("%04d: Some text", n);
         ImGui::EndChild();
-        ImGui::SameLine();
-        ImGui::BeginChild("Scrolling 2");
-        for (int n = 0; n < 10; n++)
-            ImGui::Text("%04d: Some text", n);
-        ImGui::EndChild();
         break;
     case 2:
-       // ImGui::Begin("Splitter test");
-
-        ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0, 0));
-        ImGui::BeginChild("child1", ImVec2(w, h), true);
-        ImGui::EndChild();
-        ImGui::SameLine();
-        ImGui::InvisibleButton("vsplitter", ImVec2(8.0f, h));
-        if (ImGui::IsItemActive())
-            w += ImGui::GetIO().MouseDelta.x;
-        ImGui::SameLine();
-        ImGui::BeginChild("child2", ImVec2(0, h), true);
-        ImGui::EndChild();
-        ImGui::InvisibleButton("hsplitter", ImVec2(-1, 8.0f));
-        if (ImGui::IsItemActive())
-            h += ImGui::GetIO().MouseDelta.y;
-        ImGui::BeginChild("child3", ImVec2(0, 0), true);
-        ImGui::EndChild();
-        ImGui::PopStyleVar();
-
-       // ImGui::End();
+        if (draw_model_windows) {
+            draw_model_windows = false;
+        }
+        else {
+            draw_model_windows = true;
+        }
+        tab = 0;
         break;
     case 3:
-
+        if (draw_server_windows) {
+            draw_server_windows = false;
+        }
+        else {
+            draw_server_windows = true;
+        }
+        tab = 0;
         break;
+
     case 0:
     default:
         ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
@@ -149,8 +327,12 @@ void GUI::debug_info() {
         break;
     }
     
-
-
+    if (draw_server_windows) {
+        draw_server_window();
+    }
+    if (draw_model_windows) {
+        draw_model_window();
+    }
     // Display contents in a scrolling region
    /* ImGui::TextColored(ImVec4(1, 1, 0, 1), "Important Stuff");
     ImGui::BeginChild("Scrolling");

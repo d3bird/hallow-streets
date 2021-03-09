@@ -208,8 +208,8 @@ void world::change_projection(glm::mat4 i) {
     //lighting_in
 }
 
-void world::init(network_manager* net, bool ser) {
-
+void world::init(GUI* g,network_manager* net, bool ser) {
+    gui = g;
    // lighting_in = new Shader("lighting_instance.vs", "lighting_instance.fs");
     lighting_in = new Shader("lighting_instances.vs", "lighting_instances.fs");
     
@@ -301,6 +301,11 @@ void world::init(network_manager* net, bool ser) {
         network->set_AM(AM);
 
        // network->update_commands_to_share_world();
+    }
+
+    if (gui != NULL) {
+        gui->set_OBJM(OBJM);
+        gui->set_AM(AM);
     }
 
     draw_speakers = ADM->draw_speaker_locations();

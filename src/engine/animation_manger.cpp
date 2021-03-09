@@ -114,6 +114,44 @@ int animation_manager::get_routine_index(routine_designation i) {
 	return output;
 }
 
+std::string animation_manager::routine_designation_tostring(routine_designation i) {
+	std::string output = "unkown";
+	switch (i)
+	{
+	case DEFF_ERROR_ROUTINE:
+		output = "DEFF_ERROR_ROUTINE";
+		break;
+	case DEFF_WORLD_ROUTINE:
+		output = "DEFF_WORLD_ROUTINE";
+		break;
+	case CHICKEN_ROUTINE:
+		output = "CHICKEN_ROUTINE";
+		break;
+	case RAIL_ROUTINE:
+		output = "RAIL_ROUTINE";
+		break;
+	case CHICKEN_TRANS1_ROUTINE://chicken to platform
+		output = "CHICKEN_TRANS1_ROUTINE";
+		break;
+	case CHICKEN_TRANS2_ROUTINE://chicken flying through the air
+		output = "CHICKEN_TRANS2_ROUTINE";
+		break;
+	case CANNON_ROUTINE://rotating the cannon
+		output = "CANNON_ROUTINE";
+		break;
+	case ZAP_TOWER_ROUTINE://moving down the zap tower and charging the chicken
+		output = "ZAP_TOWER_ROUTINE";
+		break;
+	case CANNON_PLATFORM_ROUTINE://loading the cannon
+		output = "CANNON_PLATFORM_ROUTINE";
+		break;
+	default:
+		break;
+	}
+	return output;
+}
+
+
 float diff_btwn_pnt(float start, float end) {
 	float output = 0;
 	if (start < end) {
