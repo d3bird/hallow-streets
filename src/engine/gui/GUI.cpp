@@ -13,7 +13,7 @@ GUI::GUI() {
     clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
     tab = 0;
-    my_tool_active = true;
+    debug_info_draw = true;
     //my_color = ImVec4(1, 1, 0, 1);
 
     my_color = new float[4];
@@ -258,6 +258,76 @@ void GUI::draw_model_window() {
     if (ImGui::IsItemActive())
         height += ImGui::GetIO().MouseDelta.y;
     ImGui::BeginChild("child3", ImVec2(0, 0), true);
+    if (AM != NULL) {
+        if (show_animation_stats) {
+            ImGui::Text("showing routine stats:");
+            if (routines == NULL) {
+                ImGui::Text("routines was NULL");
+                routines = AM->get_routines_list();
+            }
+            else {
+                ImGui::BeginChild("Scrolling routines");
+                std::string temp;
+                for (int n = 0; n < routines[0].size(); n++) {
+                    //ImGui::Text(Some text");
+                    if (routines[0][n]->defined) {
+                        temp = "designation: ";
+                        temp += AM->routine_designation_tostring(routines[0][n]->designation);
+                        ImGui::Text(temp.c_str());
+                        temp = "x_min: ";
+                        temp += std::to_string(routines[0][n]->x_min);
+                        ImGui::Text(temp.c_str());
+                        temp = "z_min: ";
+                        temp += std::to_string(routines[0][n]->z_min);
+                        ImGui::Text(temp.c_str());
+                        temp = "x_max: ";
+                        temp += std::to_string(routines[0][n]->x_max);
+                        ImGui::Text(temp.c_str());
+                        temp = "z_max: ";
+                        temp += std::to_string(routines[0][n]->z_max);
+                        ImGui::Text(temp.c_str());
+                        ImGui::Text("behavior: ");
+                        temp += std::to_string(routines[0][n]->behavior);
+                        ImGui::Text(temp.c_str());
+                        temp = "flee_player: ";
+                        if (routines[0][n]->flee_player) {
+                            temp += "true";
+                        }
+                        else {
+                            temp += "false";
+                        }
+                        ImGui::Text(temp.c_str());
+                        temp = "min_flee_distance: ";
+                        temp += std::to_string(routines[0][n]->min_flee_distance);
+                        ImGui::Text(temp.c_str());
+                        temp = "return_area: ";
+                        if (routines[0][n]->return_area) {
+                            temp += "true";
+                        }
+                        else {
+                            temp += "false";
+                        }
+                        ImGui::Text(temp.c_str());
+                        temp = "rail_network: ";
+                        if (routines[0][n]->rail_network) {
+                            temp += "true";
+                        }
+                        else {
+                            temp += "false";
+                        }
+                        ImGui::Text(temp.c_str());
+                        ImGui::NewLine();
+                    }
+             
+                }
+                ImGui::EndChild();
+            }
+        }
+    }
+    else {
+        ImGui::Text("AM was NULL");
+
+    }
     ImGui::EndChild();
     ImGui::PopStyleVar();
 
@@ -265,7 +335,7 @@ void GUI::draw_model_window() {
 }
 
 void GUI::debug_info() {
-    ImGui::Begin("Debug Information", &my_tool_active, ImGuiWindowFlags_MenuBar);
+    ImGui::Begin("Debug Information", &debug_info_draw, ImGuiWindowFlags_MenuBar);
     if (ImGui::BeginMenuBar())
     {
         if (ImGui::BeginMenu("settings/information"))
@@ -274,6 +344,7 @@ void GUI::debug_info() {
             if (ImGui::MenuItem("audio settings", "")) { tab = 1; }
             if (ImGui::MenuItem("model information", "")) { tab = 2; }
             if (ImGui::MenuItem("server information", "")) { tab = 3; }
+            if (ImGui::MenuItem("close", "")) { debug_info_draw = false; }
             ImGui::EndMenu();
         }
 

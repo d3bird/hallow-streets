@@ -11,6 +11,7 @@ animation_manager::animation_manager() {
 	routine_total_predefined = 20;
 
 	actors = new std::vector<actor*>();
+	routines = new std::vector<routine*>();
 
 	flying_chicken = NULL;
 	//misc vars
@@ -45,23 +46,23 @@ animation_manager::~animation_manager() {
 	//}
 	//actors[0].clear();
 
-	//for (int i = 0; i < routines.size(); i++) {
-	//	delete routines[i];
-	//	routines[i] = NULL;
+	//for (int i = 0; i < routines[0].size(); i++) {
+	//	delete routines[0][i];
+	//	routines[0][i] = NULL;
 	//}
-	//routines.clear();
+	//routines[0].clear();
 }
 
 void animation_manager::init() {
 	std::cout << "creating the animation manager"<< std::endl;
 
 
-	//create the blank routines
+	//create the blank routines[0]
 	routine* def_routine;
 
 	for (int i = 0; i < routine_total_predefined; i++) {
 		def_routine = new routine;
-		routines.push_back(def_routine);
+		routines[0].push_back(def_routine);
 	}
 
 
@@ -291,7 +292,7 @@ void animation_manager::update() {
 
 				//check if it needs to play a sound if the 
 				int route_index = get_routine_index(actors[0][i]->routine);
-				if (routines[route_index]->behavior == 1) {
+				if (routines[0][route_index]->behavior == 1) {
 					glm::vec3 cam_loc = cam->get_pos();
 					if ((diff_btwn_pnt(current_loc.x, cam_loc.x) >= 0 && diff_btwn_pnt(current_loc.x, cam_loc.x) <= 10)
 						&& (diff_btwn_pnt(current_loc.z, cam_loc.z) >= 0 && diff_btwn_pnt(current_loc.z, cam_loc.z) <= 10)) {
@@ -314,12 +315,12 @@ void animation_manager::update() {
 
 				int route_index = get_routine_index(actors[0][i]->routine);
 
-				//std::cout << "updateing " << route_index<<" with behavior "<< routines[route_index]->behavior << std::endl;
-				//if (routines[route_index]->behavior == 1) {
-					//std::cout << "updateing " << route_index<<" with behavior "<< routines[route_index]->behavior << std::endl;
+				//std::cout << "updateing " << route_index<<" with behavior "<< routines[0][route_index]->behavior << std::endl;
+				//if (routines[0][route_index]->behavior == 1) {
+					//std::cout << "updateing " << route_index<<" with behavior "<< routines[0][route_index]->behavior << std::endl;
 
 					//react to the cammera location
-				if(routines[route_index]->behavior ==1){
+				if(routines[0][route_index]->behavior ==1){
 					glm::vec3 cam_loc = cam->get_pos();
 
 					if ((diff_btwn_pnt(current_loc.x, cam_loc.x) >= 0 && diff_btwn_pnt(current_loc.x, cam_loc.x) <= 10)
@@ -676,18 +677,18 @@ void animation_manager::define_routine(routine_designation route, std::vector< r
 
 	std::cout << "checkout at buffer_loc: "<<buffer_loc << std::endl;
 
-	if (buffer_loc >= routines.size()) {
+	if (buffer_loc >= routines[0].size()) {
 		std::cout << "this routine has not been inited" << std::endl;
 		return;
 	}
 
-	if (routines[buffer_loc]->defined) {
+	if (routines[0][buffer_loc]->defined) {
 		std::cout << "this routine has already been defined" << std::endl;
 		return;
 	}
 	else {
 
-		routines[buffer_loc]->defined = true;
+		routines[0][buffer_loc]->defined = true;
 
 		int behavior = 0;
 		bool flee_player = false;
@@ -724,19 +725,19 @@ void animation_manager::define_routine(routine_designation route, std::vector< r
 			break;
 		}
 
-		routines[buffer_loc]->designation = route;
-		routines[buffer_loc]->behavior = behavior;
-		routines[buffer_loc]->flee_player = flee_player;
-		routines[buffer_loc]->min_flee_distance = min_flee_distance;
-		routines[buffer_loc]->return_area = return_area;
-		routines[buffer_loc]->rail_network = true;
+		routines[0][buffer_loc]->designation = route;
+		routines[0][buffer_loc]->behavior = behavior;
+		routines[0][buffer_loc]->flee_player = flee_player;
+		routines[0][buffer_loc]->min_flee_distance = min_flee_distance;
+		routines[0][buffer_loc]->return_area = return_area;
+		routines[0][buffer_loc]->rail_network = true;
 
 
 		for (int i = 0; i < points.size(); i++) {
 			if (points[i]->rail_type != -1 &&(i == 0 || i == points.size() - 1)) {
 				points[i]->rail_type = 3;
 			}
-			routines[buffer_loc]->rails.push_back(points[i]);
+			routines[0][buffer_loc]->rails.push_back(points[i]);
 		}
 	}
 
@@ -791,24 +792,24 @@ void animation_manager::define_routine(routine_designation route, int x_min, int
 		break;
 	}
 
-	if (buffer_loc >= routines.size()) {
+	if (buffer_loc >= routines[0].size()) {
 		std::cout << "this routine has not been inited" << std::endl;
 		return;
 	}
 
-	if (routines[buffer_loc]->defined) {
+	if (routines[0][buffer_loc]->defined) {
 		std::cout << "this routine has already been defined" << std::endl;
 		return;
 	}
 	else {
-		routines[buffer_loc]->defined = true;
+		routines[0][buffer_loc]->defined = true;
 
 		//set the area
-		routines[buffer_loc]->x_min = x_min;
-		routines[buffer_loc]->x_max = x_max;
+		routines[0][buffer_loc]->x_min = x_min;
+		routines[0][buffer_loc]->x_max = x_max;
 
-		routines[buffer_loc]->z_min = z_min;
-		routines[buffer_loc]->z_max = z_max;
+		routines[0][buffer_loc]->z_min = z_min;
+		routines[0][buffer_loc]->z_max = z_max;
 
 		int behavior = 0;
 		bool flee_player = false;
@@ -838,11 +839,11 @@ void animation_manager::define_routine(routine_designation route, int x_min, int
 			break;
 		}
 
-		routines[buffer_loc]->designation = route;
-		routines[buffer_loc]->behavior = behavior;
-		routines[buffer_loc]->flee_player = flee_player;
-		routines[buffer_loc]->min_flee_distance = min_flee_distance;
-		routines[buffer_loc]->return_area = return_area;
+		routines[0][buffer_loc]->designation = route;
+		routines[0][buffer_loc]->behavior = behavior;
+		routines[0][buffer_loc]->flee_player = flee_player;
+		routines[0][buffer_loc]->min_flee_distance = min_flee_distance;
+		routines[0][buffer_loc]->return_area = return_area;
 
 	}
 }
@@ -900,9 +901,9 @@ void animation_manager::create_nav_points(actor* act, bool wipe_old_points) {
 		if (index == 2) {
 			std::random_device rd;
 			std::mt19937 mt(rd());
-			std::uniform_real_distribution<float> distribution(routines[index]->x_min, routines[index]->x_max);
+			std::uniform_real_distribution<float> distribution(routines[0][index]->x_min, routines[0][index]->x_max);
 			dest_x = distribution(mt);
-			distribution = std::uniform_real_distribution<float>(routines[index]->z_min, routines[index]->z_max);
+			distribution = std::uniform_real_distribution<float>(routines[0][index]->z_min, routines[0][index]->z_max);
 			dest_z = distribution(mt);
 
 
@@ -915,8 +916,8 @@ void animation_manager::create_nav_points(actor* act, bool wipe_old_points) {
 
 		}
 		else if (index == 3) {
-			dest_x = routines[index]->rails[0]->loc.x;
-			dest_z = routines[index]->rails[0]->loc.z;
+			dest_x = routines[0][index]->rails[0]->loc.x;
+			dest_z = routines[0][index]->rails[0]->loc.z;
 
 			if (cart_waiting_loading_station == NULL && !act->holding_somethig) {
 				//cart_waiting_loading_station = act;
@@ -924,9 +925,9 @@ void animation_manager::create_nav_points(actor* act, bool wipe_old_points) {
 			}
 
 			if (act->holding_somethig /*&& act->object->x == dest_x && act->object->z == dest_z*/) {
-				int size = dest_x = routines[index]->rails.size() - 1;
-				dest_x = routines[index]->rails[size]->loc.x;
-				dest_z = routines[index]->rails[size]->loc.z;
+				int size = dest_x = routines[0][index]->rails.size() - 1;
+				dest_x = routines[0][index]->rails[size]->loc.x;
+				dest_z = routines[0][index]->rails[size]->loc.z;
 				act->at_start = false;
 			}
 
@@ -934,17 +935,17 @@ void animation_manager::create_nav_points(actor* act, bool wipe_old_points) {
 
 		}
 		else if (index == 4) {
-			dest_x = routines[index]->rails[0]->loc.x;
-			dest_y = routines[index]->rails[0]->loc.y;
-			dest_z = routines[index]->rails[0]->loc.z;
+			dest_x = routines[0][index]->rails[0]->loc.x;
+			dest_y = routines[0][index]->rails[0]->loc.y;
+			dest_z = routines[0][index]->rails[0]->loc.z;
 		}
 		else if (index == 5) {
 			//get the end possition 
 			std::random_device rd;
 			std::mt19937 mt(rd());
-			std::uniform_real_distribution<float> distribution(routines[index]->x_min, routines[index]->x_max);
+			std::uniform_real_distribution<float> distribution(routines[0][index]->x_min, routines[0][index]->x_max);
 			dest_x = distribution(mt);
-			distribution = std::uniform_real_distribution<float>(routines[index]->z_min, routines[index]->z_max);
+			distribution = std::uniform_real_distribution<float>(routines[0][index]->z_min, routines[0][index]->z_max);
 			dest_z = distribution(mt);
 
 			dest_x = going_to_x;
@@ -1075,22 +1076,22 @@ void animation_manager::create_nav_points(actor* act, bool wipe_old_points) {
 		else if (index == 7) {
 			if (lower_zap || ready_to_zap) {//lower the platform down
 				//std::cout << "setting down" << std::endl;
-				dest_x = routines[index]->rails[0]->loc.x;
-				dest_y = routines[index]->rails[0]->loc.y - 6;
-				dest_z = routines[index]->rails[0]->loc.z;
+				dest_x = routines[0][index]->rails[0]->loc.x;
+				dest_y = routines[0][index]->rails[0]->loc.y - 6;
+				dest_z = routines[0][index]->rails[0]->loc.z;
 			}
 			else {//raise it back to the def possition
 				//std::cout << "setting up" << std::endl;
-				dest_x = routines[index]->rails[0]->loc.x;
-				dest_y = routines[index]->rails[0]->loc.y;
-				dest_z = routines[index]->rails[0]->loc.z;
+				dest_x = routines[0][index]->rails[0]->loc.x;
+				dest_y = routines[0][index]->rails[0]->loc.y;
+				dest_z = routines[0][index]->rails[0]->loc.z;
 			}
 		}
 		else if (index == 8) {
 			if (first_plat_cord) {
-				dest_x = routines[index]->rails[0]->loc.x;
-				dest_y = routines[index]->rails[0]->loc.y;
-				dest_z = routines[index]->rails[0]->loc.z;
+				dest_x = routines[0][index]->rails[0]->loc.x;
+				dest_y = routines[0][index]->rails[0]->loc.y;
+				dest_z = routines[0][index]->rails[0]->loc.z;
 
 				act->object->x = dest_x;
 				act->object->y = dest_y;
@@ -1099,9 +1100,9 @@ void animation_manager::create_nav_points(actor* act, bool wipe_old_points) {
 				first_plat_cord = false;
 			}
 			else if (ready_to_lower && lowering){//lower the platform down
-				dest_x = routines[index]->rails[0]->loc.x;
-				dest_y = routines[index]->rails[0]->loc.y - 3;
-				dest_z = routines[index]->rails[0]->loc.z;
+				dest_x = routines[0][index]->rails[0]->loc.x;
+				dest_y = routines[0][index]->rails[0]->loc.y - 3;
+				dest_z = routines[0][index]->rails[0]->loc.z;
 			}
 			else {//raise it back to the def possition
 				if (flush) {
@@ -1145,9 +1146,9 @@ void animation_manager::create_nav_points(actor* act, bool wipe_old_points) {
 					animation_time_max = 2;
 
 				}
-				dest_x = routines[index]->rails[0]->loc.x;
-				dest_y = routines[index]->rails[0]->loc.y;
-				dest_z = routines[index]->rails[0]->loc.z;
+				dest_x = routines[0][index]->rails[0]->loc.x;
+				dest_y = routines[0][index]->rails[0]->loc.y;
+				dest_z = routines[0][index]->rails[0]->loc.z;
 			}
 		}
 		if (!multi_points) {
@@ -1165,9 +1166,9 @@ int animation_manager::create_chicken_to_fire(bool cursed) {
 	play_sound = true;
 	std::random_device rd;
 	std::mt19937 mt(rd());
-	std::uniform_real_distribution<float> distribution(routines[index]->x_min, routines[index]->x_max);
+	std::uniform_real_distribution<float> distribution(routines[0][index]->x_min, routines[0][index]->x_max);
 	dest_x = distribution(mt);
-	distribution = std::uniform_real_distribution<float>(routines[index]->z_min, routines[index]->z_max);
+	distribution = std::uniform_real_distribution<float>(routines[0][index]->z_min, routines[0][index]->z_max);
 	dest_z = distribution(mt);
 
 	going_to_x = dest_x;
@@ -1253,11 +1254,11 @@ void animation_manager::update_actor_id(int id, glm::vec3& loc, glm::vec3& rot, 
 
 void animation_manager::print_routines() {
 
-	for (int i = 0; i < routines.size(); i++) {
-		if (routines[i] != NULL) {
-			if (routines[i]->defined) {
+	for (int i = 0; i < routines[0].size(); i++) {
+		if (routines[0][i] != NULL) {
+			if (routines[0][i]->defined) {
 				
-				switch (routines[i]->designation)
+				switch (routines[0][i]->designation)
 				{
 				case DEFF_ERROR_ROUTINE:
 					std::cout << "DEFF_ERROR_ROUTINE designated at " << i << std::endl;
@@ -1272,13 +1273,13 @@ void animation_manager::print_routines() {
 					std::cout << "unknown designation at "<<i << std::endl;
 					break;
 				}
-				std::cout << "min x: " << routines[i]->x_min << " max_x: " << routines[i]->x_max << std::endl;
-				std::cout << "min z: " << routines[i]->z_min << " max_z: " << routines[i]->z_max << std::endl;
+				std::cout << "min x: " << routines[0][i]->x_min << " max_x: " << routines[0][i]->x_max << std::endl;
+				std::cout << "min z: " << routines[0][i]->z_min << " max_z: " << routines[0][i]->z_max << std::endl;
 
-				std::cout << "behavior: " << routines[i]->z_min << routines[i]->behavior << std::endl;
-				std::cout << "flee_player: " << routines[i]->z_min << routines[i]->flee_player << std::endl;
-				std::cout << "min_flee_distance: " << routines[i]->z_min << routines[i]->min_flee_distance << std::endl;
-				std::cout << "return_area: " << routines[i]->z_min << routines[i]->return_area << std::endl;
+				std::cout << "behavior: " << routines[0][i]->z_min << routines[0][i]->behavior << std::endl;
+				std::cout << "flee_player: " << routines[0][i]->z_min << routines[0][i]->flee_player << std::endl;
+				std::cout << "min_flee_distance: " << routines[0][i]->z_min << routines[0][i]->min_flee_distance << std::endl;
+				std::cout << "return_area: " << routines[0][i]->z_min << routines[0][i]->return_area << std::endl;
 
 			}
 			else {

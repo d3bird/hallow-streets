@@ -62,7 +62,7 @@ private:
 	void debug_info();
 	//debug_info vars
 	int tab;
-	bool my_tool_active;
+	bool debug_info_draw;
 	//ImVec4 my_color;
 	float* my_color;
 	float* my_values;

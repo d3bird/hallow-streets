@@ -117,6 +117,8 @@ public:
 
 	//getters
 	std::vector<actor*> *get_actor_list() { return actors; }
+	std::vector<routine*>* get_routines_list() { return routines; }
+
 	std::string routine_designation_tostring(routine_designation i);
 
 	void update_actor_id(int id,glm::vec3& loc, glm::vec3& rot,float angle);
@@ -144,7 +146,8 @@ private:
 	std::vector<int> openIDs;
 
 	std::vector<actor*> *actors;
-	std::vector<routine*> routines;
+	std::vector<routine*> *routines;
+
 	int routine_total_predefined;
 	actor* cart_waiting_loading_station;
 	bool revived_victum;
