@@ -24,6 +24,8 @@
 #include "audio_manger.h"
 #include "networking/network_manager.h"
 
+#include "gui/GUI.h"
+
 class world {
 public:
 	world();
