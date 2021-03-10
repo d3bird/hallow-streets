@@ -6,6 +6,7 @@
 #include <string>
 #include <iostream>
 
+#include "../camera.h"
 #include "../shader.h"
 #include "../time.h"
 #include "../text_rendering.h"
@@ -38,7 +39,7 @@ public:
 	void set_draw_debug_info(bool i) { draw_debug_info = i; }
 	void toggle_draw_debug_info() { draw_debug_info = !draw_debug_info; }
 
-
+	void set_cam(Camera* c) { cam = c; }
 
 private:
 
@@ -56,9 +57,13 @@ private:
 	bool edit_cell;
 	bool show_item_stats;
 	bool show_animation_stats;
+	bool edit_routine;
 	std::vector< item*>* item_info;
 	std::vector<actor*>* actors;
 	std::vector<routine*>* routines;
+	int routines_edit_index;
+	int show_actors_that_follow_routine;
+	routine_designation follow;
 	void debug_info();
 	//debug_info vars
 	int tab;
@@ -96,5 +101,6 @@ private:
 	animation_manager* AM;
 	unsigned int VBO, VAO;
 	Shader* gui_window;
+	Camera* cam;
 };
 

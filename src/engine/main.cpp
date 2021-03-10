@@ -67,7 +67,7 @@ bool typing;
 text_engine* text_render;
 network_manager* network = NULL;
 bool online_play;
-
+bool take_input = true;;
 int main() {
 
     camera= new Camera(glm::vec3(7.9019, 29.3491, 18.9233), glm::vec3(0.0f, 1.0f, 0.0f), -89.2999, -71.7001);//looking at the whole World
@@ -97,7 +97,7 @@ int main() {
     glfwSetScrollCallback(window, scroll_callback);
     glfwSetMouseButtonCallback(window, mouse_button_callback);
     glfwSetKeyCallback(window, key_board_input);
-    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
         std::cout << "Failed to initialize GLAD" << std::endl;
@@ -179,9 +179,10 @@ int main() {
 
     ImGui_ImplGlfwGL3_Init(window, true);
     ImGui::StyleColorsDark();
-
-   
+    gui->set_cam(camera);
     gui->init();
+
+    glfwSetKeyCallback(window, key_board_input);
 
     while (!glfwWindowShouldClose(window))
     {
@@ -250,8 +251,13 @@ void start_networking() {
 bool running_d1 = false;
 #endif // DEMO1
 
-void process_movement(GLFWwindow *window)
-{
+void process_movement(GLFWwindow *window){
+
+    if (!take_input) {
+        //std::cout << "input for keyboard is turned off" << std::endl;
+        return;
+    }
+
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
@@ -278,7 +284,24 @@ void key_board_input(GLFWwindow* window, int key, int scancode, int action, int 
     }
 #endif // DEMO1
 
+    if (key == GLFW_KEY_TAB && action == GLFW_PRESS) {
+        take_input = !take_input;
+        if (take_input) {
+            glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+        }
+        else {
+            glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+            glfwSetCursorPos(window, 0.5, 0.5);
+            lastY = 0.5;
+            lastX = 0.5;
 
+        }
+    }
+
+    if (!take_input) {
+        //std::cout << "input for keyboard is turned off" << std::endl;
+        return;
+    }
 
     if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
@@ -362,6 +385,12 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 // -------------------------------------------------------
 void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 {
+
+    if (!take_input) {
+        //std::cout << "input for keyboard is turned off" << std::endl;
+        return;
+    }
+
     if (firstMouse)
     {
         lastX = xpos;

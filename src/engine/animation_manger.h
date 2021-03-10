@@ -44,6 +44,8 @@ struct routine{
 
 	routine_designation designation;
 
+	int num_of_actors_using_this = 0;
+
 	int x_min;
 	int z_min;
 
@@ -123,9 +125,11 @@ public:
 
 	void update_actor_id(int id,glm::vec3& loc, glm::vec3& rot,float angle);
 
+	int get_routine_index(routine_designation i);
+
 private:
 
-	int get_routine_index(routine_designation i);
+	
 
 	void create_nav_points(actor* act, bool wipe_old_points = false);
 

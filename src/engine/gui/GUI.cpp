@@ -42,11 +42,15 @@ GUI::GUI() {
     edit_cell = false;
     spawn_item = false;
     show_animation_stats = false;
+    edit_routine = false;
     OBJM = NULL;
     AM = NULL;
     item_info = NULL;
     actors = NULL;
     routines = NULL;
+    routines_edit_index = -1;
+    show_actors_that_follow_routine = -1;
+    follow = DEFF_ERROR_ROUTINE;
 }
 
 GUI::~GUI(){
@@ -114,30 +118,44 @@ void GUI::draw_model_window() {
     static float height = 300.0f;
 
     ImGui::Begin("server settings", &draw_model_windows);
-
     ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0, 0));
     ImGui::BeginChild("option_selection", ImVec2(width, height), true);
     if (ImGui::Button("spawn item")) {
         show_item_stats = false;
         edit_cell = false;
         spawn_item = true;
+        show_animation_stats = false;
+        edit_routine = false;
     }
     if (ImGui::Button("edit cell")) {
         spawn_item = false;
         show_item_stats = false;
         edit_cell = true;
+        show_animation_stats = false;
+        edit_routine = false;
+    }
+    if (ImGui::Button("edit animation routine")) {
+        spawn_item = false;
+        edit_cell = false;
+        show_item_stats = false;
+        show_animation_stats = false;
+        edit_routine = true;
     }
     if (ImGui::Button("show item stats")) {
         spawn_item = false;
         edit_cell = false;
         show_item_stats = true;
+        show_animation_stats = false;
+        edit_routine = false;
     }
     if (ImGui::Button("show animation stats")) {
         spawn_item = false;
         edit_cell = false;
         show_item_stats = false;
         show_animation_stats = true;
+        edit_routine = false;
     }
+   
     ImGui::EndChild();
     ImGui::SameLine();
     ImGui::InvisibleButton("vsplitter", ImVec2(8.0f, height));
@@ -150,6 +168,80 @@ void GUI::draw_model_window() {
     }
     else if (edit_cell) {
         ImGui::Text("edit cell:");
+    }
+    else if (edit_routine) {
+        ImGui::Text("edit routine:");
+        if (AM == NULL) {
+            ImGui::Text("AM is null");
+        }
+        else {
+            if (routines == NULL) {
+                ImGui::Text("routines is null");
+                routines = AM->get_routines_list();
+            }
+            else {
+                if (routines_edit_index >= 0 && routines_edit_index < routines[0].size()) {
+                    int n = routines_edit_index;
+                    if (routines[0][n]->defined) {
+                        std::string temp;
+                        temp = "designation: ";
+                        temp += AM->routine_designation_tostring(routines[0][n]->designation);
+                        ImGui::Text(temp.c_str());
+                      //  temp = "x_min: ";
+                        //temp += std::to_string(routines[0][n]->x_min);
+                        //ImGui::Text(temp.c_str());
+                        //ImGui::SameLine();
+                        ImGui::InputInt("x_min", &routines[0][n]->x_min);
+                       // temp = "z_min: ";
+                       // temp += std::to_string(routines[0][n]->z_min);
+                       // ImGui::Text(temp.c_str());
+                       // ImGui::SameLine();
+                        ImGui::InputInt("z_min", &routines[0][n]->z_min);
+                       // temp = "x_max: ";
+                       // temp += std::to_string(routines[0][n]->x_max);
+                       // ImGui::Text(temp.c_str());
+                      //  ImGui::SameLine();
+                        ImGui::InputInt("x_max", &routines[0][n]->x_max);
+                       // temp = "z_max: ";
+                      //  temp += std::to_string(routines[0][n]->z_max);
+                       // ImGui::Text(temp.c_str());
+                       // ImGui::SameLine();
+                        ImGui::InputInt("z_max", &routines[0][n]->z_max);
+                        ImGui::Text("behavior: ");
+                        temp += std::to_string(routines[0][n]->behavior);
+                        ImGui::Text(temp.c_str());
+                        temp = "flee_player: ";
+                        if (routines[0][n]->flee_player) {
+                            temp += "true";
+                        }
+                        else {
+                            temp += "false";
+                        }
+                        ImGui::Text(temp.c_str());
+                        temp = "min_flee_distance: ";
+                        temp += std::to_string(routines[0][n]->min_flee_distance);
+                        ImGui::Text(temp.c_str());
+                        temp = "return_area: ";
+                        if (routines[0][n]->return_area) {
+                            temp += "true";
+                        }
+                        else {
+                            temp += "false";
+                        }
+                        ImGui::Text(temp.c_str());
+                        temp = "rail_network: ";
+                        if (routines[0][n]->rail_network) {
+                            temp += "true";
+                        }
+                        else {
+                            temp += "false";
+                        }
+                        ImGui::Text(temp.c_str());
+                        ImGui::NewLine();
+                    }
+                }
+            }
+        }
     }
     else if (show_item_stats) {
         ImGui::Text("show item stats:");
@@ -203,52 +295,61 @@ void GUI::draw_model_window() {
             else {
                 std::string temp;
                 ImGui::BeginChild("Scrolling 3");
-                for (int n = 0; n < actors[0].size(); n++) {
-                    temp ="id: ";
-                    temp += std::to_string(actors[0][n]->id);
-                    ImGui::Text(temp.c_str());
-                    temp = "model: ";
-                    temp += *(actors[0][n]->object->item_name);
-                    ImGui::Text(temp.c_str());
-                    temp = "has_sound: ";
-                    if (actors[0][n]->has_sound) {
-                        temp += "true";
-                    }
-                    else {
-                        temp += "false";
-                    }
-                    ImGui::Text(temp.c_str());
-                    temp = "routine: ";
-                    temp += AM->routine_designation_tostring(actors[0][n]->routine);
-                    ImGui::Text(temp.c_str());
-                    temp = "move_speed: ";
-                    temp += std::to_string(actors[0][n]->move_speed);
-                    ImGui::Text(temp.c_str());
-                    temp = "being_held: ";
-                    if (actors[0][n]->being_held) {
-                        temp += "true";
-                    }
-                    else {
-                        temp += "false";
-                    }
-                    ImGui::Text(temp.c_str());
-                    temp = "holding_somethig: ";
-                    if (actors[0][n]->holding_somethig) {
-                        temp += "true";
-                    }
-                    else {
-                        temp += "false";
-                    }
-                    ImGui::Text(temp.c_str());
-                    temp = "cooldown: ";
-                    temp += std::to_string(actors[0][n]->cooldown);
-                    ImGui::Text(temp.c_str());
-                    temp = "cooldown_max: ";
-                    temp += std::to_string(actors[0][n]->cooldown_max);
-                    ImGui::Text(temp.c_str());
-                    ImGui::NewLine();
+                if (show_actors_that_follow_routine != -1) {
+                    if (ImGui::Button("clear search")) {
+                        show_actors_that_follow_routine = -1;
+                   }
                 }
-            ImGui::EndChild();
+                for (int n = 0; n < actors[0].size(); n++) {
+                    if (show_actors_that_follow_routine == -1 || 
+                        actors[0][n]->routine == routines[0][show_actors_that_follow_routine]->designation) {
+
+                        temp = "id: ";
+                        temp += std::to_string(actors[0][n]->id);
+                        ImGui::Text(temp.c_str());
+                        temp = "model: ";
+                        temp += *(actors[0][n]->object->item_name);
+                        ImGui::Text(temp.c_str());
+                        temp = "has_sound: ";
+                        if (actors[0][n]->has_sound) {
+                            temp += "true";
+                        }
+                        else {
+                            temp += "false";
+                        }
+                        ImGui::Text(temp.c_str());
+                        temp = "routine: ";
+                        temp += AM->routine_designation_tostring(actors[0][n]->routine);
+                        ImGui::Text(temp.c_str());
+                        temp = "move_speed: ";
+                        temp += std::to_string(actors[0][n]->move_speed);
+                        ImGui::Text(temp.c_str());
+                        temp = "being_held: ";
+                        if (actors[0][n]->being_held) {
+                            temp += "true";
+                        }
+                        else {
+                            temp += "false";
+                        }
+                        ImGui::Text(temp.c_str());
+                        temp = "holding_somethig: ";
+                        if (actors[0][n]->holding_somethig) {
+                            temp += "true";
+                        }
+                        else {
+                            temp += "false";
+                        }
+                        ImGui::Text(temp.c_str());
+                        temp = "cooldown: ";
+                        temp += std::to_string(actors[0][n]->cooldown);
+                        ImGui::Text(temp.c_str());
+                        temp = "cooldown_max: ";
+                        temp += std::to_string(actors[0][n]->cooldown_max);
+                        ImGui::Text(temp.c_str());
+                        ImGui::NewLine();
+                    }
+                }
+                ImGui::EndChild();
             }
 
         }
@@ -271,56 +372,96 @@ void GUI::draw_model_window() {
                 for (int n = 0; n < routines[0].size(); n++) {
                     //ImGui::Text(Some text");
                     if (routines[0][n]->defined) {
-                        temp = "designation: ";
-                        temp += AM->routine_designation_tostring(routines[0][n]->designation);
-                        ImGui::Text(temp.c_str());
-                        temp = "x_min: ";
-                        temp += std::to_string(routines[0][n]->x_min);
-                        ImGui::Text(temp.c_str());
-                        temp = "z_min: ";
-                        temp += std::to_string(routines[0][n]->z_min);
-                        ImGui::Text(temp.c_str());
-                        temp = "x_max: ";
-                        temp += std::to_string(routines[0][n]->x_max);
-                        ImGui::Text(temp.c_str());
-                        temp = "z_max: ";
-                        temp += std::to_string(routines[0][n]->z_max);
-                        ImGui::Text(temp.c_str());
-                        ImGui::Text("behavior: ");
-                        temp += std::to_string(routines[0][n]->behavior);
-                        ImGui::Text(temp.c_str());
-                        temp = "flee_player: ";
-                        if (routines[0][n]->flee_player) {
-                            temp += "true";
+                        // temp = "designation: ";
+                        temp = AM->routine_designation_tostring(routines[0][n]->designation);
+                        //ImGui::Text(temp.c_str());
+                        if (ImGui::CollapsingHeader(temp.c_str())) {
+
+                            temp = "num_of_actors_using_this: ";
+                            temp += std::to_string(routines[0][n]->num_of_actors_using_this);
+                            ImGui::Text(temp.c_str());
+                            temp = "x_min: ";
+                            temp += std::to_string(routines[0][n]->x_min);
+                            ImGui::Text(temp.c_str());
+                            temp = "z_min: ";
+                            temp += std::to_string(routines[0][n]->z_min);
+                            ImGui::Text(temp.c_str());
+                            temp = "x_max: ";
+                            temp += std::to_string(routines[0][n]->x_max);
+                            ImGui::Text(temp.c_str());
+                            temp = "z_max: ";
+                            temp += std::to_string(routines[0][n]->z_max);
+                            ImGui::Text(temp.c_str());
+                            ImGui::Text("behavior: ");
+                            temp += std::to_string(routines[0][n]->behavior);
+                            ImGui::Text(temp.c_str());
+                            temp = "flee_player: ";
+                            if (routines[0][n]->flee_player) {
+                                temp += "true";
+                            }
+                            else {
+                                temp += "false";
+                            }
+                            ImGui::Text(temp.c_str());
+                            temp = "min_flee_distance: ";
+                            temp += std::to_string(routines[0][n]->min_flee_distance);
+                            ImGui::Text(temp.c_str());
+                            temp = "return_area: ";
+                            if (routines[0][n]->return_area) {
+                                temp += "true";
+                            }
+                            else {
+                                temp += "false";
+                            }
+                            ImGui::Text(temp.c_str());
+                            temp = "rail_network: ";
+                            if (routines[0][n]->rail_network) {
+                                temp += "true";
+                            }
+                            else {
+                                temp += "false";
+                            }
+                            ImGui::Text(temp.c_str());
+                            if (ImGui::Button("show only actors that follow this routine")) {
+                               // if (show_actors_that_follow_routine == n) {
+                                 //   show_actors_that_follow_routine = -1;
+                               // }
+                              //  else {
+                                if (show_actors_that_follow_routine == -1) {
+                                    show_actors_that_follow_routine = n;
+                                }
+                                    //follow = routines[0][n]->designation;
+                               // }
+                            }
+                            ImGui::NewLine();
+                      
                         }
-                        else {
-                            temp += "false";
-                        }
-                        ImGui::Text(temp.c_str());
-                        temp = "min_flee_distance: ";
-                        temp += std::to_string(routines[0][n]->min_flee_distance);
-                        ImGui::Text(temp.c_str());
-                        temp = "return_area: ";
-                        if (routines[0][n]->return_area) {
-                            temp += "true";
-                        }
-                        else {
-                            temp += "false";
-                        }
-                        ImGui::Text(temp.c_str());
-                        temp = "rail_network: ";
-                        if (routines[0][n]->rail_network) {
-                            temp += "true";
-                        }
-                        else {
-                            temp += "false";
-                        }
-                        ImGui::Text(temp.c_str());
-                        ImGui::NewLine();
                     }
              
                 }
                 ImGui::EndChild();
+            }
+        }
+        else if (edit_routine) {
+            ImGui::Text("pick a routine to edit");
+            if (AM == NULL) {
+                ImGui::Text("AM is null");
+            }
+            else {
+                if (routines == NULL) {
+                    ImGui::Text("routines is null");
+                    routines = AM->get_routines_list();
+                }
+                else {
+                    for (int n = 0; n < routines[0].size(); n++) {
+                        //ImGui::Text(Some text");
+                        if (routines[0][n]->defined) {
+                            if (ImGui::Button((AM->routine_designation_tostring(routines[0][n]->designation)).c_str())) {
+                                routines_edit_index = n;
+                            }
+                        }
+                    }
+                }
             }
         }
     }
@@ -395,9 +536,14 @@ void GUI::debug_info() {
 
         my_values = &last_frames[0];
         ImGui::PlotLines("Frame rate", my_values, number_of_values);
+        ImGui::InputFloat("cammera speed", &(cam->MovementSpeed));
         break;
     }
     
+    //if (ImGui::Button("send keyboard inputs to gui")) {
+    //    ImGuiIO& io = ImGui::GetIO(); (void)io;
+    //}
+
     if (draw_server_windows) {
         draw_server_window();
     }

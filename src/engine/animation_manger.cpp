@@ -36,6 +36,7 @@ animation_manager::animation_manager() {
 	create_angle_to_fire = false;
 	cannon_og = glm::vec3(-1, -1, -1);
 	server = true;
+
 }
 
 animation_manager::~animation_manager() {
@@ -588,7 +589,9 @@ int animation_manager::turn_object_into_actor(item_info* obje, routine_designati
 	default:
 		break;
 	}
-
+	int index =get_routine_index(route);
+	routines[0][index]->num_of_actors_using_this++;
+	routines[0][index]->designation = route;
 	actor* new_act = new actor;
 
 	if (move_speed != -1) {

@@ -63,6 +63,7 @@ public:
     glm::vec3 get_up() { return Up; }
     glm::vec3 get_look() { return Front; }
 
+    float MovementSpeed;
 private:
     void updateCameraVectors();
 
@@ -78,7 +79,7 @@ private:
     float Yaw;
     float Pitch;
     // camera options
-    float MovementSpeed;
+    
     float MouseSensitivity;
     float Zoom;
 
