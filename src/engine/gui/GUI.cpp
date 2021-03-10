@@ -21,7 +21,7 @@ GUI::GUI() {
     my_color[1] = 0;
     my_color[2] = 0;
     my_color[3] = 0;
-    
+
 
     overal = new float(0.5f);
     effect = new float(0.5f);
@@ -45,12 +45,28 @@ GUI::GUI() {
     edit_routine = false;
     OBJM = NULL;
     AM = NULL;
-    item_info = NULL;
+    item_data = NULL;
     actors = NULL;
     routines = NULL;
     routines_edit_index = -1;
     show_actors_that_follow_routine = -1;
     follow = DEFF_ERROR_ROUTINE;
+
+    clear_on_spawn = true;
+
+    spawn_x = 0;
+    spawn_y = 0;
+    spawn_z = 0;
+
+    spawn_rot_x = 0;
+    spawn_rot_y = 1;
+    spawn_rot_z = 0;
+
+    angle = 0;
+    is_actor = false;
+    type = CUBE_T;
+    select_routine = false;
+    routine_ = DEFF_ERROR_ROUTINE;
 }
 
 GUI::~GUI(){
@@ -164,7 +180,49 @@ void GUI::draw_model_window() {
     ImGui::SameLine();
     ImGui::BeginChild("option options", ImVec2(0, height), true);
     if (spawn_item) {
-        ImGui::Text("spawn item:");
+        std::string temp = "spawn item: ";
+        temp += OBJM->item_type_to_string(type);
+        ImGui::Text(temp.c_str());
+        ImGui::Text("item info: ");
+        ImGui::InputFloat("x loc", &spawn_x);
+        ImGui::InputFloat("y loc", &spawn_y);
+        ImGui::InputFloat("z loc", &spawn_z);
+        if (ImGui::Button("set loc to cammera possition")) {
+            glm::vec3 temp_loc = cam->get_pos();
+            spawn_x = temp_loc.x;
+            spawn_y = temp_loc.y;
+            spawn_z = temp_loc.z;
+        }
+        ImGui::Text("(each cube is 2.0f appart. To snap to grid make cords divisible by 2");
+        ImGui::NewLine();
+        ImGui::SliderFloat("x rot", &spawn_rot_x, 0.0f, 1.0f);
+        ImGui::SliderFloat("y rot", &spawn_rot_y, 0.0f, 1.0f);
+        ImGui::SliderFloat("z rot", &spawn_rot_z, 0.0f, 1.0f);
+        ImGui::Text("how much to rotate around each object");
+        ImGui::NewLine();
+        ImGui::InputFloat("angle", &angle);
+        ImGui::NewLine();
+        if (!is_actor) {
+            if (ImGui::Button("turn into actor:")) {
+                is_actor = true;
+            }
+        }
+        else {
+            if (ImGui::Button("turn into object:")) {
+                is_actor = false;
+            }
+        }
+        if (is_actor) {
+            temp = "routine: ";
+            temp += AM->routine_designation_tostring(routine_);
+            ImGui::Text(temp.c_str());
+            if (ImGui::Button("select routine")) {
+                select_routine = true;
+            }
+        }
+        if (ImGui::Button("spawn object")) {
+            spawn_object();
+        }
     }
     else if (edit_cell) {
         ImGui::Text("edit cell:");
@@ -249,28 +307,28 @@ void GUI::draw_model_window() {
             ImGui::Text("can not show info, OBJM is NULL");
         }
         else {
-            if (item_info == NULL) {
-                item_info = OBJM->get_all_item_info();
+            if (item_data == NULL) {
+                item_data = OBJM->get_all_item_info();
                 ImGui::Text("item_info was null");
             }
             else {
                 ImGui::BeginChild("Scrolling 1");
-                for (int n = 0; n < item_info[0].size(); n++) {
+                for (int n = 0; n < item_data[0].size(); n++) {
                     std::string temp = "item_name ";
-                    if (item_info[0][n]->item_name != NULL) {
-                        temp += *item_info[0][n]->item_name;
+                    if (item_data[0][n]->item_name != NULL) {
+                        temp += *item_data[0][n]->item_name;
                     }
                     ImGui::Text(temp.c_str());
 
                     temp = "max amount: ";
-                    temp += std::to_string(item_info[0][n]->buffer_size);
+                    temp += std::to_string(item_data[0][n]->buffer_size);
                     ImGui::Text(temp.c_str());
 
                     temp = "currently spawned: ";
-                    temp += std::to_string(item_info[0][n]->amount);
+                    temp += std::to_string(item_data[0][n]->amount);
 
                     ImGui::Text(temp.c_str());
-                    if (item_info[0][n]->draw) {
+                    if (item_data[0][n]->draw) {
                         ImGui::Text("drawling: true");
                     }
                     else {
@@ -359,7 +417,7 @@ void GUI::draw_model_window() {
     if (ImGui::IsItemActive())
         height += ImGui::GetIO().MouseDelta.y;
     ImGui::BeginChild("child3", ImVec2(0, 0), true);
-    if (AM != NULL) {
+    if ((show_animation_stats || edit_routine)&&AM != NULL) {
         if (show_animation_stats) {
             ImGui::Text("showing routine stats:");
             if (routines == NULL) {
@@ -465,8 +523,126 @@ void GUI::draw_model_window() {
             }
         }
     }
-    else {
-        ImGui::Text("AM was NULL");
+    else if (spawn_item) {
+        if (item_data == NULL) {
+            item_data = OBJM->get_all_item_info();
+        }
+        else {
+            std::string temp = "unkown";
+            if (is_actor && select_routine) {
+                if (AM != NULL) {
+                    if (routines == NULL) {
+                        routines = AM->get_routines_list();
+                    }
+                    else {
+                        ImGui::Text("select an routine to attach to object");
+                        ImGui::BeginChild("routines selection list");
+                        for (int n = 0; n < routines[0].size(); n++) {
+                            //ImGui::Text(Some text");
+                            if (routines[0][n]->defined) {
+                                // temp = "designation: ";
+                                temp = AM->routine_designation_tostring(routines[0][n]->designation);
+                                //ImGui::Text(temp.c_str());
+                                if (ImGui::CollapsingHeader(temp.c_str())) {
+
+                                    temp = "num_of_actors_using_this: ";
+                                    temp += std::to_string(routines[0][n]->num_of_actors_using_this);
+                                    ImGui::Text(temp.c_str());
+                                    temp = "x_min: ";
+                                    temp += std::to_string(routines[0][n]->x_min);
+                                    ImGui::Text(temp.c_str());
+                                    temp = "z_min: ";
+                                    temp += std::to_string(routines[0][n]->z_min);
+                                    ImGui::Text(temp.c_str());
+                                    temp = "x_max: ";
+                                    temp += std::to_string(routines[0][n]->x_max);
+                                    ImGui::Text(temp.c_str());
+                                    temp = "z_max: ";
+                                    temp += std::to_string(routines[0][n]->z_max);
+                                    ImGui::Text(temp.c_str());
+                                    ImGui::Text("behavior: ");
+                                    temp += std::to_string(routines[0][n]->behavior);
+                                    ImGui::Text(temp.c_str());
+                                    temp = "flee_player: ";
+                                    if (routines[0][n]->flee_player) {
+                                        temp += "true";
+                                    }
+                                    else {
+                                        temp += "false";
+                                    }
+                                    ImGui::Text(temp.c_str());
+                                    temp = "min_flee_distance: ";
+                                    temp += std::to_string(routines[0][n]->min_flee_distance);
+                                    ImGui::Text(temp.c_str());
+                                    temp = "return_area: ";
+                                    if (routines[0][n]->return_area) {
+                                        temp += "true";
+                                    }
+                                    else {
+                                        temp += "false";
+                                    }
+                                    ImGui::Text(temp.c_str());
+                                    temp = "rail_network: ";
+                                    if (routines[0][n]->rail_network) {
+                                        temp += "true";
+                                    }
+                                    else {
+                                        temp += "false";
+                                    }
+                                    ImGui::Text(temp.c_str());
+                                    if (ImGui::Button("select this routine")) {
+                                        routine_ = routines[0][n]->designation;
+                                        select_routine = false;
+                                    }
+                                    ImGui::NewLine();
+
+                                }
+                            }
+
+                        }
+                        ImGui::EndChild();
+                    }
+                }
+                else {
+                    ImGui::Text("AM was NULL");
+
+                }
+               
+            }else{
+                ImGui::Text("select an item to spawn");
+                ImGui::BeginChild("item_selection_list");
+                for (int n = 0; n < item_data[0].size(); n++) {
+                    std::string temp = "item_name: ";
+                    if (item_data[0][n]->item_name != NULL) {
+                        temp += *item_data[0][n]->item_name;
+                    }
+                    // ImGui::Text(temp.c_str());
+
+                    if (ImGui::CollapsingHeader(temp.c_str())) {
+                        temp = "max amount: ";
+                        temp += std::to_string(item_data[0][n]->buffer_size);
+                        ImGui::Text(temp.c_str());
+
+                        temp = "currently spawned: ";
+                        temp += std::to_string(item_data[0][n]->amount);
+
+                        ImGui::Text(temp.c_str());
+                        if (item_data[0][n]->draw) {
+                            ImGui::Text("drawling: true");
+                        }
+                        else {
+                            ImGui::Text("drawling: false");
+                        }
+
+                        if (ImGui::Button("select this item to spawn")) {
+                            type = item_data[0][n]->type;
+                        }
+                    }
+                }
+                ImGui::EndChild();
+            }
+        }
+
 
     }
     ImGui::EndChild();
@@ -608,6 +784,47 @@ void GUI::draw_example_from_class() {
     ImGui::CollapsingHeader("")
         ImGui::BulletText("");
     ImGui::Separator(); */
+}
+
+void GUI::spawn_object() {
+
+    glm::vec3 loc(spawn_x, spawn_y, spawn_z);
+    glm::vec3 rot(spawn_rot_x, spawn_rot_y, spawn_rot_z);
+
+    glm::mat4 trans = glm::mat4(1.0f);
+    trans = glm::translate(trans, loc);
+    trans = glm::rotate(trans, glm::radians(angle), rot);
+
+    item_info* temp_data = OBJM->spawn_item(type, -1, -1, -1, trans);
+
+    temp_data->x_rot = rot.x;
+    temp_data->y_rot = rot.y;
+    temp_data->z_rot = rot.z;
+    temp_data->angle = angle;
+    temp_data->x = loc.x;
+    temp_data->y = loc.y;
+    temp_data->z = loc.z;
+
+    if (is_actor) {
+        AM->turn_object_into_actor(temp_data, routine_);
+    }
+
+    //clearn the options
+    if (clear_on_spawn) {
+        spawn_x = 0;
+        spawn_y = 0;
+        spawn_z = 0;
+
+        spawn_rot_x = 0;
+        spawn_rot_y = 1;
+        spawn_rot_z = 0;
+
+        angle = 0;
+        is_actor = false;
+        type = CUBE_T;
+        select_routine = false;
+        routine_ = DEFF_ERROR_ROUTINE;
+    }
 }
 
 

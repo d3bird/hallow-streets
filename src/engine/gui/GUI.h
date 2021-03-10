@@ -3,6 +3,10 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
 #include <string>
 #include <iostream>
 
@@ -41,8 +45,11 @@ public:
 
 	void set_cam(Camera* c) { cam = c; }
 
+
+	
 private:
 
+	void spawn_object();
 	void update_values();
 
 	void draw_demo_window();
@@ -58,7 +65,7 @@ private:
 	bool show_item_stats;
 	bool show_animation_stats;
 	bool edit_routine;
-	std::vector< item*>* item_info;
+	std::vector< item*>* item_data;
 	std::vector<actor*>* actors;
 	std::vector<routine*>* routines;
 	int routines_edit_index;
@@ -75,6 +82,22 @@ private:
 	float* overal;
 	float* effect;
 	float* effects_3D;
+
+	float spawn_x;
+	float spawn_y;
+	float spawn_z;
+
+	float spawn_rot_x;
+	float spawn_rot_y;
+	float spawn_rot_z;
+
+	float angle;
+
+	bool is_actor;
+	bool select_routine;
+	item_type type;
+	routine_designation routine_;
+	bool clear_on_spawn;
 
 	std::vector<float> last_frames;
 	int number_of_values;

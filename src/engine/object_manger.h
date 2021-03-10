@@ -73,6 +73,7 @@ struct item {
 	Shader* custom_shader;
 	vector<item_info*> item_data;
 	std::string* item_name;
+	item_type type;
 	bool updatemats =true;
 	bool draw = true;
 };
@@ -148,6 +149,8 @@ public:
 	void delete_item_from_buffer(item_info* it);
 
 	std::vector< item*>* get_all_item_info() { return &items; }
+
+	std::string item_type_to_string(item_type i);
 
 #ifdef DEMO1
 	void update_demo1();

@@ -482,6 +482,7 @@ void object_manger::create_cursed_object_buffer() {
 	temp->modelMatrices = modelMatrices;
 	temp->custom_shader = custom_shader;
 	temp->item_name = item_name_t;
+	temp->type = CURSE_CHICKEN_T;
 	temp->draw = draw_cursed_chicken;
 
 
@@ -576,7 +577,7 @@ void object_manger::create_cube_objects() {
 	temp->modelMatrices = modelMatrices;
 	temp->custom_shader = custom_shader;
 	temp->item_name = item_name_t;
-
+	temp->type = CUBE_T;
 	temp->draw = draw_cubes;
 
 	items.push_back(temp);
@@ -644,6 +645,7 @@ void object_manger::create_sidewalk_objects() {
 	temp->custom_shader = custom_shader;
 	temp->item_name = item_name_t;
 
+	temp->type = SIDEWALK_T;
 	temp->draw = draw_sidewalk;
 
 	items.push_back(temp);
@@ -702,6 +704,7 @@ void object_manger::create_light_post_object() {
 	temp->custom_shader = custom_shader;
 	temp->item_name = item_name_t;
 	
+	temp->type = LIGHT_POST_T;
 	temp->draw = draw_light_post;
 
 	items.push_back(temp);
@@ -776,6 +779,7 @@ void object_manger::create_wall_object() {
 	temp->item_name = item_name_t;
 	//temp->item_data.push_back(temp_data);//add the data for the object
 
+	temp->type = WALL_T;
 	temp->draw = draw_wall;
 
 	items.push_back(temp);
@@ -834,6 +838,7 @@ void object_manger::create_wall_c_fire() {
 	temp->custom_shader = custom_shader;
 	temp->item_name = item_name_t;
 
+	temp->type = WALL_C_T;
 	temp->draw = draw_wall_c;
 
 	items.push_back(temp);
@@ -891,6 +896,7 @@ void object_manger::create_sidestreet_object() {
 	temp->modelMatrices = modelMatrices;
 	temp->custom_shader = custom_shader;
 	temp->item_name = item_name_t;
+	temp->type = SIDESTREET_T;
 	temp->draw = draw_sideroads;
 
 	items.push_back(temp);
@@ -949,6 +955,7 @@ void object_manger::create_sky_track_s_object() {
 	temp->modelMatrices = modelMatrices;
 	temp->custom_shader = custom_shader;
 	temp->item_name = item_name_t;
+	temp->type = SKYTRACK_S_T;
 	temp->draw = draw_sky_rail_s;
 
 
@@ -1008,6 +1015,7 @@ void object_manger::create_sky_track_c_object() {
 	temp->modelMatrices = modelMatrices;
 	temp->custom_shader = custom_shader;
 	temp->item_name = item_name_t;
+	temp->type = SKYTRACK_C_T;
 	temp->draw = draw_sky_rail_c;
 
 
@@ -1067,6 +1075,7 @@ void object_manger::create_chicken_object() {
 	temp->modelMatrices = modelMatrices;
 	temp->custom_shader = custom_shader;
 	temp->item_name = item_name_t;
+	temp->type = CHICKEN_T;
 	temp->draw = draw_chicken;
 
 
@@ -1126,6 +1135,7 @@ void object_manger::create_sky_cart_object() {
 	temp->modelMatrices = modelMatrices;
 	temp->custom_shader = custom_shader;
 	temp->item_name = item_name_t;
+	temp->type = SKYTRACK_CART;
 	temp->draw = draw_cart;
 
 
@@ -1185,6 +1195,7 @@ void object_manger::create_cannon_object() {
 	temp->modelMatrices = modelMatrices;
 	temp->custom_shader = custom_shader;
 	temp->item_name = item_name_t;
+	temp->type = CANNON_FRAME_T;
 	temp->draw = draw_cannon;
 
 	items.push_back(temp);
@@ -1235,6 +1246,7 @@ void object_manger::create_cannon_object() {
 	temp->modelMatrices = modelMatrices;
 	temp->custom_shader = custom_shader;
 	temp->item_name = item_name_t;
+	temp->type = CANNON_PLATFORM_T;
 	temp->draw = draw_cannon;
 
 	items.push_back(temp);
@@ -1285,6 +1297,7 @@ void object_manger::create_cannon_object() {
 	temp->modelMatrices = modelMatrices;
 	temp->custom_shader = custom_shader;
 	temp->item_name = item_name_t;
+	temp->type = CANNON_T;
 	temp->draw = draw_cannon;
 
 	items.push_back(temp);
@@ -1343,6 +1356,7 @@ void object_manger::create_zap_tower() {
 	temp->modelMatrices = modelMatrices;
 	temp->custom_shader = custom_shader;
 	temp->item_name = item_name_t;
+	temp->type = ZAP_TOWER_T;
 	temp->draw = draw_zap_tower;
 
 	items.push_back(temp);
@@ -1393,6 +1407,7 @@ void object_manger::create_zap_tower() {
 	temp->modelMatrices = modelMatrices;
 	temp->custom_shader = custom_shader;
 	temp->item_name = item_name_t;
+	temp->type = ZAP_SPHERE_T;
 	temp->draw = draw_zap_tower;
 
 	items.push_back(temp);
@@ -1717,4 +1732,61 @@ void object_manger::split_merge_item_stacks(item_info* keep, item_info* rm) {
 item_info* object_manger::split_item_stacks(item_info* keep, int amount) {
 
 	return NULL;
+}
+std::string object_manger::item_type_to_string(item_type i) {
+	std::string output = "unkown";
+
+	switch (i)
+	{
+	case CUBE_T:
+		output = "CUBE_T";
+		break;
+	case SIDEWALK_T:
+		output = "SIDEWALK_T";
+		break;
+	case LIGHT_POST_T:
+		output = "LIGHT_POST_T";
+		break;
+	case WALL_T:
+		output = "WALL_T";
+		break;
+	case WALL_C_T:
+		output = "WALL_C_T";
+		break;
+	case SIDESTREET_T:
+		output = "SIDESTREET_T";
+		break;
+	case SKYTRACK_S_T:
+		output = "SKYTRACK_S_T";
+		break;
+	case SKYTRACK_C_T:
+		output = "SKYTRACK_C_T";
+		break;
+	case CHICKEN_T:
+		output = "CHICKEN_T";
+		break;
+	case SKYTRACK_CART:
+		output = "SKYTRACK_CART";
+		break;
+	case CANNON_FRAME_T:
+		output = "CANNON_FRAME_T";
+		break;
+	case CANNON_PLATFORM_T:
+		output = "CANNON_PLATFORM_T";
+		break;
+	case CANNON_T:
+		output = "CANNON_T";
+		break;
+	case ZAP_TOWER_T:
+		output = "ZAP_TOWER_T";
+		break;
+	case ZAP_SPHERE_T:
+		output = "ZAP_SPHERE_T";
+		break;
+	case CURSE_CHICKEN_T:
+		output = "CURSE_CHICKEN_T";
+		break;
+	}
+
+	return output;
 }
