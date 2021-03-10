@@ -51,6 +51,7 @@ GUI::GUI() {
     routines_edit_index = -1;
     show_actors_that_follow_routine = -1;
     follow = DEFF_ERROR_ROUTINE;
+    item_amounts = NULL;
 
     clear_on_spawn = true;
 
@@ -643,7 +644,38 @@ void GUI::draw_model_window() {
             }
         }
 
-
+    }
+    else if (show_item_stats) {
+        //static float TestData[6] = { 0.f,4.f,3.f,2.f,0.f,4.f };
+        if (item_amounts == NULL) {
+            if (item_data == NULL) {
+                item_data = OBJM->get_all_item_info();
+            }
+            else {
+                item_amounts = new float[item_data[0].size()];
+                for (int i = 0; i < item_data[0].size(); i++) {
+                    item_amounts[i] = float(item_data[0][i]->amount);
+                }
+                ImGui::PlotHistogram("", item_amounts, item_data[0].size(), 0, "amount of each object", 0, 200, ImVec2(400, 140));
+            }
+        }
+        else {
+            for (int i = 0; i < item_data[0].size(); i++) {
+                item_amounts[i] = float(item_data[0][i]->amount);
+            }
+            ImGui::PlotHistogram("", item_amounts, item_data[0].size(), 0, "amount of each object", 0, 200, ImVec2(400, 140));
+        }
+        ImGui::SameLine();
+        ImGui::BeginChild("plot legend");
+        std::string temp = "%04d: ";
+        for (int n = 0; n < item_data[0].size(); n++) {
+            if (item_data[0][n]->item_name != NULL) {
+                temp = "%04d: ";
+                temp += *(item_data[0][n]->item_name);
+                ImGui::Text(temp.c_str(), n);
+            }
+        }
+        ImGui::EndChild();
     }
     ImGui::EndChild();
     ImGui::PopStyleVar();
@@ -826,7 +858,6 @@ void GUI::spawn_object() {
         routine_ = DEFF_ERROR_ROUTINE;
     }
 }
-
 
 void GUI::update() {
 

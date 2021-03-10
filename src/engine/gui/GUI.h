@@ -68,6 +68,7 @@ private:
 	std::vector< item*>* item_data;
 	std::vector<actor*>* actors;
 	std::vector<routine*>* routines;
+	float* item_amounts;
 	int routines_edit_index;
 	int show_actors_that_follow_routine;
 	routine_designation follow;
