@@ -16,6 +16,7 @@
 #include "../text_rendering.h"
 #include "../object_manger.h"
 #include "../animation_manger.h"
+#include "../networking/network_manager.h"
 
 #include "imgui.h"
 #include "imgui_impl_glfw_gl3.h"
@@ -44,9 +45,9 @@ public:
 	void toggle_draw_debug_info() { draw_debug_info = !draw_debug_info; }
 
 	void set_cam(Camera* c) { cam = c; }
+	void set_network_manager(network_manager* i) { network = i; }
 
-
-	
+	void send_message();
 private:
 
 	void spawn_object();
@@ -57,6 +58,15 @@ private:
 
 	void draw_server_window();
 	bool draw_server_windows;
+	bool chat;
+	bool command_history;
+	bool server_info;
+	bool commands;
+	std::vector<std::string>* recived_chat_messages;
+	std::string chat_input;
+	int buffer_length = 100;
+	char buffer[100] = { 0 };
+	bool clear_message; 
 
 	void draw_model_window();
 	bool draw_model_windows;
@@ -96,6 +106,8 @@ private:
 
 	bool is_actor;
 	bool select_routine;
+	bool spawned;
+	item_info* fresh_item;
 	item_type type;
 	routine_designation routine_;
 	bool clear_on_spawn;
@@ -122,6 +134,7 @@ private:
 	bool server;
 	text_engine* text_render;
 	object_manger* OBJM;
+	network_manager* network;
 	animation_manager* AM;
 	unsigned int VBO, VAO;
 	Shader* gui_window;

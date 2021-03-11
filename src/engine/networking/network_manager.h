@@ -70,6 +70,8 @@ public:
 
 	void update_commands_to_share_world();
 
+	std::vector<std::string>* get_chat_message_history() { return recived_chat_messages; }
+
 private:
 
 	
@@ -99,7 +101,7 @@ private:
 	std::vector<actor*>* actors;
 
 	bool server;
-
+	std::string user_name;
 	int port;
 	std::string ip_adress;
 
@@ -111,4 +113,6 @@ private:
 	std::vector<command*> send_world_commands;
 	std::vector<chat_message> send_world_messages;
 
+
+	std::vector<std::string>* recived_chat_messages;
 };

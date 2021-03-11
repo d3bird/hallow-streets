@@ -10,6 +10,7 @@ network_manager::network_manager() {
 	server = false;
 	port = 1234;
 	ip_adress = "127.0.0.1";
+	user_name = "none";
 	servers = NULL;
 	client = NULL;
 
@@ -29,6 +30,8 @@ network_manager::network_manager() {
 	OBJM = NULL;
 	AM = NULL;
 
+	recived_chat_messages = new std::vector<std::string>();
+
 	actors = NULL;
 }
 
@@ -37,6 +40,9 @@ network_manager::~network_manager(){
 	delete spwan_item;
 	delete update_item;
 	delete spawn_actor;
+
+	recived_chat_messages[0].clear();
+	delete recived_chat_messages;
 }
 
 void network_manager::update() {
@@ -72,6 +78,9 @@ void network_manager::processes_command(command* com) {
 	switch (com->com) {
 	case MESSAGE:
 		std::cout << "you got mail saying: "<<com->msg << std::endl;
+		if (recived_chat_messages != NULL) {
+			recived_chat_messages[0].push_back(com->msg);
+		}
 		text_render->recive_message(com->msg);
 		break;
 	case SPAWN_ITEM:
@@ -334,15 +343,18 @@ void network_manager::spawn_in_ours_and_conned_to(int item, glm::vec3& loc, glm:
 
 void network_manager::send_message_txt(std::string in) {
 	std::cout << "sending a message" << std::endl;
+	std::string temp = user_name +": "+ in;
+	recived_chat_messages[0].push_back(temp);
+
 	if (server) {
 		if (servers != NULL) {
-			send_message->msg = in;
+			send_message->msg = temp;
 			servers->front().send_message_to_clients(create_message(send_message));
 		}
 	}
 	else {
 		if (client != NULL) {
-			send_message->msg = in;
+			send_message->msg = temp;
 			chat_message msg = create_message(send_message);
 			client->write(msg);
 		}
@@ -421,6 +433,8 @@ void network_manager::init() {
 
 	if (!port_in_use(port)) {
 		std::cout << "starting up server" << std::endl;
+		user_name = "server";
+
 		server = true;
 		try
 		{
@@ -444,6 +458,7 @@ void network_manager::init() {
 	}
 	else {
 		std::cout << "the port was already in use, starting up client" << std::endl;
+		user_name = "client";
 		try
 		{
 

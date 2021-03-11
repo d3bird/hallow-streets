@@ -43,6 +43,7 @@ GUI::GUI() {
     spawn_item = false;
     show_animation_stats = false;
     edit_routine = false;
+    network = NULL;
     OBJM = NULL;
     AM = NULL;
     item_data = NULL;
@@ -64,13 +65,22 @@ GUI::GUI() {
     spawn_rot_z = 0;
 
     angle = 0;
+    spawned = false;
     is_actor = false;
     type = CUBE_T;
     select_routine = false;
     routine_ = DEFF_ERROR_ROUTINE;
+
+    recived_chat_messages = NULL;
+    chat = false;
+    commands = false;
+    command_history = false;
+    server_info = false;
+    buffer_length = 100;
+    clear_message = false;
 }
 
-GUI::~GUI(){
+GUI::~GUI() {
     delete[] my_color;
     delete overal;
     delete effect;
@@ -99,8 +109,8 @@ void GUI::update_values() {
 
 }
 
-    // Edit a color (stored as ~4 floats)
-  //  ImGui::ColorEdit4("Color", my_color);
+// Edit a color (stored as ~4 floats)
+//  ImGui::ColorEdit4("Color", my_color);
 
 void GUI::draw_server_window() {
 
@@ -111,6 +121,30 @@ void GUI::draw_server_window() {
 
     ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0, 0));
     ImGui::BeginChild("child1", ImVec2(w, h), true);
+    if (ImGui::Button("show chat")) {
+        chat = true;
+        commands = false;
+        command_history = false;
+        server_info = false;
+    }
+    if (ImGui::Button("send command")) {
+        commands = true;
+        chat = false;
+        command_history = false;
+        server_info = false;
+    }
+    if (ImGui::Button("command history")) {
+        command_history = true;
+        chat = false;
+        commands = false;
+        server_info = false;
+    }
+    if (ImGui::Button("server_info")) {
+        server_info = true;
+        chat = false;
+        commands = false;
+        command_history = false;
+    }
     ImGui::EndChild();
     ImGui::SameLine();
     ImGui::InvisibleButton("vsplitter", ImVec2(8.0f, h));
@@ -118,6 +152,36 @@ void GUI::draw_server_window() {
         w += ImGui::GetIO().MouseDelta.x;
     ImGui::SameLine();
     ImGui::BeginChild("child2", ImVec2(0, h), true);
+    if (chat) {
+        if (network != NULL) {
+            if (recived_chat_messages == NULL) {
+                recived_chat_messages = network->get_chat_message_history();
+            }
+            else {
+                ImGui::Text("chat message history");
+                ImGui::InputText("", buffer, buffer_length);
+                if (clear_message) {
+                    memset(buffer, 0, buffer_length);
+                    clear_message = false;
+                }
+                ImGui::SameLine();
+                if (ImGui::Button("send message")) {
+                    std::string temp = buffer;
+                    network->send_message_txt(temp);
+                    memset(buffer, 0, buffer_length);
+                }
+               
+                ImGui::BeginChild("chat_message_history");
+                for (int i = 0; i < recived_chat_messages[0].size(); i++) {
+                    ImGui::Text(recived_chat_messages[0][i].c_str());
+                }
+                ImGui::EndChild();
+            }
+        }
+        else {
+            ImGui::Text("network was null");
+        }
+    }
     ImGui::EndChild();
     ImGui::InvisibleButton("hsplitter", ImVec2(-1, 8.0f));
     if (ImGui::IsItemActive())
@@ -127,6 +191,16 @@ void GUI::draw_server_window() {
     ImGui::PopStyleVar();
 
     ImGui::End();
+
+}
+
+void GUI::send_message() {
+    std::string temp = buffer;
+    if (!temp.empty()) {
+        network->send_message_txt(temp);
+        memset(buffer, 0, buffer_length);
+        clear_message = true;
+    }
 }
 
 void GUI::draw_model_window() {
@@ -827,18 +901,28 @@ void GUI::spawn_object() {
     trans = glm::translate(trans, loc);
     trans = glm::rotate(trans, glm::radians(angle), rot);
 
-    item_info* temp_data = OBJM->spawn_item(type, -1, -1, -1, trans);
+    if (!spawned) {
+        fresh_item = OBJM->spawn_item(type, -1, -1, -1, trans);
+    }
 
-    temp_data->x_rot = rot.x;
-    temp_data->y_rot = rot.y;
-    temp_data->z_rot = rot.z;
-    temp_data->angle = angle;
-    temp_data->x = loc.x;
-    temp_data->y = loc.y;
-    temp_data->z = loc.z;
+    fresh_item->x_rot = rot.x;
+    fresh_item->y_rot = rot.y;
+    fresh_item->z_rot = rot.z;
+    fresh_item->angle = angle;
+    fresh_item->x = loc.x;
+    fresh_item->y = loc.y;
+    fresh_item->z = loc.z;
 
-    if (is_actor) {
-        AM->turn_object_into_actor(temp_data, routine_);
+    if (is_actor && !spawned) {
+        AM->turn_object_into_actor(fresh_item, routine_);
+    }
+
+    if (!spawned) {
+        spawned = true;
+    }
+    else {
+        item_data[0][fresh_item->item_id]->modelMatrices[fresh_item->buffer_loc] = trans;
+        item_data[0][fresh_item->item_id]->updatemats = true;
     }
 
     //clearn the options
@@ -856,6 +940,8 @@ void GUI::spawn_object() {
         type = CUBE_T;
         select_routine = false;
         routine_ = DEFF_ERROR_ROUTINE;
+        spawned = false;
+
     }
 }
 

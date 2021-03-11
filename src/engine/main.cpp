@@ -164,7 +164,7 @@ int main() {
     World->set_text_engine(text_render);
     
     if (online_play) {
-        World->init(gui,network, server);
+        World->init(gui, network, server);
     }
     else {
         World->init(gui);
@@ -180,6 +180,7 @@ int main() {
     ImGui_ImplGlfwGL3_Init(window, true);
     ImGui::StyleColorsDark();
     gui->set_cam(camera);
+    gui->set_network_manager(network);
     gui->init();
 
     glfwSetKeyCallback(window, key_board_input);
@@ -300,6 +301,17 @@ void key_board_input(GLFWwindow* window, int key, int scancode, int action, int 
 
     if (!take_input) {
         //std::cout << "input for keyboard is turned off" << std::endl;
+        //the backspace key was not linked correctly so I have to manually check for it
+        if (key == GLFW_KEY_BACKSPACE && action == GLFW_PRESS) {
+            ImGui::GetIO().KeysDown[ImGui::GetIO().KeyMap[ImGuiKey_Backspace]] = true;
+        }
+        else {
+            ImGui::GetIO().KeysDown[ImGui::GetIO().KeyMap[ImGuiKey_Backspace]] = false;
+        }
+        if (key == GLFW_KEY_ENTER && action == GLFW_RELEASE) {
+            gui->send_message();
+        }
+
         return;
     }
 
