@@ -152,8 +152,8 @@ void GUI::draw_server_window() {
         w += ImGui::GetIO().MouseDelta.x;
     ImGui::SameLine();
     ImGui::BeginChild("child2", ImVec2(0, h), true);
-    if (chat) {
-        if (network != NULL) {
+    if (network != NULL) {
+        if (chat) {
             if (recived_chat_messages == NULL) {
                 recived_chat_messages = network->get_chat_message_history();
             }
@@ -170,7 +170,7 @@ void GUI::draw_server_window() {
                     network->send_message_txt(temp);
                     memset(buffer, 0, buffer_length);
                 }
-               
+
                 ImGui::BeginChild("chat_message_history");
                 for (int i = 0; i < recived_chat_messages[0].size(); i++) {
                     ImGui::Text(recived_chat_messages[0][i].c_str());
@@ -178,9 +178,12 @@ void GUI::draw_server_window() {
                 ImGui::EndChild();
             }
         }
-        else {
-            ImGui::Text("network was null");
+        else if (server_info) {
+
         }
+    }
+    else {
+        ImGui::Text("network was null");
     }
     ImGui::EndChild();
     ImGui::InvisibleButton("hsplitter", ImVec2(-1, 8.0f));
@@ -208,7 +211,7 @@ void GUI::draw_model_window() {
     static float width = 200.0f;
     static float height = 300.0f;
 
-    ImGui::Begin("server settings", &draw_model_windows);
+    ImGui::Begin("model settings", &draw_model_windows);
     ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0, 0));
     ImGui::BeginChild("option_selection", ImVec2(width, height), true);
     if (ImGui::Button("spawn item")) {
