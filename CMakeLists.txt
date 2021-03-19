@@ -24,6 +24,8 @@ find_package(GLFW3 REQUIRED)
 message(STATUS "Found GLFW3 in ${GLFW3_INCLUDE_DIR}")
 find_package(ASSIMP REQUIRED)
 message(STATUS "Found ASSIMP in ${ASSIMP_INCLUDE_DIR}")
+#find_package(PHYSX REQUIRED)
+#message(STATUS "Found PHYSX in ${ASSIMP_INCLUDE_DIR}")
 
 find_package(Boost 1.74.0 REQUIRED COMPONENTS
              date_time filesystem iostreams)
@@ -35,6 +37,9 @@ message(STATUS "Found Boost includes in ${Boost_INCLUDE_DIRS}")
 
 if(WIN32)
   set(LIBS glfw3 opengl32 assimp freetype irrKlang 
+  ${CMAKE_SOURCE_DIR}/lib/PhysX_64.lib
+  ${CMAKE_SOURCE_DIR}/lib/PhysXCommon_64.lib
+  ${CMAKE_SOURCE_DIR}/lib/PhysXFoundation_64.lib
   ${Boost_LIBRARY_DIR}/libboost_regex-vc142-mt-gd-x64-1_74.lib
   ${Boost_LIBRARY_DIR}/libboost_date_time-vc142-mt-gd-x64-1_74.lib
    ${Boost_LIBRARY_DIR}/libboost_chrono-vc142-mt-gd-x64-1_74.lib

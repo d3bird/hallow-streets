@@ -19,6 +19,8 @@
 #include "audio_manger.h"
 #include "time.h"
 
+#include <physx/PxPhysicsAPI.h>
+
 
 /*
 * This class handles all of the animation and updating of possitions 
