@@ -40,6 +40,7 @@ if(WIN32)
   ${CMAKE_SOURCE_DIR}/lib/PhysX_64.lib
   ${CMAKE_SOURCE_DIR}/lib/PhysXCommon_64.lib
   ${CMAKE_SOURCE_DIR}/lib/PhysXFoundation_64.lib
+  ${CMAKE_SOURCE_DIR}/lib/PhysXExtensions_static_64.lib
   ${Boost_LIBRARY_DIR}/libboost_regex-vc142-mt-gd-x64-1_74.lib
   ${Boost_LIBRARY_DIR}/libboost_date_time-vc142-mt-gd-x64-1_74.lib
    ${Boost_LIBRARY_DIR}/libboost_chrono-vc142-mt-gd-x64-1_74.lib

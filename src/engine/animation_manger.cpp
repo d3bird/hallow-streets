@@ -65,6 +65,8 @@ void animation_manager::init() {
 		def_routine = new routine;
 		routines[0].push_back(def_routine);
 	}
+	//Severity	Code	Description	Project	File	Line	Suppression State
+//	Error	LNK2019	unresolved external symbol "public: __cdecl physx::PxDefaultErrorCallback::PxDefaultErrorCallback(void)" (? ? 0PxDefaultErrorCallback@physx@@QEAA@XZ) referenced in function "private: void __cdecl animation_manager::init_physics(void)" (? init_physics@animation_manager@@AEAAXXZ)	engine	C : \Users\dogbi\OneDrive\Desktop\hallow_streets\build\animation_manger.obj	1
 
 
 	if (Time != NULL) {
@@ -73,8 +75,23 @@ void animation_manager::init() {
 	else {
 	std::cout << "there was a problem getting time in the animation manager" << std::endl;
 	}
-
+	init_physics();
 	std::cout << "finished creating the animation manager" << std::endl;
+}
+
+void animation_manager::init_physics() {
+	std::cout << "creating the physics engine" << std::endl;
+	//physx::
+	physx::PxDefaultAllocator a;
+	physx::PxDefaultErrorCallback e;
+
+	//f = PxCreateFoundation(PX_PHYSICS_VERSION, a, e);
+	f = PxCreateFoundation(PX_PHYSICS_VERSION,a,e);
+	//p = PxCreatePhysics(PX_PHYSICS_VERSION, *f, physx::PxTolerancesScale());
+
+	//scene = p->createScene(sc);
+	std::cout << "finished creating the physics engine" << std::endl;
+
 }
 
 int animation_manager::get_routine_index(routine_designation i) {

@@ -131,7 +131,7 @@ public:
 
 private:
 
-	
+	void init_physics();
 
 	void create_nav_points(actor* act, bool wipe_old_points = false);
 
@@ -194,4 +194,9 @@ private:
 
 	std::queue<bool> chickens_to_make;
 	std::queue<int> chickens_to_make_angles;
+
+	//physics
+	physx::PxFoundation* f;
+	physx::PxPhysics* p;
+	physx::PxScene* scene;
 };
