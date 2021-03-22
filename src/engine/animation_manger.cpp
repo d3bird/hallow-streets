@@ -1,5 +1,7 @@
 #include "animation_manger.h"
 
+using namespace physx;
+
 animation_manager::animation_manager() {
 	Time = NULL;
 	deltatime = NULL;
@@ -37,6 +39,13 @@ animation_manager::animation_manager() {
 	cannon_og = glm::vec3(-1, -1, -1);
 	server = true;
 
+	//physics setters
+	scene = NULL;
+	p = NULL;
+	f = NULL;
+
+	update_physics = false;
+	init_physics_ = true;
 }
 
 animation_manager::~animation_manager() {
@@ -52,6 +61,11 @@ animation_manager::~animation_manager() {
 	//	routines[0][i] = NULL;
 	//}
 	//routines[0].clear();
+
+	//physics
+	f->release();
+	p->release();
+	scene->release();
 }
 
 void animation_manager::init() {
@@ -75,9 +89,14 @@ void animation_manager::init() {
 	else {
 	std::cout << "there was a problem getting time in the animation manager" << std::endl;
 	}
-	init_physics();
+	if (init_physics_) {
+		init_physics();
+	}
 	std::cout << "finished creating the animation manager" << std::endl;
 }
+
+
+
 
 void animation_manager::init_physics() {
 	std::cout << "creating the physics engine" << std::endl;
@@ -87,9 +106,40 @@ void animation_manager::init_physics() {
 
 	//f = PxCreateFoundation(PX_PHYSICS_VERSION, a, e);
 	f = PxCreateFoundation(PX_PHYSICS_VERSION,a,e);
-	//p = PxCreatePhysics(PX_PHYSICS_VERSION, *f, physx::PxTolerancesScale());
+	/*mCooking = PxCreateCooking(PX_PHYSICS_VERSION, *f, PxCookingParams(scale));
+	if (!mCooking) {
+		std::cout << ("PxCreateCooking failed!") << std::endl;
+	}*/
+	
+	p = PxCreatePhysics(PX_PHYSICS_VERSION, *f, physx::PxTolerancesScale());
 
-	//scene = p->createScene(sc);
+	/*if (!PxInitExtensions(*p, mPvd)) {
+		std::cout << ("PxInitExtensions failed!") << std::endl;
+	}*/
+	physx::PxSceneDesc sc(p->getTolerancesScale());
+	//cause linking errors
+	sc.filterShader = physx::PxDefaultSimulationFilterShader;
+	sc.cpuDispatcher = physx::PxDefaultCpuDispatcherCreate(2);
+
+	scene = p->createScene(sc);
+
+	gMaterial = p->createMaterial(0.5f, 0.5f, 0.6f);
+	physx::PxRigidStatic* groundPlane = PxCreatePlane(*p, physx::PxPlane(0, 0, 1, 0), *gMaterial);//
+
+	scene->addActor(*groundPlane);
+
+	/*
+	creating the physics engine
+C:\Users\dogbi\OneDrive\Desktop\imgui\PhysX\physx\source\physx\src\NpPhysics.cpp (259) : invalid parameter : Physics::createScene: desc.isValid() is false!
+
+	*/
+
+	physx::PxShape* shape = p->createShape(physx::PxBoxGeometry(1, 1, 1), *gMaterial, true);
+	//could use the axis aligned bounding box dimensions for a box geometry?
+	physx::PxTransform t({ 0,0,0 });
+	physx::PxActor* a_new;
+	a_new = p->createRigidDynamic(t);
+
 	std::cout << "finished creating the physics engine" << std::endl;
 
 }
@@ -197,6 +247,7 @@ void animation_manager::update_from_server() {
 
 void animation_manager::update() {
 
+
 	if (!server) {
 		update_from_server();
 		return;
@@ -205,6 +256,11 @@ void animation_manager::update() {
 	float time_mes = (*deltatime);
 	float cool = (*deltatime) * 5;
 	glm::mat4 trans = glm::mat4(1.0f);
+
+	if (init_physics_ &&update_physics) {
+		scene->simulate(time_mes);
+		//scene->fetchResults(true);
+	}
 
 	for (int i = 0; i < actors[0].size(); i++) {
 		if (!actors[0][i]->empty) {
@@ -562,7 +618,7 @@ void animation_manager::update() {
 }
 
 //takes a object and add an animation pattern
-int animation_manager::turn_object_into_actor(item_info* obje, routine_designation route , sound* soun) {
+int animation_manager::turn_object_into_actor(item_info* obje, routine_designation route , bool physics, sound* soun) {
 	//std::cout << "turning object into an actor following ";
 
 	float move_speed =-1;
@@ -650,6 +706,21 @@ int animation_manager::turn_object_into_actor(item_info* obje, routine_designati
 
 	if (route == CHICKEN_TRANS2_ROUTINE) {
 		create_nav_points(new_act, true);
+	}
+
+
+	if (physics) {
+		new_act->physics_ret;
+
+		//physx::PxRigidDynamic* aCapsuleActor = thePhysics->createRigidDynamic(physx::PxTransform(position));
+		//physx::PxTransform relativePose(PxQuat(PxHalfPi, PxVec(0, 0, 1)));
+		//physx::PxShape* aCapsuleShape = physx::PxRigidActorExt::createExclusiveShape(*aCapsuleActor,
+		//	physx::PxCapsuleGeometry(radius, halfHeight), aMaterial);
+		//aCapsuleShape->setLocalPose(relativePose);
+		//physx::PxRigidBodyExt::updateMassAndInertia(*aCapsuleActor, capsuleDensity);
+		//scene->addActor(aCapsuleActor);
+
+		//scene->addActor(*(new_act->physics_ret), physx::createRigidDynamic());
 	}
 
 	return new_act->id;
@@ -1270,7 +1341,6 @@ void animation_manager::update_actor_id(int id, glm::vec3& loc, glm::vec3& rot, 
 		std::cout << "could not updated " << id << ", it was out of bounds of actors" << std::endl;
 	}
 }
-
 
 void animation_manager::print_routines() {
 

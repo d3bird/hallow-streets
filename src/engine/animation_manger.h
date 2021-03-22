@@ -92,6 +92,9 @@ struct actor{
 
 	//for rail cart
 	bool at_start = true;
+
+	//physic info
+	physx::PxActor* physics_ret = NULL;
 };
 
 class animation_manager {
@@ -101,7 +104,7 @@ public:
 
 	void update();
 	void update_from_server();
-	int turn_object_into_actor(item_info* obje, routine_designation route = DEFF_ERROR_ROUTINE, sound* soun = NULL );
+	int turn_object_into_actor(item_info* obje, routine_designation route = DEFF_ERROR_ROUTINE, bool physics = false, sound* soun = NULL);
 
 	void define_routine(routine_designation route, int x_min, int z_min, int x_max, int z_max);
 	void define_routine(routine_designation route, std::vector< rail_check_point*> points);
@@ -196,7 +199,12 @@ private:
 	std::queue<int> chickens_to_make_angles;
 
 	//physics
+	bool update_physics;
+	bool init_physics_;
 	physx::PxFoundation* f;
+	physx::PxCooking* mCooking;
 	physx::PxPhysics* p;
+	physx::PxPvd* mPvd;
 	physx::PxScene* scene;
+	physx::PxMaterial* gMaterial;
 };
