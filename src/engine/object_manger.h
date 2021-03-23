@@ -32,7 +32,7 @@
 enum item_type {CUBE_T, SIDEWALK_T, LIGHT_POST_T, WALL_T, WALL_C_T, SIDESTREET_T, 
 	SKYTRACK_S_T, SKYTRACK_C_T, CHICKEN_T, SKYTRACK_CART,
 	CANNON_FRAME_T, CANNON_PLATFORM_T, CANNON_T,
-	ZAP_TOWER_T, ZAP_SPHERE_T, CURSE_CHICKEN_T
+	ZAP_TOWER_T, ZAP_SPHERE_T, CURSE_CHICKEN_T, WALL_D_T
 };
 //the information on each unique object
 struct item_info {
@@ -178,6 +178,8 @@ private:
 	void create_cannon_object();
 	void create_zap_tower();
 
+	void create_wall_door_object();
+
 	//timing
 	timing* Time;
 	float* deltatime;
@@ -202,6 +204,7 @@ private:
 	//bool draw vars
 	bool draw_cubes;
 	bool draw_wall;
+	bool draw_wall_with_door;
 	bool draw_wall_c;
 	bool draw_sidewalk;
 	bool draw_light_post;

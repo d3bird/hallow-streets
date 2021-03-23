@@ -21,11 +21,25 @@ city_gen::city_gen() {
 	start_r_y = -1;
 	chicken_pen_amount = 0;
 
+	//cell data 
+	generate_cell_info = true;
+	layout_cells = NULL;
+	generated_building = NULL;
 }
 
-city_gen::~city_gen(){
+city_gen::~city_gen() {
 	for (int i = 0; i < rails.size(); i++) {
 		delete rails[i];
+	}
+	if (generated_building != NULL) {
+		for (int i = 0; i < generated_building->cell_info.size(); i++) {
+			for (int q = 0; q < generated_building->cell_info[i]->items_on_ground.size(); q++) {
+				delete generated_building->cell_info[i]->items_on_ground[q];
+			}
+			for (int q = 0; q < generated_building->cell_info[i]->items_on_wall.size(); q++) {
+				delete generated_building->cell_info[i]->items_on_wall[q];
+			}
+		}
 	}
 }
 
@@ -46,6 +60,13 @@ void city_gen::init() {
 	layout = new city_square*[block_height];
 	for (int i = 0; i < block_height; i++) {
 		layout[i] = new city_square[block_width];
+	}
+
+	if (generate_cell_info) {
+		layout_cells = new cell_data * [block_height];
+		for (int i = 0; i < block_height; i++) {
+			layout_cells[i] = new cell_data[block_width];
+		}
 	}
 
 	for (int i = 0; i < block_height; i++) {
@@ -146,7 +167,6 @@ void city_gen::create_city_block(int x1, int y1, int x2, int y2) {
 	x2 = y2;
 	y2 = temp;
 
-	srand(time(NULL));
 
 	//wipe the block
 	for (int i = x1; i < x2; i++) {
@@ -191,6 +211,8 @@ void city_gen::create_city_block(int x1, int y1, int x2, int y2) {
 
 	create_chicken_pen(7,7, 13,13);
 
+	generate_building(2,2,7,6);
+
 	create_buildings(x1,y1, x2, y2);
 
 }
@@ -232,18 +254,38 @@ void city_gen::create_road(int x, int z, int direct, int mid, int dir_change, bo
 	}
 }
 
-bool city_gen::is_road(int i, int h) {
-
-	switch (layout[i][h]) {
-	case road_top:
-	case road_bot:
-	case road_left:
-	case road_right:
-	case road_curve:
-	case road_inside_curve:
-	case small_road:
-		return true;
-		break;
+bool city_gen::is_road(int i, int h,int road_type) {
+	if (road_type == -1) {//all roads
+		switch (layout[i][h]) {
+		case road_top:
+		case road_bot:
+		case road_left:
+		case road_right:
+		case road_curve:
+		case road_inside_curve:
+		case small_road:
+			return true;
+			break;
+		}
+	}
+	else if (road_type == 0) {//main roads
+		switch (layout[i][h]) {
+		case road_top:
+		case road_bot:
+		case road_left:
+		case road_right:
+		case road_curve:
+		case road_inside_curve:
+			return true;
+			break;
+		}
+	}
+	else if (road_type == 1) {//side roads
+		switch (layout[i][h]) {
+		case small_road:
+			return true;
+			break;
+		}
 	}
 	return false;
 }
@@ -290,7 +332,7 @@ void city_gen::create_buildings(int i_start, int h_start,int i_max, int h_max) {
 }
 
 void city_gen::create_chicken_pen(int i_start, int h_start, int i_max, int h_max) {
-	std::cout << "creating buildings" << std::endl;
+	std::cout << "creating chicken pen" << std::endl;
 
 	for (int i = i_start; i < i_max; i++) {
 		for (int h = h_start; h < h_max; h++) {
@@ -299,6 +341,8 @@ void city_gen::create_chicken_pen(int i_start, int h_start, int i_max, int h_max
 			}
 		}
 	}
+	std::cout << "finished creating chicken pen" << std::endl;
+
 	//while (true);
 }
 
@@ -336,6 +380,7 @@ void city_gen::create_expanded_layout() {
 	bool road = false;
 	bool open_s = false;
 	bool chickens = false;
+	bool grab_info_from_cells = false;
 	rail_section* rail_s;
 	for (int i = 0; i < block_height; i++) {
 		for (int h = 0; h < block_width; h++) {
@@ -345,6 +390,7 @@ void city_gen::create_expanded_layout() {
 			road = false;
 			open_s = false;
 			chickens = false;
+			grab_info_from_cells = false;
 			switch (layout[i][h]) {
 			case road_top:
 				set = 6;
@@ -392,6 +438,9 @@ void city_gen::create_expanded_layout() {
 				break;
 			case chicken_pen:
 				chickens = true;
+				break;
+			case reserverd://cell information
+				grab_info_from_cells = true;
 				break;
 			case open:
 			default:
@@ -455,6 +504,9 @@ void city_gen::create_expanded_layout() {
 				}
 				
 			}
+			else if (grab_info_from_cells) {
+				create_tile_from_cell(i, h);
+			}
 			else {
 				layout_e[i * key][h * key] = set;
 				if (key != 1) {
@@ -466,6 +518,27 @@ void city_gen::create_expanded_layout() {
 				}
 			}
 		}
+	}
+
+}
+
+void city_gen::create_tile_from_cell(int i, int h) {
+	std::cout << "creating tile from cell" << std::endl;
+	cell_data cell = layout_cells[i][h];
+	if (cell.expanded_layout_info != NULL) {
+		int set = cell.expanded_layout_info[0][0];
+		layout_e[i * key][h * key] = set;
+		if (key != 1) {
+			for (int x = 0; x < key; x++) {
+				for (int y = 0; y < key; y++) {
+					set = cell.expanded_layout_info[x][y];
+					layout_e[(i * key) + x][(h * key) + y] = set;
+				}
+			}
+		}
+	}
+	else {
+		std::cout << "cell was null" << std::endl;
 	}
 
 }
@@ -718,4 +791,358 @@ void city_gen::print_expanded_layout() {
 
 void city_gen::use_premade_map() {
 
+}
+
+building* city_gen::generate_building(int start_x, int start_y, int end_x, int end_y) {
+	if (generated_building == NULL) {
+		std::cout << "generating test building" << std::endl;
+		generated_building = new building;
+		generated_building->build_type = workshop;
+		generated_building->dis_type = industry;
+
+		//the different generation types vars
+		bool loading_dock = true;
+		bool dock_main_road = true;
+		bool dock_side_road = true;
+		int dock_side = -1;
+		bool walls_along_edges = true;
+		//what are the boundries of the buildings
+		int wall_x_start = start_x;
+		int wall_y_start = start_y;
+		int wall_x_end = end_x;
+		int wall_y_end = end_y;
+		bool spawn_door = true;
+		int door_side = -1;
+		bool door_spawned = false;
+		int door_spots_left = -1;
+
+		//set the differnt vars for differnt type of generations 
+		if (loading_dock) {
+			std::vector<int> sides_with_road;
+			if (dock_main_road) {
+				if (is_road(start_x - 1, start_y, 0)) {
+					std::cout << "main road north" << std::endl;
+					sides_with_road.push_back(0);
+				}
+				if (is_road(start_x, start_y - 1, 0)) {
+					std::cout << "main road west" << std::endl;
+					sides_with_road.push_back(1);
+				}
+				if (is_road(end_x + 1, end_y, 0)) {
+					std::cout << "main road south" << std::endl;
+					sides_with_road.push_back(3);
+				}
+				if (is_road(end_x, end_y + 1, 0)) {
+					std::cout << "main road east" << std::endl;
+					sides_with_road.push_back(4);
+				}
+			}
+			if (dock_side_road) {
+				if (is_road(start_x - 1, start_y, 1)) {
+					std::cout << "side road north" << std::endl;
+					sides_with_road.push_back(0);
+				}
+				if (is_road(start_x, start_y - 1, 1)) {
+					std::cout << "side road west" << std::endl;
+					sides_with_road.push_back(1);
+				}
+				if (is_road(end_x + 1, end_y, 1)) {
+					std::cout << "side road south" << std::endl;
+					sides_with_road.push_back(3);
+				}
+				if (is_road(end_x, end_y + 1, 1)) {
+					std::cout << "side road east" << std::endl;
+					sides_with_road.push_back(4);
+				}
+			}
+			if (sides_with_road.size() > 0) {
+				std::random_device rd;
+				std::mt19937 mt(rd());
+				std::uniform_real_distribution<double> distribution(0, sides_with_road.size());
+				dock_side = (int)distribution(mt);
+				dock_side = sides_with_road[dock_side];
+				switch (dock_side) {
+				case 0://north side of the building
+					wall_x_start += 1;
+					break;
+				case 1://west side of the building
+					wall_y_start += 1;
+					break;
+				case 3://south side of te building
+					wall_x_end -= 1;
+					break;
+				default://east side of the building
+					wall_y_end -= 1;
+					break;
+				}
+			}
+			else {
+				std::cout << "can not create a loading dock, no main road" << std::endl;
+			}
+		}
+
+		if (spawn_door) {
+			std::vector<int> sides_with_road;
+				if (is_road(start_x - 1, start_y, 0)) {
+					std::cout << "main road north" << std::endl;
+					sides_with_road.push_back(0);
+				}
+				if (is_road(start_x, start_y - 1, 0)) {
+					std::cout << "main road west" << std::endl;
+					sides_with_road.push_back(1);
+				}
+				if (is_road(end_x + 1, end_y, 0)) {
+					std::cout << "main road south" << std::endl;
+					sides_with_road.push_back(3);
+				}
+				if (is_road(end_x, end_y + 1, 0)) {
+					std::cout << "main road east" << std::endl;
+					sides_with_road.push_back(4);
+				}
+			
+			
+			if (sides_with_road.size() > 0) {
+				std::random_device rd;
+				std::mt19937 mt(rd());
+				std::uniform_real_distribution<double> distribution(0, sides_with_road.size());
+				door_side = (int)distribution(mt);
+				door_side = sides_with_road[door_side];
+				switch (dock_side) {
+				case 0://north/south side of the building
+				case 3:
+					door_spots_left =(wall_x_end-2)- (wall_x_start + 1);
+					std::cout << door_spots_left<< " spots along north/south for door" << std::endl;
+					break;
+				case 1://west/east side of the building
+				default:
+					door_spots_left = (wall_y_end - 2) - (wall_y_start + 1);
+					std::cout<< door_spots_left << " spots along west/east for door" << std::endl;
+					break;
+				}
+			}
+			else {
+				std::cout << "can not create a door site, no road" << std::endl;
+			}
+		}
+		for (int i = start_x; i < end_x; i++) {
+			for (int h = start_y; h < end_y; h++) {
+				layout[i][h] = reserverd;
+
+				cell_data cell;
+				cell.x_loc = i;
+				cell.y_loc = h;
+
+				cell.expanded_layout_info = new int* [key];
+				for (int i = 0; i < key; i++) {
+					cell.expanded_layout_info[i] = new int[key];
+				}
+
+				//setting the basaeline for the square
+				for (int q = 0; q < key; q++) {
+					for (int x = 0; x < key; x++) {
+						cell.expanded_layout_info[q][x] = -1;
+					}
+				}
+
+				/* key for what the set numbers mean
+				 * 1:  place cube
+				 * 2:  place wall
+				 * 3:  place wall_d
+				 * 4:  place wall_c no rotate
+				 * 5:  place light post
+				 * 6:  place road (sidewalk top)
+				 * 7:  place road (sidewalk bottom)
+				 * 8:  place road (sidewalk left)
+				 * 9:  place road (sidewalk right)
+				 * 10: place road/path with no sidewalk
+				 * 11: place light post 90 degree trun
+				 * 12: place light post 180 degree trun
+				 * 13: place light post 270 degree trun
+				 * 14: place wall_c 90 degree trun
+				 * 15: place wall_c 180 degree trun
+				 * 16: place wall_c 270 degree trun
+				 * 17: chicken
+				 * 18 chicken ground
+				 * 19 wall 0 degree trun
+				 * 20 wall 90 degree trun
+				 * 21 wall 180 degree trun
+				 * 22 wall 270 degree trun
+				 * 23 wall_d 0 degree trun
+				 * 24 wall_d 90 degree trun
+				 * 25 wall_d 180 degree trun
+				 * 26 wall_d 270 degree trun
+				*/
+
+				//fill in the squares
+				for (int q = 0; q < key; q++) {
+					for (int x = 0; x < key; x++) {
+						if (cell.expanded_layout_info[q][x] == -1) {
+							//place walls
+							if (walls_along_edges) {
+								if ((i == wall_x_start || i == wall_x_end - 1) ||
+									(h == wall_y_start || h == wall_y_end - 1)) {
+
+									if (i == wall_x_start && h == wall_y_start) {
+										cell.type = wall_c;
+										if (q == 0 && x == 0) {
+											cell.expanded_layout_info[q][x] = 15;
+										}
+										else {
+											if (q == 0 || x == 0) {
+												cell.expanded_layout_info[q][x] = 0;
+											}
+											else {
+												cell.expanded_layout_info[q][x] = 1;
+											}
+										}
+									}
+									else if (i == wall_x_start && h == wall_y_end - 1) {
+										cell.type = wall_c;
+										if (q == 0 && x == key - 1) {
+											cell.expanded_layout_info[q][x] = 14;
+										}
+										else {
+											if (q == 0 || x == key - 1) {
+												cell.expanded_layout_info[q][x] = 0;
+											}
+											else {
+												cell.expanded_layout_info[q][x] = 1;
+											}
+										}
+									}
+									else if (i == wall_x_end - 1 && h == wall_y_start) {
+										cell.type = wall_c;
+										if (q == key - 1 && x == 0) {
+											cell.expanded_layout_info[q][x] = 16;
+										}
+										else {
+											if (q == key - 1 || x == 0) {
+												cell.expanded_layout_info[q][x] = 0;
+											}
+											else {
+												cell.expanded_layout_info[q][x] = 1;
+											}
+										}
+									}
+									else if (i == wall_x_end - 1 && h == wall_y_end - 1) {
+										cell.type = wall_c;
+										if (q == key - 1 && x == key - 1) {
+											cell.expanded_layout_info[q][x] = 4;
+										}
+										else {
+											if (q == key - 1 || x == key - 1) {
+												cell.expanded_layout_info[q][x] = 0;
+											}
+											else {
+												cell.expanded_layout_info[q][x] = 1;
+											}
+										}
+									}
+									else {
+										//makesure that the walls spawn in the wall area and not outside
+										if (i >= wall_x_start && i < wall_x_end && h >= wall_y_start && h <wall_y_end) {
+											cell.type = wall;
+
+											if (i == wall_x_start) {
+												if (q == 0 && x == 0) {
+													if (spawn_door && !door_spawned) {
+														cell.expanded_layout_info[q][x] = 27;
+														door_spawned = true;
+													}
+													else {
+														cell.expanded_layout_info[q][x] = 22;
+													}
+												}
+												else {
+													if (q == 0) {
+														cell.expanded_layout_info[q][x] = 0;
+													}
+													else {
+														cell.expanded_layout_info[q][x] = 1;
+													}
+												}
+											}
+											else if (i == wall_x_end - 1) {
+												if (q == key - 1 && x == 0) {
+													if (spawn_door && !door_spawned) {
+														cell.expanded_layout_info[q][x] = 27;
+														door_spawned = true;
+													}
+													else {
+														cell.expanded_layout_info[q][x] = 22;
+													}
+												}
+												else {
+													if (q == key - 1) {
+														cell.expanded_layout_info[q][x] = 0;
+													}
+													else {
+														cell.expanded_layout_info[q][x] = 1;
+													}
+												}
+											}
+											else if (h == wall_y_start) {
+												if (q == 0 && x == 0) {
+													if (spawn_door && !door_spawned) {
+														cell.expanded_layout_info[q][x] = 26;
+														door_spawned = true;
+													}
+													else {
+														cell.expanded_layout_info[q][x] = 21;
+													}
+												}
+												else {
+													if (x == 0) {
+														cell.expanded_layout_info[q][x] = 0;
+													}
+													else {
+														cell.expanded_layout_info[q][x] = 1;
+													}
+												}
+											}
+											else if (h == wall_y_end - 1) {
+												if (q == 0 && x == key - 1) {
+													if (spawn_door && !door_spawned) {
+														cell.expanded_layout_info[q][x] = 26;
+														door_spawned = true;
+													}
+													else {
+														cell.expanded_layout_info[q][x] = 21;
+													}
+												}
+												else {
+													if (x == key - 1) {
+														cell.expanded_layout_info[q][x] = 0;
+													}
+													else {
+														cell.expanded_layout_info[q][x] = 1;
+													}
+												}
+											}
+										}
+										else {
+											cell.expanded_layout_info[q][x] = 1;
+										}
+									}
+								}
+							}
+
+
+						}
+					}
+				}
+
+				layout_cells[i][h] = cell;
+				generated_building->cell_info.push_back(&cell);
+			}
+		}
+
+		std::cout << "finishing generating test building" << std::endl;
+	}
+	else {
+		std::cout << "returning test building" << std::endl;
+	}
+
+	
+	return generated_building;
 }

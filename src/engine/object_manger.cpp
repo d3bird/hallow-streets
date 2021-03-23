@@ -16,6 +16,7 @@ object_manger::object_manger() {
 
 	draw_cubes = true;
 	draw_wall = true;
+	draw_wall_with_door = true;
 	draw_wall_c = true;
 	draw_sidewalk = true;
 	draw_light_post = true;
@@ -67,7 +68,7 @@ void object_manger::draw() {
 	common->setMat4("projection", projection);
 	common->setMat4("view", view);
 	for (int q = 0; q < items.size(); q++) {
-		if (items[q]->draw) {
+		if (items[q]->draw && q != 15) {
 			glm::mat4* matrix_temp = items[q]->modelMatrices;
 			glBindBuffer(GL_ARRAY_BUFFER, items[q]->buffer);
 			if (items[q]->updatemats) {
@@ -76,7 +77,7 @@ void object_manger::draw() {
 			}
 
 			common->setInt("texture_diffuse1", 0);
-			glActiveTexture(GL_TEXTURE0);
+			glActiveTexture(GL_TEXTURE0); 
 			glBindTexture(GL_TEXTURE_2D, items[q]->model->textures_loaded[0].id);
 			for (unsigned int i = 0; i < items[q]->model->meshes.size(); i++)
 			{
@@ -428,6 +429,8 @@ void object_manger::init() {
 
 	create_cursed_object_buffer();
 
+	create_wall_door_object();
+
 	std::cout << "finished creating the object manager" << std::endl;
 }
 
@@ -489,8 +492,6 @@ void object_manger::create_cursed_object_buffer() {
 	items.push_back(temp);
 
 }
-
-
 
 void object_manger::increase_buffer_size() {
 
@@ -1414,6 +1415,65 @@ void object_manger::create_zap_tower() {
 
 }
 
+void object_manger::create_wall_door_object() {
+
+	unsigned int buffer;
+	unsigned int buffer_size;
+	unsigned int amount;
+	glm::mat4* modelMatrices;
+	Shader* custom_shader;
+	Model* model;
+	std::string* item_name_t = new std::string("wall door object");
+
+	buffer = 0;
+	buffer_size = 200;
+	amount = 0;
+
+	modelMatrices = new glm::mat4[buffer_size];
+	custom_shader = NULL;
+	model = new Model("resources/objects/building_parts/wall_with_door.obj");
+
+	glGenBuffers(1, &buffer);
+	glBindBuffer(GL_ARRAY_BUFFER, buffer);
+	glBufferData(GL_ARRAY_BUFFER, amount * sizeof(glm::mat4), &modelMatrices[0], GL_STATIC_DRAW);
+
+	for (unsigned int i = 0; i < model->meshes.size(); i++)
+	{
+		unsigned int VAO = model->meshes[i].VAO;
+		glBindVertexArray(VAO);
+		// set attribute pointers for matrix (4 times vec4)
+		glEnableVertexAttribArray(3);
+		glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)0);
+		glEnableVertexAttribArray(4);
+		glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(sizeof(glm::vec4)));
+		glEnableVertexAttribArray(5);
+		glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(2 * sizeof(glm::vec4)));
+		glEnableVertexAttribArray(6);
+		glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(3 * sizeof(glm::vec4)));
+
+		glVertexAttribDivisor(3, 1);
+		glVertexAttribDivisor(4, 1);
+		glVertexAttribDivisor(5, 1);
+		glVertexAttribDivisor(6, 1);
+
+		glBindVertexArray(0);
+	}
+
+	item* temp = new item;
+	temp->buffer_size = buffer_size;
+	temp->buffer = buffer;
+	temp->amount = amount;
+	temp->model = model;
+	temp->modelMatrices = modelMatrices;
+	temp->custom_shader = custom_shader;
+	temp->item_name = item_name_t;
+	temp->type = WALL_D_T;
+	temp->draw = draw_wall_with_door;
+
+
+	items.push_back(temp);
+
+}
 
 std::vector< item_loc>  object_manger::place_items_init() {
 	std::cout << "placing the items in the world" << std::endl;
@@ -1664,6 +1724,18 @@ item_info* object_manger::spawn_item(item_type type, int x,int y, int z, glm::ma
 		item_id = 15;
 		buffer_loc = items[15]->amount;
 		items[15]->amount++;
+		max_stack_size = 1;
+		stackable = false;
+		y_f = 2;
+		break;
+	case WALL_D_T:
+		if (items[16]->amount >= items[16]->buffer_size) {
+			std::cout << "there are too many cannon " << std::endl;
+			return NULL;
+		}
+		item_id = 16;
+		buffer_loc = items[16]->amount;
+		items[16]->amount++;
 		max_stack_size = 1;
 		stackable = false;
 		y_f = 2;

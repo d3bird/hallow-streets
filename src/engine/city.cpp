@@ -447,6 +447,46 @@ void city::init(object_manger* OBJM, animation_manager* an) {
 				tempdata = OBJM->spawn_item(CUBE_T, -1, -1, -1, trans);
 
 			}
+			else if (19 <= layout_expanded[i][h] && layout_expanded[i][h] <= 22) {
+				//std::cout << h << " " << i << std::endl;
+				glm::mat4 trans = glm::mat4(1.0f);
+				trans = glm::translate(trans, glm::vec3((h * 2), 2, (i * 2)));
+
+				switch (layout_expanded[i][h]) {
+				case 20:
+					trans = glm::rotate(trans, glm::radians(90.0f), glm::vec3(0.0, 1.0, 0.0));
+					break;
+				case 21:
+					trans = glm::rotate(trans, glm::radians(180.0f), glm::vec3(0.0, 1.0, 0.0));
+					break;
+				case 22:
+					trans = glm::rotate(trans, glm::radians(270.0f), glm::vec3(0.0, 1.0, 0.0));
+					break;
+				}
+
+				tempdata = OBJM->spawn_item(WALL_T, -1, -1, -1, trans);
+
+			}
+			else if (24 <= layout_expanded[i][h] && layout_expanded[i][h] <= 27) {
+			//std::cout << h << " " << i << std::endl;
+			glm::mat4 trans = glm::mat4(1.0f);
+			trans = glm::translate(trans, glm::vec3((h * 2), 2, (i * 2)));
+
+			switch (layout_expanded[i][h]) {
+			case 25:
+				trans = glm::rotate(trans, glm::radians(90.0f), glm::vec3(0.0, 1.0, 0.0));
+				break;
+			case 26:
+				trans = glm::rotate(trans, glm::radians(180.0f), glm::vec3(0.0, 1.0, 0.0));
+				break;
+			case 27:
+				trans = glm::rotate(trans, glm::radians(270.0f), glm::vec3(0.0, 1.0, 0.0));
+				break;
+			}
+
+			tempdata = OBJM->spawn_item(WALL_D_T, -1, -1, -1, trans);
+
+			}
 		}
 	}
 

@@ -44,8 +44,8 @@ animation_manager::animation_manager() {
 	p = NULL;
 	f = NULL;
 
-	update_physics = false;
-	init_physics_ = true;
+	update_physics = true;
+	init_physics_ = false;
 }
 
 animation_manager::~animation_manager() {
@@ -219,7 +219,6 @@ std::string animation_manager::routine_designation_tostring(routine_designation 
 	}
 	return output;
 }
-
 
 float diff_btwn_pnt(float start, float end) {
 	float output = 0;
