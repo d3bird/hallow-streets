@@ -17,6 +17,7 @@ object_manger::object_manger() {
 	draw_cubes = true;
 	draw_wall = true;
 	draw_wall_with_door = true;
+	draw_wall_loading_area = true;
 	draw_wall_c = true;
 	draw_sidewalk = true;
 	draw_light_post = true;
@@ -430,7 +431,7 @@ void object_manger::init() {
 	create_cursed_object_buffer();
 
 	create_wall_door_object();
-
+	create_wall_loading_object();
 	std::cout << "finished creating the object manager" << std::endl;
 }
 
@@ -1475,6 +1476,66 @@ void object_manger::create_wall_door_object() {
 
 }
 
+void object_manger::create_wall_loading_object() {
+
+	unsigned int buffer;
+	unsigned int buffer_size;
+	unsigned int amount;
+	glm::mat4* modelMatrices;
+	Shader* custom_shader;
+	Model* model;
+	std::string* item_name_t = new std::string("wall loading object");
+
+	buffer = 0;
+	buffer_size = 200;
+	amount = 0;
+
+	modelMatrices = new glm::mat4[buffer_size];
+	custom_shader = NULL;
+	model = new Model("resources/objects/building_parts/wall_with_loading_area.obj");
+
+	glGenBuffers(1, &buffer);
+	glBindBuffer(GL_ARRAY_BUFFER, buffer);
+	glBufferData(GL_ARRAY_BUFFER, amount * sizeof(glm::mat4), &modelMatrices[0], GL_STATIC_DRAW);
+
+	for (unsigned int i = 0; i < model->meshes.size(); i++)
+	{
+		unsigned int VAO = model->meshes[i].VAO;
+		glBindVertexArray(VAO);
+		// set attribute pointers for matrix (4 times vec4)
+		glEnableVertexAttribArray(3);
+		glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)0);
+		glEnableVertexAttribArray(4);
+		glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(sizeof(glm::vec4)));
+		glEnableVertexAttribArray(5);
+		glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(2 * sizeof(glm::vec4)));
+		glEnableVertexAttribArray(6);
+		glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(3 * sizeof(glm::vec4)));
+
+		glVertexAttribDivisor(3, 1);
+		glVertexAttribDivisor(4, 1);
+		glVertexAttribDivisor(5, 1);
+		glVertexAttribDivisor(6, 1);
+
+		glBindVertexArray(0);
+	}
+
+	item* temp = new item;
+	temp->buffer_size = buffer_size;
+	temp->buffer = buffer;
+	temp->amount = amount;
+	temp->model = model;
+	temp->modelMatrices = modelMatrices;
+	temp->custom_shader = custom_shader;
+	temp->item_name = item_name_t;
+	temp->type = WALL_LA_T;
+	temp->draw = draw_wall_with_door;
+
+
+	items.push_back(temp);
+
+}
+
 std::vector< item_loc>  object_manger::place_items_init() {
 	std::cout << "placing the items in the world" << std::endl;
 	std::vector< item_loc> output;
@@ -1739,6 +1800,22 @@ item_info* object_manger::spawn_item(item_type type, int x,int y, int z, glm::ma
 		max_stack_size = 1;
 		stackable = false;
 		y_f = 2;
+		break;
+	case WALL_LA_T:
+		if (items[17]->amount >= items[17]->buffer_size) {
+			std::cout << "there are too many cannon " << std::endl;
+			return NULL;
+		}
+		item_id = 17;
+		buffer_loc = items[17]->amount;
+		items[17]->amount++;
+		max_stack_size = 1;
+		stackable = false;
+		y_f = 2;
+		break;
+	default:
+		std::cout << "not a reconized item type" << std::endl;
+		return NULL;
 		break;
 	}
 

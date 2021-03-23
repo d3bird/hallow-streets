@@ -162,26 +162,36 @@ private:
 };
 
 /* key for what the set numbers mean
-* 1:  place cube
-* 2:  place wall
-* 3:  place wall_d
-* 4:  place wall_c no rotate
-* 5:  place light post
-* 6:  place road (sidewalk top)
-* 7:  place road (sidewalk bottom)
-* 8:  place road (sidewalk left)
-* 9:  place road (sidewalk right)
-* 10: place road/path with no sidewalk
-* 11: place light post 90 degree trun
-* 12: place light post 180 degree trun
-* 13: place light post 270 degree trun
-* 14: place wall_c 90 degree trun
-* 15: place wall_c 180 degree trun
-* 16: place wall_c 270 degree trun
-* 17: chicken
-* 18 chicken ground
-* 19 wall 0 degree trun
-* 20 wall 90 degree trun
-* 21 wall 180 degree trun
-* 22 wall 270 degree trun
+ * 1:  place cube
+ * 2:  place wall
+ * 3:  place wall_d
+ * 4:  place wall_c no rotate
+ * 5:  place light post
+ * 6:  place road (sidewalk top)
+ * 7:  place road (sidewalk bottom)
+ * 8:  place road (sidewalk left)
+ * 9:  place road (sidewalk right)
+ * 10: place road/path with no sidewalk
+ * 11: place light post 90 degree trun
+ * 12: place light post 180 degree trun
+ * 13: place light post 270 degree trun
+ * 14: place wall_c 90 degree trun
+ * 15: place wall_c 180 degree trun
+ * 16: place wall_c 270 degree trun
+ * 17: chicken
+ * 18 chicken ground
+ * 19 wall 0 degree trun
+ * 20 wall 90 degree trun
+ * 21 wall 180 degree trun
+ * 22 wall 270 degree trun
+ * 23
+ * 24 wall_d 0 degree trun
+ * 25 wall_d 90 degree trun
+ * 26 wall_d 180 degree trun
+ * 27 wall_d 270 degree trun
+ * 
+ * 28 wall_LA 0 degree trun
+ * 29 wall_LA 90 degree trun
+ * 30 wall_LA 180 degree trun
+ * 31 wall_LA 270 degree trun
 */

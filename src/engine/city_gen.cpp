@@ -861,6 +861,7 @@ building* city_gen::generate_building(int start_x, int start_y, int end_x, int e
 				std::uniform_real_distribution<double> distribution(0, sides_with_road.size());
 				dock_side = (int)distribution(mt);
 				dock_side = sides_with_road[dock_side];
+				//dock_side = 4;
 				switch (dock_side) {
 				case 0://north side of the building
 					wall_x_start += 1;
@@ -873,6 +874,7 @@ building* city_gen::generate_building(int start_x, int start_y, int end_x, int e
 					break;
 				default://east side of the building
 					wall_y_end -= 1;
+					dock_side = 4;
 					break;
 				}
 			}
@@ -883,24 +885,24 @@ building* city_gen::generate_building(int start_x, int start_y, int end_x, int e
 
 		if (spawn_door) {
 			std::vector<int> sides_with_road;
-				if (is_road(start_x - 1, start_y, 0)) {
-					std::cout << "main road north" << std::endl;
-					sides_with_road.push_back(0);
-				}
-				if (is_road(start_x, start_y - 1, 0)) {
-					std::cout << "main road west" << std::endl;
-					sides_with_road.push_back(1);
-				}
-				if (is_road(end_x + 1, end_y, 0)) {
-					std::cout << "main road south" << std::endl;
-					sides_with_road.push_back(3);
-				}
-				if (is_road(end_x, end_y + 1, 0)) {
-					std::cout << "main road east" << std::endl;
-					sides_with_road.push_back(4);
-				}
-			
-			
+			if (is_road(start_x - 1, start_y, 0)) {
+				std::cout << "main road north" << std::endl;
+				sides_with_road.push_back(0);
+			}
+			if (is_road(start_x, start_y - 1, 0)) {
+				std::cout << "main road west" << std::endl;
+				sides_with_road.push_back(1);
+			}
+			if (is_road(end_x + 1, end_y, 0)) {
+				std::cout << "main road south" << std::endl;
+				sides_with_road.push_back(3);
+			}
+			if (is_road(end_x, end_y + 1, 0)) {
+				std::cout << "main road east" << std::endl;
+				sides_with_road.push_back(4);
+			}
+
+
 			if (sides_with_road.size() > 0) {
 				std::random_device rd;
 				std::mt19937 mt(rd());
@@ -910,13 +912,13 @@ building* city_gen::generate_building(int start_x, int start_y, int end_x, int e
 				switch (dock_side) {
 				case 0://north/south side of the building
 				case 3:
-					door_spots_left =(wall_x_end-2)- (wall_x_start + 1);
-					std::cout << door_spots_left<< " spots along north/south for door" << std::endl;
+					door_spots_left = (wall_x_end - 2) - (wall_x_start + 1);
+					std::cout << door_spots_left << " spots along north/south for door" << std::endl;
 					break;
 				case 1://west/east side of the building
 				default:
 					door_spots_left = (wall_y_end - 2) - (wall_y_start + 1);
-					std::cout<< door_spots_left << " spots along west/east for door" << std::endl;
+					std::cout << door_spots_left << " spots along west/east for door" << std::endl;
 					break;
 				}
 			}
@@ -924,6 +926,7 @@ building* city_gen::generate_building(int start_x, int start_y, int end_x, int e
 				std::cout << "can not create a door site, no road" << std::endl;
 			}
 		}
+
 		for (int i = start_x; i < end_x; i++) {
 			for (int h = start_y; h < end_y; h++) {
 				layout[i][h] = reserverd;
@@ -967,10 +970,15 @@ building* city_gen::generate_building(int start_x, int start_y, int end_x, int e
 				 * 20 wall 90 degree trun
 				 * 21 wall 180 degree trun
 				 * 22 wall 270 degree trun
-				 * 23 wall_d 0 degree trun
-				 * 24 wall_d 90 degree trun
-				 * 25 wall_d 180 degree trun
-				 * 26 wall_d 270 degree trun
+				 * 23 
+				 * 24 wall_d 0 degree trun
+				 * 25 wall_d 90 degree trun
+				 * 26 wall_d 180 degree trun
+				 * 27 wall_d 270 degree trun
+				 * 28 wall_LA 0 degree trun
+				 * 29 wall_LA 90 degree trun
+				 * 30 wall_LA 180 degree trun
+				 * 31 wall_LA 270 degree trun
 				*/
 
 				//fill in the squares
@@ -1050,7 +1058,12 @@ building* city_gen::generate_building(int start_x, int start_y, int end_x, int e
 														door_spawned = true;
 													}
 													else {
-														cell.expanded_layout_info[q][x] = 22;
+														if (dock_side == 0) {
+															cell.expanded_layout_info[q][x] = 31;
+														}
+														else {
+															cell.expanded_layout_info[q][x] = 22;
+														}
 													}
 												}
 												else {
@@ -1069,7 +1082,12 @@ building* city_gen::generate_building(int start_x, int start_y, int end_x, int e
 														door_spawned = true;
 													}
 													else {
-														cell.expanded_layout_info[q][x] = 22;
+														if (dock_side == 3) {
+															cell.expanded_layout_info[q][x] = 31;
+														}
+														else {
+															cell.expanded_layout_info[q][x] = 22;
+														}
 													}
 												}
 												else {
@@ -1088,7 +1106,12 @@ building* city_gen::generate_building(int start_x, int start_y, int end_x, int e
 														door_spawned = true;
 													}
 													else {
-														cell.expanded_layout_info[q][x] = 21;
+														if (dock_side == 1) {
+															cell.expanded_layout_info[q][x] = 30;
+														}
+														else {
+															cell.expanded_layout_info[q][x] = 21;
+														}
 													}
 												}
 												else {
@@ -1107,7 +1130,12 @@ building* city_gen::generate_building(int start_x, int start_y, int end_x, int e
 														door_spawned = true;
 													}
 													else {
-														cell.expanded_layout_info[q][x] = 21;
+														if (dock_side == 4) {
+															cell.expanded_layout_info[q][x] = 30;
+														}
+														else {
+															cell.expanded_layout_info[q][x] = 21;
+														}
 													}
 												}
 												else {
