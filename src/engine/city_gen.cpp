@@ -861,7 +861,7 @@ building* city_gen::generate_building(int start_x, int start_y, int end_x, int e
 				std::uniform_real_distribution<double> distribution(0, sides_with_road.size());
 				dock_side = (int)distribution(mt);
 				dock_side = sides_with_road[dock_side];
-				//dock_side = 4;
+				dock_side = 1;
 				switch (dock_side) {
 				case 0://north side of the building
 					wall_x_start += 1;
@@ -996,6 +996,9 @@ building* city_gen::generate_building(int start_x, int start_y, int end_x, int e
 											cell.expanded_layout_info[q][x] = 15;
 										}
 										else {
+											if (q == 4 && x == 0) {
+												cell.expanded_layout_info[q][x] = 38;
+											}else
 											if (q == 0 || x == 0) {
 												cell.expanded_layout_info[q][x] = 0;
 											}
@@ -1048,7 +1051,7 @@ building* city_gen::generate_building(int start_x, int start_y, int end_x, int e
 									}
 									else {
 										//makesure that the walls spawn in the wall area and not outside
-										if (i >= wall_x_start && i < wall_x_end && h >= wall_y_start && h <wall_y_end) {
+										if (i >= wall_x_start && i < wall_x_end && h >= wall_y_start && h < wall_y_end) {
 											cell.type = wall;
 
 											if (i == wall_x_start) {
@@ -1060,6 +1063,7 @@ building* city_gen::generate_building(int start_x, int start_y, int end_x, int e
 													else {
 														if (dock_side == 0) {
 															cell.expanded_layout_info[q][x] = 31;
+															cell.type = wall_loading;
 														}
 														else {
 															cell.expanded_layout_info[q][x] = 22;
@@ -1084,6 +1088,7 @@ building* city_gen::generate_building(int start_x, int start_y, int end_x, int e
 													else {
 														if (dock_side == 3) {
 															cell.expanded_layout_info[q][x] = 31;
+															cell.type = wall_loading;
 														}
 														else {
 															cell.expanded_layout_info[q][x] = 22;
@@ -1108,6 +1113,7 @@ building* city_gen::generate_building(int start_x, int start_y, int end_x, int e
 													else {
 														if (dock_side == 1) {
 															cell.expanded_layout_info[q][x] = 30;
+															cell.type = wall_loading;
 														}
 														else {
 															cell.expanded_layout_info[q][x] = 21;
@@ -1115,6 +1121,11 @@ building* city_gen::generate_building(int start_x, int start_y, int end_x, int e
 													}
 												}
 												else {
+													if (dock_side == 1) {
+														if (x ==0 &&(q ==4 || q ==6)) {
+															cell.expanded_layout_info[q][x] = 40;//the loading doors
+														}
+													}else
 													if (x == 0) {
 														cell.expanded_layout_info[q][x] = 0;
 													}
@@ -1132,6 +1143,7 @@ building* city_gen::generate_building(int start_x, int start_y, int end_x, int e
 													else {
 														if (dock_side == 4) {
 															cell.expanded_layout_info[q][x] = 30;
+															cell.type = wall_loading;
 														}
 														else {
 															cell.expanded_layout_info[q][x] = 21;
@@ -1152,6 +1164,56 @@ building* city_gen::generate_building(int start_x, int start_y, int end_x, int e
 											cell.expanded_layout_info[q][x] = 1;
 										}
 									}
+								}
+								else {
+									//test to see if it is inside the walls or outside
+									if ((i >= wall_x_start && i < wall_x_end) &&
+										(h >= wall_y_start && h < wall_y_end)) {
+										cell.expanded_layout_info[q][x] = 18;
+									}
+									else {//outside the walls
+										if (loading_dock) {
+
+											if (dock_side == 0) {
+
+												if (q == key - 2 && x == 0) {
+													cell.expanded_layout_info[q][x] = 35;
+												}
+												else {
+													cell.expanded_layout_info[q][x] = 1;
+												}
+											}
+											else if (dock_side == 1) {
+												if (q == key - 1 && x == key - 2) {
+													cell.expanded_layout_info[q][x] = 32;
+												}
+												else {
+													cell.expanded_layout_info[q][x] = 1;
+												}
+											}
+											else if (dock_side == 3) {
+												if (q == key - 1 && x == key - 2) {
+													cell.expanded_layout_info[q][x] = 32;
+												}
+												else {
+													cell.expanded_layout_info[q][x] = 1;
+												}
+											}
+											else {
+												if (q == key - 1 && x == key - 2) {
+													cell.expanded_layout_info[q][x] = 32;
+												}
+												else {
+													cell.expanded_layout_info[q][x] = 1;
+												}
+											}
+										}
+										else {
+											cell.expanded_layout_info[q][x] = 1;
+										}
+
+									}
+
 								}
 							}
 

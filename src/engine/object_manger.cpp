@@ -29,6 +29,11 @@ object_manger::object_manger() {
 	draw_cannon = true;
 	draw_zap_tower = true;
 	draw_cursed_chicken = false;//through the normal methode
+	draw_loading_area_floor = true;
+	draw_wall_clock_ang = true;
+	draw_leaver_object = false;
+	draw_door_object = false;
+	draw_loading_door = true;
 
 	cursed = new Shader("cursed.vs", "cursed.fs");
 	u_time = 0;
@@ -69,6 +74,7 @@ void object_manger::draw() {
 	common->setMat4("projection", projection);
 	common->setMat4("view", view);
 	for (int q = 0; q < items.size(); q++) {
+		//std::cout << q << std::endl;//useful to findout which model is breaking
 		if (items[q]->draw && q != 15) {
 			glm::mat4* matrix_temp = items[q]->modelMatrices;
 			glBindBuffer(GL_ARRAY_BUFFER, items[q]->buffer);
@@ -432,6 +438,12 @@ void object_manger::init() {
 
 	create_wall_door_object();
 	create_wall_loading_object();
+	create_wall_loading_floor_object();
+
+	create_wall_clock_object();
+	create_wall_loading_door_object();
+	//create_leaver_object();
+
 	std::cout << "finished creating the object manager" << std::endl;
 }
 
@@ -1529,11 +1541,242 @@ void object_manger::create_wall_loading_object() {
 	temp->custom_shader = custom_shader;
 	temp->item_name = item_name_t;
 	temp->type = WALL_LA_T;
-	temp->draw = draw_wall_with_door;
+	temp->draw = draw_wall_loading_area;
 
 
 	items.push_back(temp);
 
+}
+
+void object_manger::create_wall_loading_floor_object() {
+	unsigned int buffer;
+	unsigned int buffer_size;
+	unsigned int amount;
+	glm::mat4* modelMatrices;
+	Shader* custom_shader;
+	Model* model;
+	std::string* item_name_t = new std::string("loading floor object");
+
+	buffer = 0;
+	buffer_size = 200;
+	amount = 0;
+
+	modelMatrices = new glm::mat4[buffer_size];
+	custom_shader = NULL;
+	model = new Model("resources/objects/building_parts/loading_area_ground.obj");
+
+	glGenBuffers(1, &buffer);
+	glBindBuffer(GL_ARRAY_BUFFER, buffer);
+	glBufferData(GL_ARRAY_BUFFER, amount * sizeof(glm::mat4), &modelMatrices[0], GL_STATIC_DRAW);
+
+	for (unsigned int i = 0; i < model->meshes.size(); i++)
+	{
+		unsigned int VAO = model->meshes[i].VAO;
+		glBindVertexArray(VAO);
+		// set attribute pointers for matrix (4 times vec4)
+		glEnableVertexAttribArray(3);
+		glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)0);
+		glEnableVertexAttribArray(4);
+		glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(sizeof(glm::vec4)));
+		glEnableVertexAttribArray(5);
+		glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(2 * sizeof(glm::vec4)));
+		glEnableVertexAttribArray(6);
+		glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(3 * sizeof(glm::vec4)));
+
+		glVertexAttribDivisor(3, 1);
+		glVertexAttribDivisor(4, 1);
+		glVertexAttribDivisor(5, 1);
+		glVertexAttribDivisor(6, 1);
+
+		glBindVertexArray(0);
+	}
+
+	item* temp = new item;
+	temp->buffer_size = buffer_size;
+	temp->buffer = buffer;
+	temp->amount = amount;
+	temp->model = model;
+	temp->modelMatrices = modelMatrices;
+	temp->custom_shader = custom_shader;
+	temp->item_name = item_name_t;
+	temp->type = FLOOR_LA_T;
+	temp->draw = draw_loading_area_floor;
+
+
+	items.push_back(temp);
+}
+
+void object_manger::create_wall_clock_object() {
+	unsigned int buffer;
+	unsigned int buffer_size;
+	unsigned int amount;
+	glm::mat4* modelMatrices;
+	Shader* custom_shader;
+	Model* model;
+	std::string* item_name_t = new std::string("wall clock object");
+
+	buffer = 0;
+	buffer_size = 200;
+	amount = 0;
+
+	modelMatrices = new glm::mat4[buffer_size];
+	custom_shader = NULL;
+	model = new Model("resources/objects/building_parts/wall_clock_ang.obj");
+
+	glGenBuffers(1, &buffer);
+	glBindBuffer(GL_ARRAY_BUFFER, buffer);
+	glBufferData(GL_ARRAY_BUFFER, amount * sizeof(glm::mat4), &modelMatrices[0], GL_STATIC_DRAW);
+
+	for (unsigned int i = 0; i < model->meshes.size(); i++)
+	{
+		unsigned int VAO = model->meshes[i].VAO;
+		glBindVertexArray(VAO);
+		// set attribute pointers for matrix (4 times vec4)
+		glEnableVertexAttribArray(3);
+		glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)0);
+		glEnableVertexAttribArray(4);
+		glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(sizeof(glm::vec4)));
+		glEnableVertexAttribArray(5);
+		glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(2 * sizeof(glm::vec4)));
+		glEnableVertexAttribArray(6);
+		glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(3 * sizeof(glm::vec4)));
+
+		glVertexAttribDivisor(3, 1);
+		glVertexAttribDivisor(4, 1);
+		glVertexAttribDivisor(5, 1);
+		glVertexAttribDivisor(6, 1);
+
+		glBindVertexArray(0);
+	}
+
+	item* temp = new item;
+	temp->buffer_size = buffer_size;
+	temp->buffer = buffer;
+	temp->amount = amount;
+	temp->model = model;
+	temp->modelMatrices = modelMatrices;
+	temp->custom_shader = custom_shader;
+	temp->item_name = item_name_t;
+	temp->type = WALL_CLOCK_ANG_T;
+	temp->draw = draw_wall_clock_ang;
+
+	items.push_back(temp);
+}
+
+void object_manger::create_wall_loading_door_object() {
+	unsigned int buffer;
+	unsigned int buffer_size;
+	unsigned int amount;
+	glm::mat4* modelMatrices;
+	Shader* custom_shader;
+	Model* model;
+	std::string* item_name_t = new std::string("wall loading door object");
+
+	buffer = 0;
+	buffer_size = 200;
+	amount = 0;
+
+	modelMatrices = new glm::mat4[buffer_size];
+	custom_shader = NULL;
+	model = new Model("resources/objects/building_parts/loading_door.obj");
+
+	glGenBuffers(1, &buffer);
+	glBindBuffer(GL_ARRAY_BUFFER, buffer);
+	glBufferData(GL_ARRAY_BUFFER, amount * sizeof(glm::mat4), &modelMatrices[0], GL_STATIC_DRAW);
+
+	for (unsigned int i = 0; i < model->meshes.size(); i++)
+	{
+		unsigned int VAO = model->meshes[i].VAO;
+		glBindVertexArray(VAO);
+		// set attribute pointers for matrix (4 times vec4)
+		glEnableVertexAttribArray(3);
+		glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)0);
+		glEnableVertexAttribArray(4);
+		glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(sizeof(glm::vec4)));
+		glEnableVertexAttribArray(5);
+		glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(2 * sizeof(glm::vec4)));
+		glEnableVertexAttribArray(6);
+		glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(3 * sizeof(glm::vec4)));
+
+		glVertexAttribDivisor(3, 1);
+		glVertexAttribDivisor(4, 1);
+		glVertexAttribDivisor(5, 1);
+		glVertexAttribDivisor(6, 1);
+
+		glBindVertexArray(0);
+	}
+
+	item* temp = new item;
+	temp->buffer_size = buffer_size;
+	temp->buffer = buffer;
+	temp->amount = amount;
+	temp->model = model;
+	temp->modelMatrices = modelMatrices;
+	temp->custom_shader = custom_shader;
+	temp->item_name = item_name_t;
+	temp->type = LOADING_DOOR_T;
+	temp->draw = draw_loading_door;
+
+
+	items.push_back(temp);
+}
+
+void object_manger::create_leaver_object() {
+	unsigned int buffer;
+	unsigned int buffer_size;
+	unsigned int amount;
+	glm::mat4* modelMatrices;
+	Shader* custom_shader;
+	Model* model;
+	std::string* item_name_t = new std::string("wall loading object");
+
+	buffer = 0;
+	buffer_size = 200;
+	amount = 0;
+
+	modelMatrices = new glm::mat4[buffer_size];
+	custom_shader = NULL;
+	model = new Model("resources/objects/building_parts/wall_with_loading_area.obj");
+
+	glGenBuffers(1, &buffer);
+	glBindBuffer(GL_ARRAY_BUFFER, buffer);
+	glBufferData(GL_ARRAY_BUFFER, amount * sizeof(glm::mat4), &modelMatrices[0], GL_STATIC_DRAW);
+
+	for (unsigned int i = 0; i < model->meshes.size(); i++)
+	{
+		unsigned int VAO = model->meshes[i].VAO;
+		glBindVertexArray(VAO);
+		// set attribute pointers for matrix (4 times vec4)
+		glEnableVertexAttribArray(3);
+		glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)0);
+		glEnableVertexAttribArray(4);
+		glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(sizeof(glm::vec4)));
+		glEnableVertexAttribArray(5);
+		glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(2 * sizeof(glm::vec4)));
+		glEnableVertexAttribArray(6);
+		glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(3 * sizeof(glm::vec4)));
+
+		glVertexAttribDivisor(3, 1);
+		glVertexAttribDivisor(4, 1);
+		glVertexAttribDivisor(5, 1);
+		glVertexAttribDivisor(6, 1);
+
+		glBindVertexArray(0);
+	}
+
+	item* temp = new item;
+	temp->buffer_size = buffer_size;
+	temp->buffer = buffer;
+	temp->amount = amount;
+	temp->model = model;
+	temp->modelMatrices = modelMatrices;
+	temp->custom_shader = custom_shader;
+	temp->item_name = item_name_t;
+	temp->type = LEAVER_T;
+	temp->draw = draw_leaver_object;
+
+
+	items.push_back(temp);
 }
 
 std::vector< item_loc>  object_manger::place_items_init() {
@@ -1813,6 +2056,67 @@ item_info* object_manger::spawn_item(item_type type, int x,int y, int z, glm::ma
 		stackable = false;
 		y_f = 2;
 		break;
+	case FLOOR_LA_T:
+		if (items[18]->amount >= items[18]->buffer_size) {
+			std::cout << "there are too many cannon " << std::endl;
+			return NULL;
+		}
+		item_id = 18;
+		buffer_loc = items[18]->amount;
+		items[18]->amount++;
+		max_stack_size = 1;
+		stackable = false;
+		y_f = 2;
+		break;
+	case WALL_CLOCK_ANG_T:
+		if (items[19]->amount >= items[19]->buffer_size) {
+			std::cout << "there are too many cannon " << std::endl;
+			return NULL;
+		}
+		item_id = 19;
+		buffer_loc = items[19]->amount;
+		items[19]->amount++;
+		max_stack_size = 1;
+		stackable = false;
+		y_f = 2;
+		break;
+	case LOADING_DOOR_T:
+		if (items[20]->amount >= items[20]->buffer_size) {
+			std::cout << "there are too many cannon " << std::endl;
+			return NULL;
+		}
+		item_id = 20;
+		buffer_loc = items[20]->amount;
+		items[20]->amount++;
+		max_stack_size = 1;
+		stackable = false;
+		y_f = 2;
+		break;
+	case LEAVER_BOX_T:
+		if (items[20]->amount >= items[20]->buffer_size) {
+			std::cout << "there are too many cannon " << std::endl;
+			return NULL;
+		}
+		item_id = 20;
+		buffer_loc = items[20]->amount;
+		items[20]->amount++;
+		max_stack_size = 1;
+		stackable = false;
+		y_f = 2;
+		break;
+	case LEAVER_T:
+		if (items[21]->amount >= items[21]->buffer_size) {
+			std::cout << "there are too many cannon " << std::endl;
+			return NULL;
+		}
+		item_id = 21;
+		buffer_loc = items[21]->amount;
+		items[21]->amount++;
+		max_stack_size = 1;
+		stackable = false;
+		y_f = 2;
+		
+		break;
 	default:
 		std::cout << "not a reconized item type" << std::endl;
 		return NULL;
@@ -1882,6 +2186,7 @@ item_info* object_manger::split_item_stacks(item_info* keep, int amount) {
 
 	return NULL;
 }
+
 std::string object_manger::item_type_to_string(item_type i) {
 	std::string output = "unkown";
 
@@ -1935,6 +2240,25 @@ std::string object_manger::item_type_to_string(item_type i) {
 	case CURSE_CHICKEN_T:
 		output = "CURSE_CHICKEN_T";
 		break;
+	case WALL_D_T:
+		output = "WALL_D_T";
+		break;
+	case WALL_LA_T:
+		output = "WALL_LA_T";
+		break;
+	case FLOOR_LA_T:
+		output = "FLOOR_LA_T";
+		break;
+	case WALL_CLOCK_ANG_T:
+		output = "WALL_CLOCK_ANG_T";
+		break;
+	case LEAVER_T:
+		output = "LEAVER_T";
+		break;
+	case LOADING_DOOR_T:
+		output = "LOADING_DOOR_T";
+		break;
+		
 	}
 
 	return output;

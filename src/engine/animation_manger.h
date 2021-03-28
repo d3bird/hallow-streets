@@ -30,7 +30,7 @@
 enum routine_designation {
 	DEFF_ERROR_ROUTINE = 0, DEFF_WORLD_ROUTINE = 1, CHICKEN_ROUTINE = 2, RAIL_ROUTINE = 3,
 	CHICKEN_TRANS1_ROUTINE = 4, CHICKEN_TRANS2_ROUTINE = 5, CANNON_ROUTINE = 6, ZAP_TOWER_ROUTINE = 7, CANNON_PLATFORM_ROUTINE = 8,
-	ZAP_SPHERE_ROUTINE = 9
+	ZAP_SPHERE_ROUTINE = 9, PHYSICS_ROUTINE = 10, LOADING_DOOR_ROUTINE = 11
 };
 
 
@@ -62,6 +62,27 @@ struct routine{
 
 	bool rail_network = false;
 	std::vector<rail_check_point* > rails;
+};
+
+struct door_actor {
+	bool activated =true;
+	int id;
+
+	routine_designation designation= LOADING_DOOR_ROUTINE;
+	item_info* obj = NULL;
+	sound* soun = NULL;
+
+	float speed = 5;
+
+	float x_start;
+	float y_start;
+	float z_start;
+
+	float x_end;
+	float y_end;
+	float z_end;
+
+	bool toend = true;
 };
 
 struct actor{
@@ -105,6 +126,7 @@ public:
 	void update();
 	void update_from_server();
 	int turn_object_into_actor(item_info* obje, routine_designation route = DEFF_ERROR_ROUTINE, bool physics = false, sound* soun = NULL);
+	int turn_object_into_door(item_info* obje, routine_designation route,int direction, sound* soun = NULL);
 
 	void define_routine(routine_designation route, int x_min, int z_min, int x_max, int z_max);
 	void define_routine(routine_designation route, std::vector< rail_check_point*> points);
@@ -142,6 +164,8 @@ private:
 
 	void create_chicken();
 
+	void update_doors(float *time);
+
 	timing* Time;
 	float* deltatime;
 	Camera* cam;
@@ -155,6 +179,8 @@ private:
 	std::vector<int> openIDs;
 
 	std::vector<actor*> *actors;
+	std::vector<door_actor*>* actors_doors;
+	int door_id = 0;
 	std::vector<routine*> *routines;
 
 	int routine_total_predefined;
@@ -204,7 +230,7 @@ private:
 	physx::PxFoundation* f;
 	physx::PxCooking* mCooking;
 	physx::PxPhysics* p;
-	physx::PxPvd* mPvd;
+	physx::PxPvd* gPvd;
 	physx::PxScene* scene;
 	physx::PxMaterial* gMaterial;
 };

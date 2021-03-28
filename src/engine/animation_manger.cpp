@@ -13,6 +13,7 @@ animation_manager::animation_manager() {
 	routine_total_predefined = 20;
 
 	actors = new std::vector<actor*>();
+	actors_doors = new std::vector<door_actor*>();
 	routines = new std::vector<routine*>();
 
 	flying_chicken = NULL;
@@ -44,7 +45,7 @@ animation_manager::animation_manager() {
 	p = NULL;
 	f = NULL;
 
-	update_physics = true;
+	update_physics = false;
 	init_physics_ = false;
 }
 
@@ -95,9 +96,6 @@ void animation_manager::init() {
 	std::cout << "finished creating the animation manager" << std::endl;
 }
 
-
-
-
 void animation_manager::init_physics() {
 	std::cout << "creating the physics engine" << std::endl;
 	//physx::
@@ -111,13 +109,17 @@ void animation_manager::init_physics() {
 		std::cout << ("PxCreateCooking failed!") << std::endl;
 	}*/
 	
+	//gPvd = PxCreatePvd(*f);
+	//PxPvdTransport* transport = PxDefaultPvdSocketTransportCreate("127.0.0.1", 5425, 10);
+	//gPvd->connect(*transport, PxPvdInstrumentationFlag::eALL);
+
 	p = PxCreatePhysics(PX_PHYSICS_VERSION, *f, physx::PxTolerancesScale());
 
 	/*if (!PxInitExtensions(*p, mPvd)) {
 		std::cout << ("PxInitExtensions failed!") << std::endl;
 	}*/
 	physx::PxSceneDesc sc(p->getTolerancesScale());
-	//cause linking errors
+
 	sc.filterShader = physx::PxDefaultSimulationFilterShader;
 	sc.cpuDispatcher = physx::PxDefaultCpuDispatcherCreate(2);
 
@@ -126,7 +128,7 @@ void animation_manager::init_physics() {
 	gMaterial = p->createMaterial(0.5f, 0.5f, 0.6f);
 	physx::PxRigidStatic* groundPlane = PxCreatePlane(*p, physx::PxPlane(0, 0, 1, 0), *gMaterial);//
 
-	scene->addActor(*groundPlane);
+	//scene->addActor(*groundPlane);
 
 	/*
 	creating the physics engine
@@ -252,13 +254,23 @@ void animation_manager::update() {
 		return;
 	}
 
+
+
 	float time_mes = (*deltatime);
 	float cool = (*deltatime) * 5;
+
+	update_doors(&time_mes);
+
 	glm::mat4 trans = glm::mat4(1.0f);
 
 	if (init_physics_ &&update_physics) {
-		scene->simulate(time_mes);
-		//scene->fetchResults(true);
+		if (scene != NULL) {
+			scene->simulate(1.0f / 60.0f);
+			scene->fetchResults(true);
+		}
+		else {
+			std::cout << "scene was null" << std::endl;
+		}
 	}
 
 	for (int i = 0; i < actors[0].size(); i++) {
@@ -616,10 +628,126 @@ void animation_manager::update() {
 
 }
 
+void animation_manager::update_doors(float* time) {
+	for (int i = 0; i < actors_doors[0].size(); i++) {
+
+		if (actors_doors[0][i]->activated) {
+			glm::vec3 current_loc = glm::vec3(actors_doors[0][i]->obj->x, actors_doors[0][i]->obj->y, actors_doors[0][i]->obj->z);
+			float speed = actors_doors[0][i]->speed * (*time);
+
+
+			glm::vec3 nav_point;
+			if (actors_doors[0][i]->toend) {
+				nav_point = glm::vec3(actors_doors[0][i]->x_end, actors_doors[0][i]->y_end, actors_doors[0][i]->z_end);
+			}
+			else {
+				nav_point = glm::vec3(actors_doors[0][i]->x_start, actors_doors[0][i]->y_start, actors_doors[0][i]->z_start);
+			}
+
+			/*door_actor* new_act = actors_doors[0][i];
+			std::cout << "start loc x: " << new_act->x_start << " y: " << new_act->y_start << " z: " << new_act->z_start << std::endl;
+			std::cout << "end loc x: " << new_act->x_end << " y: " << new_act->y_end << " z: " << new_act->z_end << std::endl;
+
+			std::cout << current_loc.x << " to " << nav_point.x << std::endl;
+			std::cout << current_loc.z << " to " << nav_point.z << std::endl;*/
+
+			bool reached_x = false;
+			bool reached_y = false;
+			bool reached_z = false;
+			float temp;//remaining distance
+			//move x
+			temp = diff_btwn_pnt(current_loc.x, nav_point.x);
+
+			if (speed <= temp) {
+				 std::cout << current_loc.x << " " << current_loc.y << " " << current_loc.z << " || " << speed << " <> " << temp << " && " << nav_point.x << std::endl;
+				if (determin_direction(current_loc.x, nav_point.x)) {
+					current_loc.x += speed;
+				}
+				else {
+					current_loc.x -= speed;
+				}
+			}
+			else {
+				//std::cout << "can not move anymore on x axis" << std::endl;
+				current_loc.x = nav_point.x;
+				reached_x = true;
+			}
+
+			//move y
+			temp = diff_btwn_pnt(current_loc.y, nav_point.y);
+
+			if (speed <= temp) {
+				// std::cout << current_loc.x << " " << current_loc.y << " " << current_loc.z << " || " << speed << " <> " << temp << " && " << nav_point.x << std::endl;
+				if (determin_direction(current_loc.y, nav_point.y)) {
+					current_loc.y += speed;
+				}
+				else {
+					current_loc.y -= speed;
+				}
+			}
+			else {
+				//std::cout << "can not move anymore on x axis" << std::endl;
+				current_loc.y = nav_point.y;
+				reached_y = true;
+			}
+
+			//move z
+			temp = diff_btwn_pnt(current_loc.z, nav_point.z);
+
+			if (speed <= temp) {
+				// std::cout << current_loc.x << " " << current_loc.y << " " << current_loc.z << " || " << speed << " <> " << temp << " && " << nav_point.x << std::endl;
+				if (determin_direction(current_loc.z, nav_point.z)) {
+					current_loc.z += speed;
+				}
+				else {
+					current_loc.z -= speed;
+				}
+			}
+			else {
+				//std::cout << "can not move anymore on x axis" << std::endl;
+				current_loc.z = nav_point.z;
+				reached_z = true;
+			}
+
+			//trans = glm::translate(trans, glm::vec3(current_loc.x, current_loc.y, current_loc.z));
+			//beast_matrices[all_creatures[i]->get_buffer_loc()] = trans;
+
+
+			//std::cout << "c_loc: " << current_loc.x << " " << current_loc.y << " " << current_loc.z <<" || nav " << nav_point.x << " " << nav_point.y << " " << nav_point.z << std::endl;
+
+
+			actors_doors[0][i]->obj->x = current_loc.x;
+			actors_doors[0][i]->obj->y = current_loc.y;
+			actors_doors[0][i]->obj->z = current_loc.z;
+
+			update_pak update_pac;
+
+			update_pac.x = current_loc.x;
+			update_pac.y = current_loc.y;
+			update_pac.z = current_loc.z;
+
+			update_pac.x_scale = 1;
+			update_pac.y_scale = 1;
+			update_pac.z_scale = 1;
+
+			update_pac.buffer_loc = actors_doors[0][i]->obj->buffer_loc;
+			update_pac.item_id = actors_doors[0][i]->obj->item_id;
+
+			OBJM->update_item_matrix(&update_pac);
+
+			if (reached_z && reached_x && reached_y) {
+				actors_doors[0][i]->toend = !actors_doors[0][i]->toend;
+				//actors_doors[0][i]->activated = false;
+			}
+		}
+	}
+}
+
+
 //takes a object and add an animation pattern
 int animation_manager::turn_object_into_actor(item_info* obje, routine_designation route , bool physics, sound* soun) {
 	//std::cout << "turning object into an actor following ";
-
+	bool creating_physics_object = false;
 	float move_speed =-1;
 	switch (route)
 	{
@@ -658,70 +786,119 @@ int animation_manager::turn_object_into_actor(item_info* obje, routine_designati
 		//std::cout << "CANNON_PLATFORM_ROUTINE" << std::endl;
 		move_speed = 5;
 		break;
+	case PHYSICS_ROUTINE:
+		creating_physics_object = true;
+		break;
 	default:
 		break;
 	}
-	int index =get_routine_index(route);
-	routines[0][index]->num_of_actors_using_this++;
-	routines[0][index]->designation = route;
-	actor* new_act = new actor;
 
-	if (move_speed != -1) {
-		new_act->move_speed = move_speed;
-	}
+	if (creating_physics_object) {
 
-	new_act->object = obje;
-	new_act->empty = false;
-
-	if (soun == NULL) {
-		new_act->soun = NULL;
-		new_act->has_sound = false;
+		return -1;
 	}
 	else {
-		new_act->soun = soun;
-		new_act->has_sound = true;
-	}
+		int index = get_routine_index(route);
+		routines[0][index]->num_of_actors_using_this++;
+		routines[0][index]->designation = route;
+		actor* new_act = new actor;
 
-	new_act->routine = route;
+		if (move_speed != -1) {
+			new_act->move_speed = move_speed;
+		}
 
-	if (openIDs.size() >= 1) {
-		new_act->id = openIDs[openIDs.size() - 1];
+		new_act->object = obje;
+		new_act->empty = false;
 
-		if (actors[0][new_act->id]->empty) {
-			delete actors[0][new_act->id];//remove the old
-			actors[0][new_act->id] = new_act;//in with the new
+		if (soun == NULL) {
+			new_act->soun = NULL;
+			new_act->has_sound = false;
 		}
 		else {
-			std::cout << "actor was not delete proporly, tried to overwrite actor!" << std::endl;
+			new_act->soun = soun;
+			new_act->has_sound = true;
 		}
 
-		openIDs.pop_back();
+		new_act->routine = route;
+
+		if (openIDs.size() >= 1) {
+			new_act->id = openIDs[openIDs.size() - 1];
+
+			if (actors[0][new_act->id]->empty) {
+				delete actors[0][new_act->id];//remove the old
+				actors[0][new_act->id] = new_act;//in with the new
+			}
+			else {
+				std::cout << "actor was not delete proporly, tried to overwrite actor!" << std::endl;
+			}
+
+			openIDs.pop_back();
+		}
+		else {
+			new_act->id = id_highest;
+			id_highest++;
+			actors[0].push_back(new_act);
+		}
+
+		if (route == CHICKEN_TRANS2_ROUTINE) {
+			create_nav_points(new_act, true);
+		}
+
+
+		if (physics) {
+			new_act->physics_ret;
+
+			//physx::PxRigidDynamic* aCapsuleActor = thePhysics->createRigidDynamic(physx::PxTransform(position));
+			//physx::PxTransform relativePose(PxQuat(PxHalfPi, PxVec(0, 0, 1)));
+			//physx::PxShape* aCapsuleShape = physx::PxRigidActorExt::createExclusiveShape(*aCapsuleActor,
+			//	physx::PxCapsuleGeometry(radius, halfHeight), aMaterial);
+			//aCapsuleShape->setLocalPose(relativePose);
+			//physx::PxRigidBodyExt::updateMassAndInertia(*aCapsuleActor, capsuleDensity);
+			//scene->addActor(aCapsuleActor);
+
+			//scene->addActor(*(new_act->physics_ret), physx::createRigidDynamic());
+		}
+
+		return new_act->id;
 	}
-	else {
-		new_act->id = id_highest;
-		id_highest++;
-		actors[0].push_back(new_act);
+}
+
+int animation_manager::turn_object_into_door(item_info* obje, routine_designation route, int direction, sound* soun) {
+	door_actor* new_act = new door_actor;
+	new_act->id = door_id;
+	door_id++;
+	new_act->designation = route;
+	new_act->activated = true;
+	new_act->obj = obje;
+	new_act->soun = soun;
+
+	new_act->x_start = obje->x;
+	new_act->y_start = obje->y;
+	new_act->z_start = obje->z;
+
+	new_act->x_end = obje->x;
+	new_act->y_end = obje->y;
+	new_act->z_end = obje->z;
+
+	switch (direction) {
+	case 0:
+		new_act->x_end += 4;
+		break;
+	case 1:
+		new_act->x_end -= 4;
+		break;
+	case 2:
+		new_act->z_end += 4;
+		break;
+	case 3:
+		new_act->z_end -= 4;
+		break;
 	}
 
-	if (route == CHICKEN_TRANS2_ROUTINE) {
-		create_nav_points(new_act, true);
-	}
-
-
-	if (physics) {
-		new_act->physics_ret;
-
-		//physx::PxRigidDynamic* aCapsuleActor = thePhysics->createRigidDynamic(physx::PxTransform(position));
-		//physx::PxTransform relativePose(PxQuat(PxHalfPi, PxVec(0, 0, 1)));
-		//physx::PxShape* aCapsuleShape = physx::PxRigidActorExt::createExclusiveShape(*aCapsuleActor,
-		//	physx::PxCapsuleGeometry(radius, halfHeight), aMaterial);
-		//aCapsuleShape->setLocalPose(relativePose);
-		//physx::PxRigidBodyExt::updateMassAndInertia(*aCapsuleActor, capsuleDensity);
-		//scene->addActor(aCapsuleActor);
-
-		//scene->addActor(*(new_act->physics_ret), physx::createRigidDynamic());
-	}
-
+	std::cout << "created door" << std::endl;
+	std::cout << "start loc x: "<< new_act->x_start<<" y: "<< new_act->y_start<<" z: "<< new_act->z_start << std::endl;
+	std::cout << "end loc x: " << new_act->x_end << " y: " << new_act->y_end << " z: " << new_act->z_end << std::endl;
+	actors_doors->push_back(new_act);
 	return new_act->id;
 }
 

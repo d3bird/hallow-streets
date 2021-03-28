@@ -246,6 +246,7 @@ void city::init(object_manger* OBJM, animation_manager* an) {
 	AM->turn_object_into_actor(cannon, CANNON_ROUTINE);
 
 	std::cout << "spawning in objects" << std::endl;
+	bool  one_time = false;
 	for (int i = 0; i < x_width; i++) {
 		for (int h = 0; h < z_width; h++) {
 			item_info* tempdata;
@@ -285,13 +286,13 @@ void city::init(object_manger* OBJM, animation_manager* an) {
 				//generated_mats_wall.push_back(temp);
 			}
 			else if (layout_expanded[i][h] == 4 || (layout_expanded[i][h] >= 14 && layout_expanded[i][h] <= 16)) {//for a corner
-				
+
 				//std::cout << "wall_c start found" << std::endl;
 				glm::mat4 temp = glm::mat4(1.0f);
 
 				temp = glm::translate(temp, glm::vec3(h * 2, 2, i * 2));
 
-				switch (layout_expanded[i][h]){
+				switch (layout_expanded[i][h]) {
 				case 14:
 					temp = glm::rotate(temp, glm::radians(90.0f), glm::vec3(0.0, 1.0, 0.0));
 					angle = 90;
@@ -308,7 +309,7 @@ void city::init(object_manger* OBJM, animation_manager* an) {
 					break;
 				}
 				tempdata = OBJM->spawn_item(WALL_C_T, -1, -1, -1, temp);
-					tempdata->x_rot = 0;
+				tempdata->x_rot = 0;
 				tempdata->y_rot = 1;
 				tempdata->z_rot = 0;
 				tempdata->angle = angle;
@@ -337,7 +338,7 @@ void city::init(object_manger* OBJM, animation_manager* an) {
 				}
 
 				tempdata = OBJM->spawn_item(LIGHT_POST_T, -1, -1, -1, temp);
-					tempdata->x_rot = 0;
+				tempdata->x_rot = 0;
 				tempdata->y_rot = 1;
 				tempdata->z_rot = 0;
 				tempdata->angle = angle;
@@ -350,14 +351,14 @@ void city::init(object_manger* OBJM, animation_manager* an) {
 			else if (layout_expanded[i][h] >= 6 && layout_expanded[i][h] <= 10) {//placing sidewalks
 
 				glm::mat4 trans = glm::mat4(1.0f);
-				
+
 				int x = 0;
 				int y = 2;
-				int z =0;
-				
-				std::cout << layout_expanded[i][h]<< " ";;
-				
-				switch (layout_expanded[i][h]){
+				int z = 0;
+
+				std::cout << layout_expanded[i][h] << " ";;
+
+				switch (layout_expanded[i][h]) {
 				case 10:
 				case 6://sidewalk top
 					trans = glm::translate(trans, glm::vec3((h * 2) + 14, 2, i * 2));
@@ -367,10 +368,10 @@ void city::init(object_manger* OBJM, animation_manager* an) {
 					z = (i * 2);
 					break;
 				case 7://sidewalk bottom
-					trans = glm::translate(trans, glm::vec3((h * 2), 2, (i * 2)+14 ));
+					trans = glm::translate(trans, glm::vec3((h * 2), 2, (i * 2) + 14));
 					//trans = glm::rotate(trans, glm::radians(90.0f), glm::vec3(0.0, 1.0, 0.0));
 					x = (h * 2);
-					z = (i * 2)+14;
+					z = (i * 2) + 14;
 					break;
 				case 8://sidewalk left
 					trans = glm::translate(trans, glm::vec3((h * 2), 2, i * 2));
@@ -380,7 +381,7 @@ void city::init(object_manger* OBJM, animation_manager* an) {
 					angle = 270;
 					break;
 				case 9://sidewalk right
-					trans = glm::translate(trans, glm::vec3((h * 2) + 14, 2, (i * 2)+14));
+					trans = glm::translate(trans, glm::vec3((h * 2) + 14, 2, (i * 2) + 14));
 					trans = glm::rotate(trans, glm::radians(90.0f), glm::vec3(0.0, 1.0, 0.0));
 					angle = 90;
 					x = (h * 2) + 14;
@@ -441,7 +442,7 @@ void city::init(object_manger* OBJM, animation_manager* an) {
 				tempdata = OBJM->spawn_item(CUBE_T, -1, -1, -1, trans);
 			}
 			else if (layout_expanded[i][h] == 18) {
-			//std::cout << h << " " << i << std::endl;
+				//std::cout << h << " " << i << std::endl;
 				glm::mat4 trans = glm::mat4(1.0f);
 				trans = glm::translate(trans, glm::vec3((h * 2), 2, (i * 2)));
 				tempdata = OBJM->spawn_item(CUBE_T, -1, -1, -1, trans);
@@ -468,44 +469,118 @@ void city::init(object_manger* OBJM, animation_manager* an) {
 
 			}
 			else if (24 <= layout_expanded[i][h] && layout_expanded[i][h] <= 27) {
-			//std::cout << h << " " << i << std::endl;
-			glm::mat4 trans = glm::mat4(1.0f);
-			trans = glm::translate(trans, glm::vec3((h * 2), 2, (i * 2)));
+				//std::cout << h << " " << i << std::endl;
+				glm::mat4 trans = glm::mat4(1.0f);
+				trans = glm::translate(trans, glm::vec3((h * 2), 2, (i * 2)));
 
-			switch (layout_expanded[i][h]) {
-			case 25:
-				trans = glm::rotate(trans, glm::radians(90.0f), glm::vec3(0.0, 1.0, 0.0));
-				break;
-			case 26:
-				trans = glm::rotate(trans, glm::radians(180.0f), glm::vec3(0.0, 1.0, 0.0));
-				break;
-			case 27:
-				trans = glm::rotate(trans, glm::radians(270.0f), glm::vec3(0.0, 1.0, 0.0));
-				break;
-			}
+				switch (layout_expanded[i][h]) {
+				case 25:
+					trans = glm::rotate(trans, glm::radians(90.0f), glm::vec3(0.0, 1.0, 0.0));
+					break;
+				case 26:
+					trans = glm::rotate(trans, glm::radians(180.0f), glm::vec3(0.0, 1.0, 0.0));
+					break;
+				case 27:
+					trans = glm::rotate(trans, glm::radians(270.0f), glm::vec3(0.0, 1.0, 0.0));
+					break;
+				}
 
-			tempdata = OBJM->spawn_item(WALL_D_T, -1, -1, -1, trans);
+				tempdata = OBJM->spawn_item(WALL_D_T, -1, -1, -1, trans);
 
 			}
 			else if (28 <= layout_expanded[i][h] && layout_expanded[i][h] <= 31) {
-			//std::cout << h << " " << i << std::endl;
-			glm::mat4 trans = glm::mat4(1.0f);
-			trans = glm::translate(trans, glm::vec3((h * 2), 2, (i * 2)));
+				//std::cout << h << " " << i << std::endl;
+				glm::mat4 trans = glm::mat4(1.0f);
+				trans = glm::translate(trans, glm::vec3((h * 2), 2, (i * 2)));
 
-			switch (layout_expanded[i][h]) {
-			case 29:
-				trans = glm::rotate(trans, glm::radians(90.0f), glm::vec3(0.0, 1.0, 0.0));
-				break;
-			case 30:
-				trans = glm::rotate(trans, glm::radians(180.0f), glm::vec3(0.0, 1.0, 0.0));
-				break;
-			case 31:
-				trans = glm::rotate(trans, glm::radians(270.0f), glm::vec3(0.0, 1.0, 0.0));
-				break;
+				switch (layout_expanded[i][h]) {
+				case 29:
+					trans = glm::rotate(trans, glm::radians(90.0f), glm::vec3(0.0, 1.0, 0.0));
+					break;
+				case 30:
+					trans = glm::rotate(trans, glm::radians(180.0f), glm::vec3(0.0, 1.0, 0.0));
+					break;
+				case 31:
+					trans = glm::rotate(trans, glm::radians(270.0f), glm::vec3(0.0, 1.0, 0.0));
+					break;
+				}
+
+				tempdata = OBJM->spawn_item(WALL_LA_T, -1, -1, -1, trans);
+
 			}
+			else if (32 <= layout_expanded[i][h] && layout_expanded[i][h] <= 35) {
+				//std::cout << h << " " << i << std::endl;
+				glm::mat4 trans = glm::mat4(1.0f);
+				trans = glm::translate(trans, glm::vec3((h * 2), 2, (i * 2)));
 
-			tempdata = OBJM->spawn_item(WALL_LA_T, -1, -1, -1, trans);
+				switch (layout_expanded[i][h]) {
+				case 33:
+					trans = glm::rotate(trans, glm::radians(90.0f), glm::vec3(0.0, 1.0, 0.0));
+					break;
+				case 34:
+					trans = glm::rotate(trans, glm::radians(180.0f), glm::vec3(0.0, 1.0, 0.0));
+					break;
+				case 35:
+					trans = glm::rotate(trans, glm::radians(270.0f), glm::vec3(0.0, 1.0, 0.0));
+					break;
+				}
 
+				tempdata = OBJM->spawn_item(FLOOR_LA_T, -1, -1, -1, trans);
+				//std::cout << "creating a floor to draw" << std::endl;
+			}
+			else if (36 <= layout_expanded[i][h] && layout_expanded[i][h] <= 39) {
+				//std::cout << h << " " << i << std::endl;
+				glm::mat4 trans = glm::mat4(1.0f);
+				trans = glm::translate(trans, glm::vec3(((h - 2) * 2), 10, (i * 2)));
+
+				switch (layout_expanded[i][h]) {
+				case 37:
+					trans = glm::rotate(trans, glm::radians(90.0f), glm::vec3(0.0, 1.0, 0.0));
+					break;
+				case 38:
+					trans = glm::rotate(trans, glm::radians(180.0f), glm::vec3(0.0, 1.0, 0.0));
+					break;
+				case 39:
+					trans = glm::rotate(trans, glm::radians(270.0f), glm::vec3(0.0, 1.0, 0.0));
+					break;
+				}
+
+				tempdata = OBJM->spawn_item(WALL_CLOCK_ANG_T, -1, -1, -1, trans);
+				//std::cout << "creating a floor to draw" << std::endl;
+			}
+			else if (40 <= layout_expanded[i][h] && layout_expanded[i][h] <= 43) {
+				//std::cout << h << " " << i << std::endl;
+				glm::mat4 trans = glm::mat4(1.0f);
+				int x = (h * 2);
+				int y = 5;
+				int z = (i * 2) - 1;
+				trans = glm::translate(trans, glm::vec3(x, y, z));
+
+				switch (layout_expanded[i][h]) {
+				case 41:
+					trans = glm::rotate(trans, glm::radians(90.0f), glm::vec3(0.0, 1.0, 0.0));
+					break;
+				case 42:
+					trans = glm::rotate(trans, glm::radians(180.0f), glm::vec3(0.0, 1.0, 0.0));
+					break;
+				case 43:
+					trans = glm::rotate(trans, glm::radians(270.0f), glm::vec3(0.0, 1.0, 0.0));
+					break;
+				}
+
+				tempdata = OBJM->spawn_item(LOADING_DOOR_T, x, y, z, trans);
+				tempdata->x = x;
+				tempdata->y = y;
+				tempdata->z = z;
+				if (!one_time) {
+					AM->turn_object_into_door(tempdata, LOADING_DOOR_ROUTINE, 3);
+					one_time = true;
+				}
+				else {
+					AM->turn_object_into_door(tempdata, LOADING_DOOR_ROUTINE, 2);
+					one_time = false;
+				}
+				std::cout << "creating a loading door" << std::endl;
 			}
 		}
 	}

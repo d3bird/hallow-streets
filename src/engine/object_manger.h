@@ -29,11 +29,14 @@
 //uncoment for what demo you want the engine to build into
 //#define DEMO1
 
-enum item_type {CUBE_T, SIDEWALK_T, LIGHT_POST_T, WALL_T, WALL_C_T, SIDESTREET_T, 
+enum item_type {
+	CUBE_T, SIDEWALK_T, LIGHT_POST_T, WALL_T, WALL_C_T, SIDESTREET_T,
 	SKYTRACK_S_T, SKYTRACK_C_T, CHICKEN_T, SKYTRACK_CART,
 	CANNON_FRAME_T, CANNON_PLATFORM_T, CANNON_T,
-	ZAP_TOWER_T, ZAP_SPHERE_T, CURSE_CHICKEN_T, WALL_D_T, WALL_LA_T
+	ZAP_TOWER_T, ZAP_SPHERE_T, CURSE_CHICKEN_T, WALL_D_T, WALL_LA_T, FLOOR_LA_T,
+	WALL_CLOCK_ANG_T, LOADING_DOOR_T, LEAVER_BOX_T, LEAVER_T
 };
+
 //the information on each unique object
 struct item_info {
 	unsigned int debug_id;
@@ -180,6 +183,12 @@ private:
 
 	void create_wall_door_object();
 	void create_wall_loading_object();
+	void create_wall_loading_floor_object();
+
+	void create_wall_clock_object();
+	void create_wall_loading_door_object();
+	void create_leaver_object();
+
 	//timing
 	timing* Time;
 	float* deltatime;
@@ -214,11 +223,14 @@ private:
 	bool draw_sky_rail_c;
 	bool draw_chicken;
 	bool draw_cart;
-
 	bool draw_cursed_chicken;
-
 	bool draw_cannon;
 	bool draw_zap_tower;
+	bool draw_loading_area_floor;
+	bool draw_wall_clock_ang;
+	bool draw_leaver_object;
+	bool draw_door_object;
+	bool draw_loading_door;
 
 	//cursed objects
 	Shader* cursed;

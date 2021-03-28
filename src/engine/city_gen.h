@@ -25,7 +25,8 @@
 
 //what kind of cell to generate
 enum city_square { reserverd =-1, cube =1, open=2, wall=3, wall_d=4, wall_c=5, chicken_pen =14,
-	road_top= 0 ,road_bot =6, road_left = 7, road_right = 8, road_turn = 9, road_open = 10, road_curve = 11, road_inside_curve = 12, small_road =13
+	road_top= 0 ,road_bot =6, road_left = 7, road_right = 8, road_turn = 9, road_open = 10, road_curve = 11, road_inside_curve = 12, small_road =13,
+	wall_loading =14
 };  //large roads
 
 //what kind of district
@@ -161,7 +162,7 @@ private:
 	building* generated_building;
 };
 
-/* key for what the set numbers mean
+/* generation key for what each number means on the expanded layout
  * 1:  place cube
  * 2:  place wall
  * 3:  place wall_d
@@ -190,8 +191,23 @@ private:
  * 26 wall_d 180 degree trun
  * 27 wall_d 270 degree trun
  * 
- * 28 wall_LA 0 degree trun
- * 29 wall_LA 90 degree trun
- * 30 wall_LA 180 degree trun
- * 31 wall_LA 270 degree trun
+ * 28 WALL_LA_T 0 degree trun
+ * 29 WALL_LA_T 90 degree trun
+ * 30 WALL_LA_T 180 degree trun
+ * 31 WALL_LA_T 270 degree trun
+ * 
+ * 32 FLOOR_LA_T 0 degree trun
+ * 33 FLOOR_LA_T 90 degree trun
+ * 34 FLOOR_LA_T 180 degree trun
+ * 35 FLOOR_LA_T 270 degree trun
+ * 
+ * 36 WALL_CLOCK_ANG_T 0 degree trun
+ * 37 WALL_CLOCK_ANG_T 90 degree trun
+ * 38 WALL_CLOCK_ANG_T 180 degree trun
+ * 39 WALL_CLOCK_ANG_T 270 degree trun
+ * 
+ * 40 LOADING_DOOR_T 0 degree trun
+ * 41 LOADING_DOOR_T 90 degree trun
+ * 42 LOADING_DOOR_T 180 degree trun
+ * 43 LOADING_DOOR_T 270 degree trun
 */
