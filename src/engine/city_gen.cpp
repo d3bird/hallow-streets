@@ -125,7 +125,7 @@ void city_gen::init() {
 	else {
 		create_city_block(2, 2, block_width - 2, block_height - 2);
 
-		layout[6][9] = open;//fix a error in the premade street layout
+		//layout[6][9] = open;//fix a error in the premade street layout
 	}
 	create_expanded_layout();
 
@@ -211,10 +211,67 @@ void city_gen::create_city_block(int x1, int y1, int x2, int y2) {
 
 	create_chicken_pen(7,7, 13,13);
 
+	//creates one building in the spot layed out for it
 	generate_building(2,2,7,6);
+	//marks and reserves spaces for buildings 
+	find_space_for_buildings(x1, y1, x2, y2);
 
+	//creates the walls and corners where the roads are (old
 	create_buildings(x1,y1, x2, y2);
 
+}
+
+void city_gen::find_space_for_buildings(int x1, int y1, int x2, int y2) {
+	std::cout << "finding space for buildings" << std::endl;
+	int number_of_building_spots = 0;
+	bool marking = false;
+	int size = 0;
+	int x_start = -1;
+	int y_start = -1;
+	int x_end = -1;
+	int y_end = -1;
+
+	int i_t;
+	int h_t;
+	//wipe the block
+	for (int i = x1; i < x2; i++) {
+		for (int h = y1; h < y2; h++) {
+			if (layout[i][h] == open) {
+				marking = true;
+				number_of_building_spots++;
+				x_start = i;
+				y_start = h;
+				i_t = i;
+				h_t = h;
+				size = 0;
+				while (marking) {
+					if (layout[i_t][h_t] != open) {
+						marking = false;
+					}
+					else {
+						layout[i_t][h_t] = reserverd;
+						size++;
+						i_t++;
+						if (i_t >= x2 || layout[i_t][h_t] != open) {
+							x_end = i_t - 1;
+							i_t = i;
+							h_t++;
+							if (h_t >= y2 || layout[i_t][h_t] != open) {
+								y_end = h_t - 1;
+								marking = false;
+							}
+						}
+					}
+				}
+				std::cout << "found space for building x_s: " << x_start << " y_s: " << y_start
+					<< " x_e " << x_end << " y_e " << y_end << " ( " << size << " cells" << std::endl;
+
+			}
+		}
+	}
+
+	std::cout << "total potental buildings "<< number_of_building_spots << std::endl;
+	std::cout << "finihed finding space for buildings" << std::endl;
 }
 
 void city_gen::create_road(int x, int z, int direct, int mid, int dir_change, bool debug) {
@@ -523,7 +580,7 @@ void city_gen::create_expanded_layout() {
 }
 
 void city_gen::create_tile_from_cell(int i, int h) {
-	std::cout << "creating tile from cell" << std::endl;
+	//std::cout << "creating tile from cell" << std::endl;
 	cell_data cell = layout_cells[i][h];
 	if (cell.expanded_layout_info != NULL) {
 		int set = cell.expanded_layout_info[0][0];
@@ -538,7 +595,7 @@ void city_gen::create_tile_from_cell(int i, int h) {
 		}
 	}
 	else {
-		std::cout << "cell was null" << std::endl;
+		//std::cout << "cell was null" << std::endl;
 	}
 
 }

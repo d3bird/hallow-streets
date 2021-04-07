@@ -130,6 +130,7 @@ private:
 	bool premade;
 	void use_premade_map();
 
+	void find_space_for_buildings(int x1, int y1, int x2, int y2);
 
 	glm::mat4 view;
 	glm::mat4 projection;
