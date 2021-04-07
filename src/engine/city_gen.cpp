@@ -212,12 +212,19 @@ void city_gen::create_city_block(int x1, int y1, int x2, int y2) {
 	create_chicken_pen(7,7, 13,13);
 
 	//creates one building in the spot layed out for it
-	generate_building(2,2,7,6);
+	generated_building = generate_building(2,2,7,6);
 	//marks and reserves spaces for buildings 
 	find_space_for_buildings(x1, y1, x2, y2);
 
+	for (int i = 0; i < build_data.size(); i++){
+		buildings.push_back(generate_building(build_data[i]->x_start, build_data[i]->y_start,
+			build_data[i]->x_end, build_data[i]->y_end));
+		delete build_data[i];
+	}
+	build_data.clear();
+
 	//creates the walls and corners where the roads are (old
-	create_buildings(x1,y1, x2, y2);
+	//create_buildings(x1,y1, x2, y2);
 
 }
 
@@ -233,7 +240,9 @@ void city_gen::find_space_for_buildings(int x1, int y1, int x2, int y2) {
 
 	int i_t;
 	int h_t;
-	//wipe the block
+
+	building_build_data* temp_data;
+	//reserve the spot for the buildings
 	for (int i = x1; i < x2; i++) {
 		for (int h = y1; h < y2; h++) {
 			if (layout[i][h] == open) {
@@ -253,11 +262,13 @@ void city_gen::find_space_for_buildings(int x1, int y1, int x2, int y2) {
 						size++;
 						i_t++;
 						if (i_t >= x2 || layout[i_t][h_t] != open) {
-							x_end = i_t - 1;
+							//x_end = i_t - 1;
+							x_end = i_t;
 							i_t = i;
 							h_t++;
 							if (h_t >= y2 || layout[i_t][h_t] != open) {
-								y_end = h_t - 1;
+								//y_end = h_t - 1;
+								y_end = h_t;
 								marking = false;
 							}
 						}
@@ -265,12 +276,20 @@ void city_gen::find_space_for_buildings(int x1, int y1, int x2, int y2) {
 				}
 				std::cout << "found space for building x_s: " << x_start << " y_s: " << y_start
 					<< " x_e " << x_end << " y_e " << y_end << " ( " << size << " cells" << std::endl;
-
+				
+				temp_data = new building_build_data;
+				temp_data->x_start = x_start;
+				temp_data->y_start = y_start;
+				temp_data->x_end = x_end;
+				temp_data->y_end = y_end;
+				temp_data->size = size;
+				build_data.push_back(temp_data);
 			}
 		}
 	}
 
 	std::cout << "total potental buildings "<< number_of_building_spots << std::endl;
+	std::cout << "building data created " << build_data.size() << std::endl;
 	std::cout << "finihed finding space for buildings" << std::endl;
 }
 
@@ -851,11 +870,13 @@ void city_gen::use_premade_map() {
 }
 
 building* city_gen::generate_building(int start_x, int start_y, int end_x, int end_y) {
-	if (generated_building == NULL) {
+	
+	building* output = NULL;
+
 		std::cout << "generating test building" << std::endl;
-		generated_building = new building;
-		generated_building->build_type = workshop;
-		generated_building->dis_type = industry;
+		output = new building;
+		output->build_type = workshop;
+		output->dis_type = industry;
 
 		//the different generation types vars
 		bool loading_dock = true;
@@ -1003,40 +1024,6 @@ building* city_gen::generate_building(int start_x, int start_y, int end_x, int e
 						cell.expanded_layout_info[q][x] = -1;
 					}
 				}
-
-				/* key for what the set numbers mean
-				 * 1:  place cube
-				 * 2:  place wall
-				 * 3:  place wall_d
-				 * 4:  place wall_c no rotate
-				 * 5:  place light post
-				 * 6:  place road (sidewalk top)
-				 * 7:  place road (sidewalk bottom)
-				 * 8:  place road (sidewalk left)
-				 * 9:  place road (sidewalk right)
-				 * 10: place road/path with no sidewalk
-				 * 11: place light post 90 degree trun
-				 * 12: place light post 180 degree trun
-				 * 13: place light post 270 degree trun
-				 * 14: place wall_c 90 degree trun
-				 * 15: place wall_c 180 degree trun
-				 * 16: place wall_c 270 degree trun
-				 * 17: chicken
-				 * 18 chicken ground
-				 * 19 wall 0 degree trun
-				 * 20 wall 90 degree trun
-				 * 21 wall 180 degree trun
-				 * 22 wall 270 degree trun
-				 * 23 
-				 * 24 wall_d 0 degree trun
-				 * 25 wall_d 90 degree trun
-				 * 26 wall_d 180 degree trun
-				 * 27 wall_d 270 degree trun
-				 * 28 wall_LA 0 degree trun
-				 * 29 wall_LA 90 degree trun
-				 * 30 wall_LA 180 degree trun
-				 * 31 wall_LA 270 degree trun
-				*/
 
 				//fill in the squares
 				for (int q = 0; q < key; q++) {
@@ -1280,16 +1267,11 @@ building* city_gen::generate_building(int start_x, int start_y, int end_x, int e
 				}
 
 				layout_cells[i][h] = cell;
-				generated_building->cell_info.push_back(&cell);
+				output->cell_info.push_back(&cell);
 			}
 		}
 
 		std::cout << "finishing generating test building" << std::endl;
-	}
-	else {
-		std::cout << "returning test building" << std::endl;
-	}
 
-	
-	return generated_building;
+	return output;
 }

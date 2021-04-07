@@ -158,6 +158,17 @@ private:
 	std::vector< rail_section*> rails;
 
 	//cell data 
+
+	struct building_build_data {
+		int x_start = -1;
+		int y_start = -1;
+		int x_end = -1;
+		int y_end = -1;
+		int size = 0;
+	};
+
+	std::vector< building_build_data*> build_data;
+	std::vector< building*> buildings;
 	bool generate_cell_info;
 	cell_data** layout_cells;
 	building* generated_building;
