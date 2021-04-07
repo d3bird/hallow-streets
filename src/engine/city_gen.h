@@ -99,7 +99,7 @@ public:
 	bool has_generate_cell_info() { return generate_cell_info; }
 	cell_data** get_cell_info() { return layout_cells; }
 
-
+	double** get_height_map();
 
 	//misc function
 	void print_layout();
@@ -174,6 +174,8 @@ private:
 	bool generate_cell_info;
 	cell_data** layout_cells;
 	//building* generated_building;
+
+	double** height_map;
 };
 
 /* generation key for what each number means on the expanded layout

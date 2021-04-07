@@ -91,6 +91,8 @@ public:
 		}
 	}
 
+	double** get_height_map() { return height_map; }
+
 	//setters
 	void set_projection(glm::mat4 i) { projection = i; }
 	void set_cam(glm::mat4 i) { view = i; }
@@ -147,5 +149,7 @@ private:
 	unsigned int x_width = 9;// ROW;//rows
 	unsigned int z_width = 10;//COL;//collums
 
+
+	double** height_map;
 };
 

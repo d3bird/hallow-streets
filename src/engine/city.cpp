@@ -66,7 +66,7 @@ void city::init(object_manger* OBJM, animation_manager* an) {
 	city_info->set_time(Time);
 	city_info->set_projection(projection);
 	city_info->init();
-
+	height_map = city_info->get_height_map();
 	AM = an;
 
 	layout = city_info->get_layout();

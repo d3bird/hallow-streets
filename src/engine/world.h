@@ -24,6 +24,7 @@
 #include "audio_manger.h"
 #include "networking/network_manager.h"
 #include "gui/GUI.h"
+#include "player.h"
 
 class world {
 public:
@@ -63,6 +64,8 @@ public:
 
 	void set_online(bool i) { online = i; }
 
+	void set_player(player* p) { Player = p; }
+
 	//demo functions
 
 #ifdef DEMO1
@@ -86,6 +89,7 @@ private:
 	city* City;
 	sky* Sky;
 	GUI* gui;
+	player* Player;
 
 	bool server;
 	network_manager* network;

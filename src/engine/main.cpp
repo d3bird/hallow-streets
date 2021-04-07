@@ -24,7 +24,7 @@
 #include <iostream>
 
 #include "gui/GUI.h"
-
+#include "player.h"
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
@@ -68,6 +68,9 @@ text_engine* text_render;
 network_manager* network = NULL;
 bool online_play;
 bool take_input = true;;
+
+player* Player;
+bool freecam = true;
 int main() {
 
     camera= new Camera(glm::vec3(7.9019, 29.3491, 18.9233), glm::vec3(0.0f, 1.0f, 0.0f), -89.2999, -71.7001);//looking at the whole World
@@ -126,6 +129,10 @@ int main() {
     online_play = true;
     bool server = true;
 
+    Player = new player(camera, freecam);
+    Player->set_time(Time);
+    Player->init();
+
     if (online_play) {
         network = new network_manager();
         server = !network->is_server_on_this_port();
@@ -158,6 +165,7 @@ int main() {
     World->set_cam(view);
     World->set_projection(projection);
     World->set_online(online_play);
+    World->set_player(Player);
     if (sigle_light_soruce) {
         World->set_single_draw();
     }
@@ -226,7 +234,6 @@ int main() {
 
 
     //clean up mem
-    delete Time;
     if (Time != NULL) {
         delete Time;
     }
@@ -236,7 +243,9 @@ int main() {
     if (sky != NULL) {
         delete sky;
     }
-
+    if (Player != NULL) {
+        delete Player;
+    }
 
     glfwTerminate();
     return 0;
@@ -273,6 +282,10 @@ void process_movement(GLFWwindow *window){
         camera->ProcessKeyboard(UP, *deltaTime);
     if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
         camera->ProcessKeyboard(DOWN, *deltaTime);
+
+    if (!freecam) {
+        Player->update();//update the y pose
+    }
 }
 
 void key_board_input(GLFWwindow* window, int key, int scancode, int action, int mods) {

@@ -15,6 +15,7 @@ world::world() {
     commands_from_server = NULL;
 
     online = false;
+    Player = NULL;
 }
 
 world::~world(){
@@ -284,6 +285,8 @@ void world::init(GUI* g,network_manager* net, bool ser) {
         City->set_shader(shaderGeometryPass);
     }
 	City->init(OBJM, AM);
+
+    Player->set_height_map(City->get_height_map());
 
 	Sky = new sky();
 	Sky->set_projection(projection);

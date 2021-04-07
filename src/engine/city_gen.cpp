@@ -25,6 +25,7 @@ city_gen::city_gen() {
 	generate_cell_info = true;
 	layout_cells = NULL;
 	//generated_building = NULL;
+	height_map = NULL;
 }
 
 city_gen::~city_gen() {
@@ -1303,4 +1304,10 @@ building* city_gen::generate_building(building_build_data* buiding_data) {
 		std::cout << "finishing generating building" << std::endl;
 
 	return output;
+}
+
+
+double** city_gen::get_height_map() {
+
+	return height_map;
 }
