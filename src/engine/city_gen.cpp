@@ -24,14 +24,14 @@ city_gen::city_gen() {
 	//cell data 
 	generate_cell_info = true;
 	layout_cells = NULL;
-	generated_building = NULL;
+	//generated_building = NULL;
 }
 
 city_gen::~city_gen() {
 	for (int i = 0; i < rails.size(); i++) {
 		delete rails[i];
 	}
-	if (generated_building != NULL) {
+	/*if (generated_building != NULL) {
 		for (int i = 0; i < generated_building->cell_info.size(); i++) {
 			for (int q = 0; q < generated_building->cell_info[i]->items_on_ground.size(); q++) {
 				delete generated_building->cell_info[i]->items_on_ground[q];
@@ -40,7 +40,7 @@ city_gen::~city_gen() {
 				delete generated_building->cell_info[i]->items_on_wall[q];
 			}
 		}
-	}
+	}*/
 }
 
 
@@ -212,13 +212,12 @@ void city_gen::create_city_block(int x1, int y1, int x2, int y2) {
 	create_chicken_pen(7,7, 13,13);
 
 	//creates one building in the spot layed out for it
-	generated_building = generate_building(2,2,7,6);
+	//generated_building = generate_building(2,2,7,6);
 	//marks and reserves spaces for buildings 
 	find_space_for_buildings(x1, y1, x2, y2);
 
 	for (int i = 0; i < build_data.size(); i++){
-		buildings.push_back(generate_building(build_data[i]->x_start, build_data[i]->y_start,
-			build_data[i]->x_end, build_data[i]->y_end));
+		buildings.push_back(generate_building(build_data[i]));
 		delete build_data[i];
 	}
 	build_data.clear();
@@ -869,11 +868,41 @@ void city_gen::use_premade_map() {
 
 }
 
-building* city_gen::generate_building(int start_x, int start_y, int end_x, int end_y) {
-	
+bool city_gen::check_buiding_data(building_build_data* buiding_data) {
+	bool output = true;
+	if (buiding_data != NULL) {
+		if (buiding_data->x_start == -1 ||//bad cords
+			buiding_data->y_start == -1 ||
+			buiding_data->x_end == -1 ||
+			buiding_data->y_end == -1) {
+			output = false;
+		}
+		else if (buiding_data->size == -1) {//bad generation data
+			output = false;
+		}
+	}
+	else {
+		output = false;
+	}
+
+	return output;
+}
+
+
+building* city_gen::generate_building(building_build_data* buiding_data) {
+	int start_x = buiding_data->x_start;
+	int start_y = buiding_data->y_start;
+	int end_x = buiding_data->x_end;
+	int end_y = buiding_data->y_end;
+
+	if (!check_buiding_data(buiding_data)) {
+		std::cout << "build data was incomplete or invlad" << std::endl;
+		return NULL;
+	}
+
 	building* output = NULL;
 
-		std::cout << "generating test building" << std::endl;
+		std::cout << "generating building" << std::endl;
 		output = new building;
 		output->build_type = workshop;
 		output->dis_type = industry;
@@ -1271,7 +1300,7 @@ building* city_gen::generate_building(int start_x, int start_y, int end_x, int e
 			}
 		}
 
-		std::cout << "finishing generating test building" << std::endl;
+		std::cout << "finishing generating building" << std::endl;
 
 	return output;
 }

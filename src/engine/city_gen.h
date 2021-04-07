@@ -99,7 +99,7 @@ public:
 	bool has_generate_cell_info() { return generate_cell_info; }
 	cell_data** get_cell_info() { return layout_cells; }
 
-	building* generate_building(int start_x, int start_y, int end_x, int end_y);
+
 
 	//misc function
 	void print_layout();
@@ -164,14 +164,16 @@ private:
 		int y_start = -1;
 		int x_end = -1;
 		int y_end = -1;
-		int size = 0;
+		int size = -1;
 	};
+	building* generate_building(building_build_data* buiding_data);
+	bool check_buiding_data(building_build_data* buiding_data);
 
 	std::vector< building_build_data*> build_data;
 	std::vector< building*> buildings;
 	bool generate_cell_info;
 	cell_data** layout_cells;
-	building* generated_building;
+	//building* generated_building;
 };
 
 /* generation key for what each number means on the expanded layout
