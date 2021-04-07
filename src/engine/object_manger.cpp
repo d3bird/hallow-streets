@@ -31,9 +31,11 @@ object_manger::object_manger() {
 	draw_cursed_chicken = false;//through the normal methode
 	draw_loading_area_floor = true;
 	draw_wall_clock_ang = true;
-	draw_leaver_object = false;
+	draw_leaver_object = true;
 	draw_door_object = false;
 	draw_loading_door = true;
+	draw_table = true;
+	draw_computer = true;
 
 	cursed = new Shader("cursed.vs", "cursed.fs");
 	u_time = 0;
@@ -442,7 +444,9 @@ void object_manger::init() {
 
 	create_wall_clock_object();
 	create_wall_loading_door_object();
-	//create_leaver_object();
+	create_leaver_object();
+	create_table_object();
+	create_computer_object();
 
 	std::cout << "finished creating the object manager" << std::endl;
 }
@@ -1728,7 +1732,7 @@ void object_manger::create_leaver_object() {
 	glm::mat4* modelMatrices;
 	Shader* custom_shader;
 	Model* model;
-	std::string* item_name_t = new std::string("wall loading object");
+	std::string* item_name_t = new std::string("lever base object");
 
 	buffer = 0;
 	buffer_size = 200;
@@ -1736,7 +1740,7 @@ void object_manger::create_leaver_object() {
 
 	modelMatrices = new glm::mat4[buffer_size];
 	custom_shader = NULL;
-	model = new Model("resources/objects/building_parts/wall_with_loading_area.obj");
+	model = new Model("resources/objects/inside_objects/lever_base.obj");
 
 	glGenBuffers(1, &buffer);
 	glBindBuffer(GL_ARRAY_BUFFER, buffer);
@@ -1772,8 +1776,175 @@ void object_manger::create_leaver_object() {
 	temp->modelMatrices = modelMatrices;
 	temp->custom_shader = custom_shader;
 	temp->item_name = item_name_t;
-	temp->type = LEAVER_T;
+	temp->type = LEAVER_BOX_T;
 	temp->draw = draw_leaver_object;
+
+
+	items.push_back(temp);
+
+	item_name_t = new std::string("lever object");
+
+	buffer = 0;
+	buffer_size = 200;
+	amount = 0;
+
+	modelMatrices = new glm::mat4[buffer_size];
+	custom_shader = NULL;
+	model = new Model("resources/objects/inside_objects/lever.obj");
+
+	glGenBuffers(1, &buffer);
+	glBindBuffer(GL_ARRAY_BUFFER, buffer);
+	glBufferData(GL_ARRAY_BUFFER, amount * sizeof(glm::mat4), &modelMatrices[0], GL_STATIC_DRAW);
+
+	for (unsigned int i = 0; i < model->meshes.size(); i++)
+	{
+		unsigned int VAO = model->meshes[i].VAO;
+		glBindVertexArray(VAO);
+		// set attribute pointers for matrix (4 times vec4)
+		glEnableVertexAttribArray(3);
+		glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)0);
+		glEnableVertexAttribArray(4);
+		glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(sizeof(glm::vec4)));
+		glEnableVertexAttribArray(5);
+		glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(2 * sizeof(glm::vec4)));
+		glEnableVertexAttribArray(6);
+		glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(3 * sizeof(glm::vec4)));
+
+		glVertexAttribDivisor(3, 1);
+		glVertexAttribDivisor(4, 1);
+		glVertexAttribDivisor(5, 1);
+		glVertexAttribDivisor(6, 1);
+
+		glBindVertexArray(0);
+	}
+
+	item* temp2 = new item;
+	temp2->buffer_size = buffer_size;
+	temp2->buffer = buffer;
+	temp2->amount = amount;
+	temp2->model = model;
+	temp2->modelMatrices = modelMatrices;
+	temp2->custom_shader = custom_shader;
+	temp2->item_name = item_name_t;
+	temp2->type = LEAVER_T;
+	temp2->draw = draw_leaver_object;
+
+
+	items.push_back(temp2);
+
+}
+
+void object_manger::create_table_object() {
+	unsigned int buffer;
+	unsigned int buffer_size;
+	unsigned int amount;
+	glm::mat4* modelMatrices;
+	Shader* custom_shader;
+	Model* model;
+	std::string* item_name_t = new std::string("table object");
+
+	buffer = 0;
+	buffer_size = 200;
+	amount = 0;
+
+	modelMatrices = new glm::mat4[buffer_size];
+	custom_shader = NULL;
+	model = new Model("resources/objects/inside_objects/table.obj");
+
+	glGenBuffers(1, &buffer);
+	glBindBuffer(GL_ARRAY_BUFFER, buffer);
+	glBufferData(GL_ARRAY_BUFFER, amount * sizeof(glm::mat4), &modelMatrices[0], GL_STATIC_DRAW);
+
+	for (unsigned int i = 0; i < model->meshes.size(); i++)
+	{
+		unsigned int VAO = model->meshes[i].VAO;
+		glBindVertexArray(VAO);
+		// set attribute pointers for matrix (4 times vec4)
+		glEnableVertexAttribArray(3);
+		glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)0);
+		glEnableVertexAttribArray(4);
+		glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(sizeof(glm::vec4)));
+		glEnableVertexAttribArray(5);
+		glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(2 * sizeof(glm::vec4)));
+		glEnableVertexAttribArray(6);
+		glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(3 * sizeof(glm::vec4)));
+
+		glVertexAttribDivisor(3, 1);
+		glVertexAttribDivisor(4, 1);
+		glVertexAttribDivisor(5, 1);
+		glVertexAttribDivisor(6, 1);
+
+		glBindVertexArray(0);
+	}
+
+	item* temp = new item;
+	temp->buffer_size = buffer_size;
+	temp->buffer = buffer;
+	temp->amount = amount;
+	temp->model = model;
+	temp->modelMatrices = modelMatrices;
+	temp->custom_shader = custom_shader;
+	temp->item_name = item_name_t;
+	temp->type = TABLE_T;
+	temp->draw = draw_table;
+
+
+	items.push_back(temp);
+}
+
+void object_manger::create_computer_object() {
+	unsigned int buffer;
+	unsigned int buffer_size;
+	unsigned int amount;
+	glm::mat4* modelMatrices;
+	Shader* custom_shader;
+	Model* model;
+	std::string* item_name_t = new std::string("computer object");
+
+	buffer = 0;
+	buffer_size = 200;
+	amount = 0;
+
+	modelMatrices = new glm::mat4[buffer_size];
+	custom_shader = NULL;
+	model = new Model("resources/objects/inside_objects/computer.obj");
+
+	glGenBuffers(1, &buffer);
+	glBindBuffer(GL_ARRAY_BUFFER, buffer);
+	glBufferData(GL_ARRAY_BUFFER, amount * sizeof(glm::mat4), &modelMatrices[0], GL_STATIC_DRAW);
+
+	for (unsigned int i = 0; i < model->meshes.size(); i++)
+	{
+		unsigned int VAO = model->meshes[i].VAO;
+		glBindVertexArray(VAO);
+		// set attribute pointers for matrix (4 times vec4)
+		glEnableVertexAttribArray(3);
+		glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)0);
+		glEnableVertexAttribArray(4);
+		glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(sizeof(glm::vec4)));
+		glEnableVertexAttribArray(5);
+		glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(2 * sizeof(glm::vec4)));
+		glEnableVertexAttribArray(6);
+		glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(3 * sizeof(glm::vec4)));
+
+		glVertexAttribDivisor(3, 1);
+		glVertexAttribDivisor(4, 1);
+		glVertexAttribDivisor(5, 1);
+		glVertexAttribDivisor(6, 1);
+
+		glBindVertexArray(0);
+	}
+
+	item* temp = new item;
+	temp->buffer_size = buffer_size;
+	temp->buffer = buffer;
+	temp->amount = amount;
+	temp->model = model;
+	temp->modelMatrices = modelMatrices;
+	temp->custom_shader = custom_shader;
+	temp->item_name = item_name_t;
+	temp->type = COMPUTER_T;
+	temp->draw = draw_computer;
 
 
 	items.push_back(temp);
@@ -2093,18 +2264,6 @@ item_info* object_manger::spawn_item(item_type type, int x,int y, int z, glm::ma
 		y_f = 2;
 		break;
 	case LEAVER_BOX_T:
-		if (items[20]->amount >= items[20]->buffer_size) {
-			std::cout << "there are too many cannon " << std::endl;
-			return NULL;
-		}
-		item_id = 20;
-		buffer_loc = items[20]->amount;
-		items[20]->amount++;
-		max_stack_size = 1;
-		stackable = false;
-		y_f = 2;
-		break;
-	case LEAVER_T:
 		if (items[21]->amount >= items[21]->buffer_size) {
 			std::cout << "there are too many cannon " << std::endl;
 			return NULL;
@@ -2115,7 +2274,42 @@ item_info* object_manger::spawn_item(item_type type, int x,int y, int z, glm::ma
 		max_stack_size = 1;
 		stackable = false;
 		y_f = 2;
-		
+		break;
+	case LEAVER_T:
+		if (items[22]->amount >= items[22]->buffer_size) {
+			std::cout << "there are too many cannon " << std::endl;
+			return NULL;
+		}
+		item_id = 22;
+		buffer_loc = items[22]->amount;
+		items[22]->amount++;
+		max_stack_size = 1;
+		stackable = false;
+		y_f = 2;
+		break;
+	case TABLE_T:
+		if (items[23]->amount >= items[23]->buffer_size) {
+			std::cout << "there are too many cannon " << std::endl;
+			return NULL;
+		}
+		item_id = 23;
+		buffer_loc = items[23]->amount;
+		items[23]->amount++;
+		max_stack_size = 1;
+		stackable = false;
+		y_f = 2;
+		break;
+	case COMPUTER_T:
+		if (items[24]->amount >= items[24]->buffer_size) {
+			std::cout << "there are too many cannon " << std::endl;
+			return NULL;
+		}
+		item_id = 24;
+		buffer_loc = items[24]->amount;
+		items[24]->amount++;
+		max_stack_size = 1;
+		stackable = false;
+		y_f = 2;
 		break;
 	default:
 		std::cout << "not a reconized item type" << std::endl;
@@ -2258,7 +2452,15 @@ std::string object_manger::item_type_to_string(item_type i) {
 	case LOADING_DOOR_T:
 		output = "LOADING_DOOR_T";
 		break;
-		
+	case LEAVER_BOX_T:
+		output = "LEAVER_BOX_T";
+		break;
+	case TABLE_T:
+		output = "LEAVER_BOX_T";
+		break;
+	case COMPUTER_T:
+		output = "LEAVER_BOX_T";
+		break;
 	}
 
 	return output;

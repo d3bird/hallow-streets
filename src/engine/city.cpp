@@ -585,6 +585,22 @@ void city::init(object_manger* OBJM, animation_manager* an) {
 		}
 	}
 
+	glm::mat4 trans = glm::mat4(1.0f);
+	trans = glm::translate(trans, glm::vec3((2), 6, (2)));
+
+
+	//test items
+	OBJM->spawn_item(LEAVER_BOX_T, 1, 6, 1, trans);
+	OBJM->spawn_item(LEAVER_T, 1, 6, 1, trans);
+
+	trans = glm::mat4(1.0f);
+	trans = glm::translate(trans, glm::vec3((4), 6, (2)));
+	OBJM->spawn_item(TABLE_T, 1, 6, 1, trans);
+
+	trans = glm::mat4(1.0f);
+	trans = glm::translate(trans, glm::vec3((6), 6, (2)));
+	OBJM->spawn_item(COMPUTER_T, 1, 6, 1, trans);
+
 	//test for the pathing area for the chicken routine
 	//std::cout << "low  " << low_x << "," << low_z << " || hig " << hig_x << "," << hig_z << std::endl;
 	std::cout << "chicken number " <<num_chickens<< std::endl;
@@ -595,7 +611,7 @@ void city::init(object_manger* OBJM, animation_manager* an) {
 	std::cout << "creating pathfinding data" << std::endl;
 
 
-	glm::mat4 trans = glm::mat4(1.0f);
+	trans = glm::mat4(1.0f);
 	trans = glm::translate(trans, glm::vec3((10), 4, (10)));
 	tempdata = OBJM->spawn_item(CHICKEN_T, -1, -1, -1, trans);
 	tempdata->x_rot = 0;
