@@ -63,7 +63,7 @@ struct item_info {
 	bool stackable;
 	bool max_stack() { return stack_size == max_stack_size; } 
 	bool edible =false;
-
+	int cell_num = -1;
 };
 
 //the data needed to render the objects in the world
@@ -114,6 +114,28 @@ struct item_loc {
 	}
 };
 
+struct transfer_cell_item {
+	int start_x = -1;
+	int start_z = -1;
+	int end_x = -1;
+	int end_z = -1;
+	std::vector< item_info*>obj_in_cell;
+};
+
+struct cell_item {
+	glm::mat4* modelMatrices;
+	item* item_object;
+};
+
+struct rending_cell {
+	glm::mat4* modelMatrices;
+	item* item_info;
+	int start_x = -1;
+	int start_z = -1;
+	int end_x = -1;
+	int end_z = -1;
+};
+
 class object_manger{
 public:
 
@@ -121,6 +143,7 @@ public:
 	~object_manger();
 
 	void draw();
+	void draw_optimised();
 
 	void draw_cursed_ob();
 
@@ -155,6 +178,13 @@ public:
 
 	std::string item_type_to_string(item_type i);
 
+	//this is in terms of the expanded layput
+	void set_block_size(int x_mi, int z_mi, int x_ma, int z_ma, int key_size) { 
+		x_min = x_mi; z_min = z_mi; x_max = x_ma; z_max = z_ma; key = key_size;
+	}
+
+	void optimise_pipe_line();
+
 #ifdef DEMO1
 	void update_demo1();
 	bool is_phase_two() { return phase_two; }
@@ -162,6 +192,8 @@ public:
 #endif // DEMO1
 
 private:
+
+	void aggrigate_items_to_draw();
 
 	void create_cursed_object_buffer();
 
@@ -208,7 +240,7 @@ private:
 
 	int max_cubes;
 
-	std::vector< item*> items;
+	std::vector< item*> items;//every item
 	std::vector<block_loc*>* blocked_spots;
 	
 
@@ -238,10 +270,17 @@ private:
 	//cursed objects
 	Shader* cursed;
 	float u_time;
+
+	//optimised rendering
+	std::vector< rending_cell*>rending_cells;
+	int x_min;
+	int z_min; 
+	int x_max;
+	int z_max;
+	int number_of_cells;
+	int key;
 	//demo1 vars
 #ifdef DEMO1
-
-
 	float angle = 90.0f;
 	float angle2 = 0.0f;
 

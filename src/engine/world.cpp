@@ -314,6 +314,8 @@ void world::init(GUI* g,network_manager* net, bool ser) {
     draw_speakers = ADM->draw_speaker_locations();
     speakers_locs = ADM->get_speaker_locations();
 
+    OBJM->optimise_pipe_line();
+
 	std::cout << "finished initing objects" << std::endl;
 	std::cout << std::endl;
 

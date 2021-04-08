@@ -118,6 +118,7 @@ private:
 	bool isDestination(int row, int col, Pair dest);
 	bool isUnBlocked(int row, int col);
 	bool isValid(int row, int col);
+	void add_object_to_cell(item_info* item, transfer_cell_item** cells, int i, int h);
 
 	glm::mat4 view;
 	glm::mat4 projection;

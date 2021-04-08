@@ -2465,3 +2465,55 @@ std::string object_manger::item_type_to_string(item_type i) {
 
 	return output;
 }
+
+
+void object_manger::optimise_pipe_line() {
+	std::cout << "optimising the rendering pipeline" << std::endl;
+	std::cout << "creating rendering cells that are "<<key<<" x "<<key<<" big" << std::endl;
+
+	
+
+	std::cout << "done creating rendering cells" << std::endl;
+	std::cout << "filling rendering cells" << std::endl;
+	int num_wrong_cords =0;
+	for (int i = 0; i < items.size(); i++) {
+		if (items[i] != NULL) {
+			if (items[i]->amount == 0) {
+				items[i]->draw = false;
+				std::cout << *(items[i]->item_name)<<" has no objects to render" << std::endl;
+			}
+			else {
+				 num_wrong_cords = 0;
+				for (int q = 0; q < items[i]->amount; q++) {
+					float x = items[i]->item_data[q]->x;
+					float y = items[i]->item_data[q]->y;
+					float z = items[i]->item_data[q]->z;
+					if (x == -1 || y == -1 || z == -1) {
+						num_wrong_cords++;
+					}
+					else {
+
+					}
+				}
+			}
+			if (num_wrong_cords != 0) {
+				std::cout << *(items[i]->item_name) << " has " << num_wrong_cords << " wrong cords" << std::endl;
+				num_wrong_cords = 0;
+			}
+		}
+		
+	}
+	std::cout << "finished optimising the rendering pipeline" << std::endl;
+}
+
+
+void object_manger::draw_optimised() {
+	aggrigate_items_to_draw();
+
+
+}
+
+void object_manger::aggrigate_items_to_draw() {
+
+}
+
