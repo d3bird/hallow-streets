@@ -101,6 +101,8 @@ public:
 
 	double** get_height_map();
 
+	bool* get_pas_key();
+	int get_unq_obj_cnt() { return obj_count; }
 	//misc function
 	void print_layout();
 	void print_expanded_layout();
@@ -176,6 +178,8 @@ private:
 	//building* generated_building;
 
 	double** height_map;
+	int obj_count;
+	bool* pass_key;
 };
 
 /* generation key for what each number means on the expanded layout

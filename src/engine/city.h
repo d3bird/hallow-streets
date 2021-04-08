@@ -24,25 +24,7 @@
 
 using namespace std;
 
-typedef pair<int, int> Pair;
-typedef pair<double, pair<int, int>> pPair;
 
-struct cell {
-	int parent_i, parent_j;
-	// f = g + h 
-	double f, g, h;
-};
-
-
-struct map_tile {
-	unsigned int x;
-	unsigned int y;
-	unsigned int z;
-	unsigned int buffer_loc;
-	int type;
-	bool blocked;
-	int g_cost;//move cost to move to this square
-};
 
 struct rail_cart {
 
@@ -69,11 +51,7 @@ public:
 
 	void init(object_manger* OBJM, animation_manager* an);
 
-	//path finding function
-	void aStarSearch(Pair src, Pair dest);
 
-	void tracePath(cell** cellDetails, Pair dest);
-	void print_map();
 
 	//misc functions
 
@@ -111,14 +89,8 @@ private:
 
 	//check function to makesure that everything was inited
 	void check();
-
-	//helper functions for pathfinding
-	double calculateHValue(int row, int col, Pair dest);
-
-	bool isDestination(int row, int col, Pair dest);
-	bool isUnBlocked(int row, int col);
-	bool isValid(int row, int col);
 	void add_object_to_cell(item_info* item, transfer_cell_item** cells, int i, int h);
+
 
 	glm::mat4 view;
 	glm::mat4 projection;
@@ -128,6 +100,7 @@ private:
 
 	city_gen* city_info;
 	city_square** layout;
+	path_finding* pathing;
 
 	//rail carts
 	item* rail_carts;
@@ -144,12 +117,8 @@ private:
 	bool draw_sidewalk;
 	glm::mat4* cube_matrices;//contains all the cubes mats
 	Shader* cube_shader;
-
-	//path finding data
-	map_tile** terrian_map;
 	unsigned int x_width = 9;// ROW;//rows
 	unsigned int z_width = 10;//COL;//collums
-
 
 	double** height_map;
 };

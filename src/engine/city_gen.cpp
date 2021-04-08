@@ -26,6 +26,8 @@ city_gen::city_gen() {
 	layout_cells = NULL;
 	//generated_building = NULL;
 	height_map = NULL;
+	pass_key = NULL;
+	obj_count = 43;
 }
 
 city_gen::~city_gen() {
@@ -1310,4 +1312,70 @@ building* city_gen::generate_building(building_build_data* buiding_data) {
 double** city_gen::get_height_map() {
 
 	return height_map;
+}
+
+
+bool* city_gen::get_pas_key() {
+	if (pass_key == NULL) {
+		pass_key = new bool[43];//based off of the the expanded layout
+		//nothing
+		pass_key[0] = false;
+		//cube
+		pass_key[1] = true;
+		//walls
+		pass_key[2] = false;
+		pass_key[3] = false;
+		pass_key[4] = false;
+		//light post
+		pass_key[5] = false;
+		//roads
+		pass_key[6] = true;
+		pass_key[7] = true;
+		pass_key[8] = true;
+		pass_key[9] = true;
+		pass_key[10] = true;
+		//light post
+		pass_key[11] = false;
+		pass_key[12] = false;
+		pass_key[13] = false;
+		//corner
+		pass_key[14] = false;		
+		pass_key[15] = false;
+		pass_key[16] = false;
+		//chicken
+		pass_key[17] = false;
+		//chicken ground
+		pass_key[18] = false;
+		//more walls
+		pass_key[19] = false;
+		pass_key[20] = false;
+		pass_key[21] = false;
+		pass_key[22] = false;
+		pass_key[23] = false;
+		pass_key[24] = false;
+		pass_key[25] = false;
+		pass_key[26] = false;
+		pass_key[27] = false;
+		pass_key[28] = false;
+		pass_key[29] = false;
+		pass_key[30] = false;
+		//floor
+		pass_key[31] = true;
+		pass_key[32] = true;
+		pass_key[33] = true;
+		pass_key[34] = true;
+		//wall clock
+		pass_key[35] = true;
+		pass_key[36] = true;
+		pass_key[37] = true;
+		pass_key[38] = true;
+		//loading doors
+		pass_key[39] = true;
+		pass_key[40] = true;
+		pass_key[41] = true;
+		pass_key[42] = true;
+
+	}
+
+	return pass_key;
 }

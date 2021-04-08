@@ -18,6 +18,7 @@
 #include "object_manger.h"
 #include "audio_manger.h"
 #include "time.h"
+#include "path_finding.h"
 
 #include <physx/PxPhysicsAPI.h>
 
