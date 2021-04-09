@@ -673,6 +673,39 @@ void city::init(object_manger* OBJM, animation_manager* an) {
 						}
 
 					}
+					else {
+						int x = (h * key) * 2;
+						x += wall_obj->x_cube_offset * 2;
+						int y = wall_obj->floor * (7 * 2);
+						y += wall_obj->y_cube_offset * 2;
+						int z = (i * key) * 2;
+						z += wall_obj->z_cube_offset * 2;
+
+						trans = glm::mat4(1.0f);
+						trans = glm::translate(trans, glm::vec3(x, y, z));
+						if (wall_obj->angle != 0) {
+							trans = glm::rotate(trans, glm::radians(wall_obj->angle), glm::vec3(0.0, 1.0, 0.0));
+						}
+
+						switch (wall_obj->expanded_layout_value)
+						{
+						case 4:
+							tempdata = OBJM->spawn_item(WALL_C_T, x, y, z, trans);
+							break;
+						case 15:
+							tempdata = OBJM->spawn_item(WALL_C_T, x, y, z, trans);
+							break;
+						case 16:
+							tempdata = OBJM->spawn_item(WALL_C_T, x, y, z, trans);
+							break;
+						case 22:
+							tempdata = OBJM->spawn_item(WALL_T, x, y, z, trans);
+							break;
+						default:
+							std::cout << "does not reconize: " << wall_obj->expanded_layout_value << std::endl;
+							break;
+						}
+					}
 				}
 			}
 		}
