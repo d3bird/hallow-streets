@@ -36,6 +36,8 @@ object_manger::object_manger() {
 	draw_loading_door = true;
 	draw_table = true;
 	draw_computer = true;
+	draw_roofs = true;
+	draw_generic_floor = true;
 
 	cursed = new Shader("cursed.vs", "cursed.fs");
 	u_time = 0;
@@ -448,6 +450,9 @@ void object_manger::init() {
 	create_table_object();
 	create_computer_object();
 
+	create_slanted_roof_object();
+	create_roof_fill_object();
+	create_generic_floor_object();
 	std::cout << "finished creating the object manager" << std::endl;
 }
 
@@ -1946,6 +1951,176 @@ void object_manger::create_computer_object() {
 	temp->type = COMPUTER_T;
 	temp->draw = draw_computer;
 
+	items.push_back(temp);
+}
+
+void object_manger::create_slanted_roof_object() {
+	unsigned int buffer;
+	unsigned int buffer_size;
+	unsigned int amount;
+	glm::mat4* modelMatrices;
+	Shader* custom_shader;
+	Model* model;
+	std::string* item_name_t = new std::string("slanted roof object");
+
+	buffer = 0;
+	buffer_size = 200;
+	amount = 0;
+
+	modelMatrices = new glm::mat4[buffer_size];
+	custom_shader = NULL;
+	model = new Model("resources/objects/rooftop/slanted_roof.obj");
+
+	glGenBuffers(1, &buffer);
+	glBindBuffer(GL_ARRAY_BUFFER, buffer);
+	glBufferData(GL_ARRAY_BUFFER, amount * sizeof(glm::mat4), &modelMatrices[0], GL_STATIC_DRAW);
+
+	for (unsigned int i = 0; i < model->meshes.size(); i++)
+	{
+		unsigned int VAO = model->meshes[i].VAO;
+		glBindVertexArray(VAO);
+		// set attribute pointers for matrix (4 times vec4)
+		glEnableVertexAttribArray(3);
+		glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)0);
+		glEnableVertexAttribArray(4);
+		glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(sizeof(glm::vec4)));
+		glEnableVertexAttribArray(5);
+		glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(2 * sizeof(glm::vec4)));
+		glEnableVertexAttribArray(6);
+		glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(3 * sizeof(glm::vec4)));
+
+		glVertexAttribDivisor(3, 1);
+		glVertexAttribDivisor(4, 1);
+		glVertexAttribDivisor(5, 1);
+		glVertexAttribDivisor(6, 1);
+
+		glBindVertexArray(0);
+	}
+
+	item* temp = new item;
+	temp->buffer_size = buffer_size;
+	temp->buffer = buffer;
+	temp->amount = amount;
+	temp->model = model;
+	temp->modelMatrices = modelMatrices;
+	temp->custom_shader = custom_shader;
+	temp->item_name = item_name_t;
+	temp->type = SLANTED_ROOF_T;
+	temp->draw = draw_roofs;
+
+	items.push_back(temp);
+}
+
+void object_manger::create_roof_fill_object() {
+	unsigned int buffer;
+	unsigned int buffer_size;
+	unsigned int amount;
+	glm::mat4* modelMatrices;
+	Shader* custom_shader;
+	Model* model;
+	std::string* item_name_t = new std::string("roof fill object");
+
+	buffer = 0;
+	buffer_size = 200;
+	amount = 0;
+
+	modelMatrices = new glm::mat4[buffer_size];
+	custom_shader = NULL;
+	model = new Model("resources/objects/rooftop/roof_fill.obj");
+
+	glGenBuffers(1, &buffer);
+	glBindBuffer(GL_ARRAY_BUFFER, buffer);
+	glBufferData(GL_ARRAY_BUFFER, amount * sizeof(glm::mat4), &modelMatrices[0], GL_STATIC_DRAW);
+
+	for (unsigned int i = 0; i < model->meshes.size(); i++)
+	{
+		unsigned int VAO = model->meshes[i].VAO;
+		glBindVertexArray(VAO);
+		// set attribute pointers for matrix (4 times vec4)
+		glEnableVertexAttribArray(3);
+		glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)0);
+		glEnableVertexAttribArray(4);
+		glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(sizeof(glm::vec4)));
+		glEnableVertexAttribArray(5);
+		glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(2 * sizeof(glm::vec4)));
+		glEnableVertexAttribArray(6);
+		glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(3 * sizeof(glm::vec4)));
+
+		glVertexAttribDivisor(3, 1);
+		glVertexAttribDivisor(4, 1);
+		glVertexAttribDivisor(5, 1);
+		glVertexAttribDivisor(6, 1);
+
+		glBindVertexArray(0);
+	}
+
+	item* temp = new item;
+	temp->buffer_size = buffer_size;
+	temp->buffer = buffer;
+	temp->amount = amount;
+	temp->model = model;
+	temp->modelMatrices = modelMatrices;
+	temp->custom_shader = custom_shader;
+	temp->item_name = item_name_t;
+	temp->type = ROOF_FILL_T;
+	temp->draw = draw_computer;
+
+	items.push_back(temp);
+}
+
+void object_manger::create_generic_floor_object() {
+	unsigned int buffer;
+	unsigned int buffer_size;
+	unsigned int amount;
+	glm::mat4* modelMatrices;
+	Shader* custom_shader;
+	Model* model;
+	std::string* item_name_t = new std::string("generic floor object");
+
+	buffer = 0;
+	buffer_size = 200;
+	amount = 0;
+
+	modelMatrices = new glm::mat4[buffer_size];
+	custom_shader = NULL;
+	model = new Model("resources/objects/building_parts/generic_floor.obj");
+
+	glGenBuffers(1, &buffer);
+	glBindBuffer(GL_ARRAY_BUFFER, buffer);
+	glBufferData(GL_ARRAY_BUFFER, amount * sizeof(glm::mat4), &modelMatrices[0], GL_STATIC_DRAW);
+
+	for (unsigned int i = 0; i < model->meshes.size(); i++)
+	{
+		unsigned int VAO = model->meshes[i].VAO;
+		glBindVertexArray(VAO);
+		// set attribute pointers for matrix (4 times vec4)
+		glEnableVertexAttribArray(3);
+		glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)0);
+		glEnableVertexAttribArray(4);
+		glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(sizeof(glm::vec4)));
+		glEnableVertexAttribArray(5);
+		glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(2 * sizeof(glm::vec4)));
+		glEnableVertexAttribArray(6);
+		glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(3 * sizeof(glm::vec4)));
+
+		glVertexAttribDivisor(3, 1);
+		glVertexAttribDivisor(4, 1);
+		glVertexAttribDivisor(5, 1);
+		glVertexAttribDivisor(6, 1);
+
+		glBindVertexArray(0);
+	}
+
+	item* temp = new item;
+	temp->buffer_size = buffer_size;
+	temp->buffer = buffer;
+	temp->amount = amount;
+	temp->model = model;
+	temp->modelMatrices = modelMatrices;
+	temp->custom_shader = custom_shader;
+	temp->item_name = item_name_t;
+	temp->type = GENERIC_FLOOR_T;
+	temp->draw = draw_generic_floor;
 
 	items.push_back(temp);
 }
@@ -2311,6 +2486,42 @@ item_info* object_manger::spawn_item(item_type type, int x,int y, int z, glm::ma
 		stackable = false;
 		y_f = 2;
 		break;
+	case SLANTED_ROOF_T:
+		if (items[25]->amount >= items[25]->buffer_size) {
+			std::cout << "there are too many cannon " << std::endl;
+			return NULL;
+		}
+		item_id = 25;
+		buffer_loc = items[25]->amount;
+		items[25]->amount++;
+		max_stack_size = 1;
+		stackable = false;
+		y_f = 2;
+		break;
+	case ROOF_FILL_T:
+		if (items[26]->amount >= items[26]->buffer_size) {
+			std::cout << "there are too many cannon " << std::endl;
+			return NULL;
+		}
+		item_id = 26;
+		buffer_loc = items[26]->amount;
+		items[26]->amount++;
+		max_stack_size = 1;
+		stackable = false;
+		y_f = 2;
+		break;
+	case GENERIC_FLOOR_T:
+		if (items[27]->amount >= items[27]->buffer_size) {
+			std::cout << "there are too many cannon " << std::endl;
+			return NULL;
+		}
+		item_id = 27;
+		buffer_loc = items[27]->amount;
+		items[27]->amount++;
+		max_stack_size = 1;
+		stackable = false;
+		y_f = 2;
+		break;
 	default:
 		std::cout << "not a reconized item type" << std::endl;
 		return NULL;
@@ -2460,6 +2671,15 @@ std::string object_manger::item_type_to_string(item_type i) {
 		break;
 	case COMPUTER_T:
 		output = "LEAVER_BOX_T";
+		break;
+	case SLANTED_ROOF_T:
+		output = "SLANTED_ROOF_T";
+		break;
+	case ROOF_FILL_T:
+		output = "ROOF_FILL_T";
+		break;
+	case GENERIC_FLOOR_T:
+		output = "GENERIC_FLOOR_T";
 		break;
 	}
 

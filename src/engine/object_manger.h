@@ -34,7 +34,8 @@ enum item_type {
 	SKYTRACK_S_T, SKYTRACK_C_T, CHICKEN_T, SKYTRACK_CART,
 	CANNON_FRAME_T, CANNON_PLATFORM_T, CANNON_T,
 	ZAP_TOWER_T, ZAP_SPHERE_T, CURSE_CHICKEN_T, WALL_D_T, WALL_LA_T, FLOOR_LA_T,
-	WALL_CLOCK_ANG_T, LOADING_DOOR_T, LEAVER_BOX_T, LEAVER_T, TABLE_T, COMPUTER_T
+	WALL_CLOCK_ANG_T, LOADING_DOOR_T, LEAVER_BOX_T, LEAVER_T, TABLE_T, COMPUTER_T,
+	SLANTED_ROOF_T, ROOF_FILL_T, GENERIC_FLOOR_T
 };
 
 //the information on each unique object
@@ -223,6 +224,10 @@ private:
 	void create_table_object();
 	void create_computer_object();
 
+	void create_slanted_roof_object();
+	void create_roof_fill_object();
+	void create_generic_floor_object();
+
 	//timing
 	timing* Time;
 	float* deltatime;
@@ -267,6 +272,9 @@ private:
 	bool draw_loading_door;
 	bool draw_table;
 	bool draw_computer;
+	bool draw_roofs;
+	bool draw_generic_floor;
+
 	//cursed objects
 	Shader* cursed;
 	float u_time;

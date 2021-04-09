@@ -26,7 +26,7 @@
 //what kind of cell to generate
 enum city_square { reserverd =-1, cube =1, open=2, wall=3, wall_d=4, wall_c=5, chicken_pen =14,
 	road_top= 0 ,road_bot =6, road_left = 7, road_right = 8, road_turn = 9, road_open = 10, road_curve = 11, road_inside_curve = 12, small_road =13,
-	wall_loading =14
+	wall_loading =14, roof_place = 15
 };  //large roads
 
 //what kind of district
@@ -50,6 +50,12 @@ struct item_gen_info {
 	glm::vec3 loc;
 	glm::vec3 rot;
 	float angle;
+	bool roof = false;
+	int roof_value;
+	int floor = 1;
+	int y_cube_offset = 0;
+	int x_cube_offset = 0;
+	int z_cube_offset = 0;
 };
 
 struct cell_data {

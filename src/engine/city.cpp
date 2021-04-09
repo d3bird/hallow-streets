@@ -633,7 +633,56 @@ void city::init(object_manger* OBJM, animation_manager* an) {
 		}
 	}
 
+	//spwning in items that does not affect path finding
+	cell_data** cell_info = city_info->get_cell_info();
+
 	glm::mat4 trans = glm::mat4(1.0f);
+
+	if (cell_info != NULL) {
+		item_gen_info* wall_obj;
+		for (int i = 0; i < city_info->get_height(); i++) {
+			for (int h = 0; h < city_info->get_width(); h++) {
+
+				//wall objects
+				for (int q = 0; q < cell_info[i][h].items_on_wall.size(); q++) {
+					wall_obj = cell_info[i][h].items_on_wall[q];
+
+					if (wall_obj->roof) {
+
+						int x = (h * key) * 2;
+						x += wall_obj->x_cube_offset * 2;
+						int y = wall_obj->floor * (7 * 2);
+						y += wall_obj->y_cube_offset * 2;
+						int z = (i * key) * 2;
+						z += wall_obj->z_cube_offset * 2;
+
+						trans = glm::mat4(1.0f);
+						trans = glm::translate(trans, glm::vec3(x, y, z));
+						if (wall_obj->angle != 0) {
+							trans = glm::rotate(trans, glm::radians(wall_obj->angle), glm::vec3(0.0, 1.0, 0.0));
+						}
+						if (wall_obj->roof_value == 1) {
+							tempdata = OBJM->spawn_item(SLANTED_ROOF_T, x, y, z, trans);
+						}
+						else if (wall_obj->roof_value == 2) {
+							tempdata = OBJM->spawn_item(ROOF_FILL_T, x, y, z, trans);
+						}
+						else if (wall_obj->roof_value == 3) {
+							//std::cout << "spawning a gneric floor" << std::endl;
+							tempdata = OBJM->spawn_item(GENERIC_FLOOR_T, x, y, z, trans);
+						}
+
+					}
+				}
+			}
+		}
+	}
+	else {
+		std::cout << "can not spawn in roofs because cells are null" << std::endl;
+	}
+
+	trans = glm::mat4(1.0f);
+	
 	trans = glm::translate(trans, glm::vec3((2), 6, (2)));
 
 
@@ -802,10 +851,7 @@ void city::init_client_world(object_manger* OBJM, animation_manager* an) {
 
 	//create the routines based off of the rails
 
-
-
 	platform_point_ob.x -= 30;
-
 	
 	std::cout << std::endl;
 

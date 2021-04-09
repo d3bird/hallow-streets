@@ -925,6 +925,12 @@ building* city_gen::generate_building(building_build_data* buiding_data) {
 		int door_side = -1;
 		bool door_spawned = false;
 		int door_spots_left = -1;
+		//roof type
+		bool has_roof = true;
+		int roof_type;//0 = wavy 1 = traditional slant, 2 pointing roof, 3 = flat  
+		int roof_subtype =0;//changes the direction the roof is facing
+		roof_type = 2;
+		int number_floors =1;
 
 		//set the differnt vars for differnt type of generations 
 		if (loading_dock) {
@@ -1037,6 +1043,13 @@ building* city_gen::generate_building(building_build_data* buiding_data) {
 			}
 		}
 
+		int x_number_between_walls = wall_x_end - wall_x_start;
+		int x_remaining_roofs = x_number_between_walls;
+
+		int y_number_between_walls = wall_y_end - wall_y_start;
+		int y_remaining_roofs = y_number_between_walls;
+		int int_temp =0;
+
 		for (int i = start_x; i < end_x; i++) {
 			for (int h = start_y; h < end_y; h++) {
 				layout[i][h] = reserverd;
@@ -1074,13 +1087,14 @@ building* city_gen::generate_building(building_build_data* buiding_data) {
 										else {
 											if (q == 4 && x == 0) {
 												cell.expanded_layout_info[q][x] = 38;
-											}else
-											if (q == 0 || x == 0) {
-												cell.expanded_layout_info[q][x] = 0;
 											}
-											else {
-												cell.expanded_layout_info[q][x] = 1;
-											}
+											else
+												if (q == 0 || x == 0) {
+													cell.expanded_layout_info[q][x] = 0;
+												}
+												else {
+													cell.expanded_layout_info[q][x] = 1;
+												}
 										}
 									}
 									else if (i == wall_x_start && h == wall_y_end - 1) {
@@ -1198,16 +1212,17 @@ building* city_gen::generate_building(building_build_data* buiding_data) {
 												}
 												else {
 													if (dock_side == 1) {
-														if (x ==0 &&(q ==4 || q ==6)) {
+														if (x == 0 && (q == 4 || q == 6)) {
 															cell.expanded_layout_info[q][x] = 40;//the loading doors
 														}
-													}else
-													if (x == 0) {
-														cell.expanded_layout_info[q][x] = 0;
 													}
-													else {
-														cell.expanded_layout_info[q][x] = 1;
-													}
+													else
+														if (x == 0) {
+															cell.expanded_layout_info[q][x] = 0;
+														}
+														else {
+															cell.expanded_layout_info[q][x] = 1;
+														}
 												}
 											}
 											else if (h == wall_y_end - 1) {
@@ -1293,11 +1308,136 @@ building* city_gen::generate_building(building_build_data* buiding_data) {
 								}
 							}
 
-
 						}
 					}
 				}
 
+				//create the roof
+				if (has_roof) {
+
+					//test to see if it is inside the walls or outside
+					if ((i >= wall_x_start && i < wall_x_end) &&
+						(h >= wall_y_start && h < wall_y_end)) {
+
+						item_gen_info* temp_data = new item_gen_info;
+						temp_data->item = roof_place;
+						temp_data->roof = true;
+						bool add_filler = false;
+						switch (roof_type)
+						{
+						case 1://traditional
+							if (h == wall_y_end - 1) {
+								temp_data->angle = 90;
+								temp_data->roof_value = 1;
+								temp_data->z_cube_offset = 7;
+							}
+							else if (h == wall_y_start) {
+								temp_data->angle = 270;
+								temp_data->roof_value = 1;
+								temp_data->x_cube_offset = 7;
+							}
+							else {
+								temp_data->angle = 0;
+								temp_data->roof_value = 3;
+								temp_data->y_cube_offset = 1;
+								temp_data->z_cube_offset = 7;
+								if (i == wall_x_start || i == wall_x_end - 1) {
+									add_filler = true;
+								}
+							}
+							break;
+						case 2://traditional pointy
+							if (h == wall_y_end - 1) {
+								temp_data->angle = 90;
+								temp_data->roof_value = 1;
+								temp_data->z_cube_offset = 7;
+								
+							}
+							else if (h == wall_y_start) {
+								temp_data->angle = 270;
+								temp_data->roof_value = 1;
+								temp_data->x_cube_offset = 7;
+							}
+							else {
+								if (y_number_between_walls % 2 == 0) {//if even
+									int dis = h - wall_y_start;
+									int dis2 = wall_y_end - 1 - h;
+									if (dis > dis2) {
+										temp_data->angle = 90;
+										temp_data->z_cube_offset = 7;
+										temp_data->y_cube_offset = dis2+1;
+										int_temp = dis2 + 1;
+									}
+									else {
+										temp_data->angle = 270;
+										temp_data->x_cube_offset = 7;
+										temp_data->y_cube_offset = dis+1;
+										int_temp = dis + 1;
+
+									}
+									if (i == wall_x_start || i == wall_x_end - 1) {
+										add_filler = true;
+									}
+									temp_data->roof_value = 1;
+								}
+								else {
+									temp_data->angle = 0;
+									temp_data->roof_value = 3;
+									temp_data->y_cube_offset = 1;
+									temp_data->z_cube_offset = 7;
+									if (i == wall_x_start || i == wall_x_end - 1) {
+										add_filler = true;
+									}
+								}
+							}
+							break;
+						case 3:
+							temp_data->angle = 0;
+							temp_data->roof_value = 3;
+							temp_data->z_cube_offset = 7;
+							break;
+						default://jagged
+							temp_data->angle = 0;
+							temp_data->roof_value = 1;
+							break;
+						}
+						temp_data->floor = number_floors;
+						cell.items_on_wall.push_back(temp_data);
+						if (add_filler) {
+							if (int_temp == 0) {
+								temp_data = new item_gen_info;
+								temp_data->item = roof_place;
+								temp_data->roof = true;
+								//temp_data->y_cube_offset = 1;
+								temp_data->roof_value = 2;
+								temp_data->angle = 90;
+								if (i == wall_x_end - 1) {
+									temp_data->z_cube_offset = 7;
+								}
+								cell.items_on_wall.push_back(temp_data);
+							}
+							else {
+								for (int a = 0; a < int_temp; a++) {
+									temp_data = new item_gen_info;
+									temp_data->item = roof_place;
+									temp_data->roof = true;
+									temp_data->y_cube_offset = a;
+									temp_data->roof_value = 2;
+									temp_data->angle = 90;
+									if (i == wall_x_end - 1) {
+										temp_data->z_cube_offset = 7;
+									}
+									cell.items_on_wall.push_back(temp_data);
+								}
+								int_temp = 0;
+							}
+						}
+
+					}
+					else {//outside the walls
+						
+					}
+				}
 				layout_cells[i][h] = cell;
 				output->cell_info.push_back(&cell);
 			}
