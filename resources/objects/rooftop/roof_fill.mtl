@@ -1,7 +1,7 @@
-# Blender MTL File: 'buildings.blend'
+# Blender MTL File: 'roof_top_objects.blend'
 # Material Count: 1
 
-newmtl Material.013
+newmtl Material.003
 Ns 225.000000
 Ka 1.000000 1.000000 1.000000
 Kd 0.800000 0.800000 0.800000
@@ -10,4 +10,4 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.450000
 d 1.000000
 illum 2
-map_Kd corner_template.png
+map_Kd roof_fill.png
