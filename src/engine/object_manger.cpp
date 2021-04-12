@@ -745,7 +745,7 @@ void object_manger::create_wall_object() {
 	std::string* item_name_t = new std::string("wall object");
 
 	buffer = 0;
-	buffer_size = 100;
+	buffer_size = 300;
 	amount = 0;
 	modelMatrices = new glm::mat4[buffer_size];
 	custom_shader = NULL;

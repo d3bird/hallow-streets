@@ -652,6 +652,9 @@ void city::init(object_manger* OBJM, animation_manager* an) {
 						int x = (h * key) * 2;
 						x += wall_obj->x_cube_offset * 2;
 						int y = wall_obj->floor * (7 * 2);
+						if (wall_obj->floor > 1) {//correcting for the change in floor height
+							wall_obj->y_cube_offset -= (wall_obj->total_floors-1);
+						}
 						y += wall_obj->y_cube_offset * 2;
 						int z = (i * key) * 2;
 						z += wall_obj->z_cube_offset * 2;
@@ -677,6 +680,15 @@ void city::init(object_manger* OBJM, animation_manager* an) {
 						int x = (h * key) * 2;
 						x += wall_obj->x_cube_offset * 2;
 						int y = wall_obj->floor * (7 * 2);
+						if (wall_obj->floor > 1) {
+							wall_obj->y_cube_offset -= 1;
+							if (wall_obj->floor > 2) {
+								wall_obj->y_cube_offset -= 1;
+							}
+							if (wall_obj->floor > 3) {
+								wall_obj->y_cube_offset -= 1;
+							}
+						}
 						y += wall_obj->y_cube_offset * 2;
 						int z = (i * key) * 2;
 						z += wall_obj->z_cube_offset * 2;

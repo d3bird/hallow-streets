@@ -891,7 +891,7 @@ bool city_gen::check_buiding_data(building_build_data* buiding_data) {
 	return output;
 }
 
-
+static int number_floors = 1;
 building* city_gen::generate_building(building_build_data* buiding_data) {
 	int start_x = buiding_data->x_start;
 	int start_y = buiding_data->y_start;
@@ -930,8 +930,7 @@ building* city_gen::generate_building(building_build_data* buiding_data) {
 		int roof_type;//0 = wavy 1 = traditional slant, 2 pointing roof, 3 = flat  
 		int roof_subtype =0;//changes the direction the roof is facing
 		roof_type = 2;
-		int number_floors =2;
-
+		//int number_floors =1;
 		//set the differnt vars for differnt type of generations 
 		if (loading_dock) {
 			std::vector<int> sides_with_road;
@@ -1084,12 +1083,15 @@ building* city_gen::generate_building(building_build_data* buiding_data) {
 										if (q == 0 && x == 0) {
 											cell.expanded_layout_info[q][x] = 15;
 											if (number_floors > 1) {
-												item_gen_info* temp_data = new item_gen_info;
-												temp_data->item = wall;
-												temp_data->floor = 2;
-												temp_data->angle = 180;
-												temp_data->expanded_layout_value = 15;
-												cell.items_on_wall.push_back(temp_data);
+												for (int f = 1; f < number_floors; f++) {
+													item_gen_info* temp_data = new item_gen_info;
+													temp_data->item = wall;
+													temp_data->floor = f;
+													temp_data->angle = 180;
+													temp_data->expanded_layout_value = 15;
+													temp_data->total_floors = number_floors;
+													cell.items_on_wall.push_back(temp_data);
+												}
 											}
 										}
 										else {
@@ -1110,12 +1112,16 @@ building* city_gen::generate_building(building_build_data* buiding_data) {
 										if (q == 0 && x == key - 1) {
 											cell.expanded_layout_info[q][x] = 14;
 											if (number_floors > 1) {
-												item_gen_info* temp_data = new item_gen_info;
-												temp_data->item = wall;
-												temp_data->floor = 2;
-												temp_data->angle = 90;
-												temp_data->expanded_layout_value = 15;
-												cell.items_on_wall.push_back(temp_data);
+												for (int f = 1; f < number_floors; f++) {
+													item_gen_info* temp_data = new item_gen_info;
+													temp_data->item = wall;
+													temp_data->floor = f;
+													temp_data->angle = 90;
+													temp_data->expanded_layout_value = 15;
+													temp_data->x_cube_offset = 7;
+													temp_data->total_floors = number_floors;
+													cell.items_on_wall.push_back(temp_data);
+												}
 											}
 										}
 										else {
@@ -1132,12 +1138,16 @@ building* city_gen::generate_building(building_build_data* buiding_data) {
 										if (q == key - 1 && x == 0) {
 											cell.expanded_layout_info[q][x] = 16;
 											if (number_floors > 1) {
-												item_gen_info* temp_data = new item_gen_info;
-												temp_data->item = wall;
-												temp_data->floor = 2;
-												temp_data->angle = 180;
-												temp_data->expanded_layout_value = 16;
-												cell.items_on_wall.push_back(temp_data);
+												for (int f = 1; f < number_floors; f++) {
+													item_gen_info* temp_data = new item_gen_info;
+													temp_data->item = wall;
+													temp_data->floor = f;
+													temp_data->angle = 270;
+													temp_data->z_cube_offset = 7;
+													temp_data->expanded_layout_value = 16;
+													temp_data->total_floors = number_floors;
+													cell.items_on_wall.push_back(temp_data);
+												}
 											}
 										}
 										else {
@@ -1154,12 +1164,17 @@ building* city_gen::generate_building(building_build_data* buiding_data) {
 										if (q == key - 1 && x == key - 1) {
 											cell.expanded_layout_info[q][x] = 4;
 											if (number_floors > 1) {
-												item_gen_info* temp_data = new item_gen_info;
-												temp_data->item = wall;
-												temp_data->floor = 2;
-												temp_data->angle = 0;
-												temp_data->expanded_layout_value = 4;
-												cell.items_on_wall.push_back(temp_data);
+												for (int f = 1; f < number_floors; f++) {
+													item_gen_info* temp_data = new item_gen_info;
+													temp_data->item = wall;
+													temp_data->floor = f;
+													temp_data->angle = 0;
+													temp_data->expanded_layout_value = 4;
+													temp_data->x_cube_offset = 7;
+													temp_data->z_cube_offset = 7;
+													temp_data->total_floors = number_floors;
+													cell.items_on_wall.push_back(temp_data);
+												}
 											}
 										}
 										else {
@@ -1182,12 +1197,15 @@ building* city_gen::generate_building(building_build_data* buiding_data) {
 														cell.expanded_layout_info[q][x] = 27;
 														door_spawned = true;
 														if (number_floors > 1) {
-															item_gen_info* temp_data = new item_gen_info;
-															temp_data->item = wall;
-															temp_data->floor = 2;
-															temp_data->angle = 270;
-															temp_data->expanded_layout_value = 22;
-															cell.items_on_wall.push_back(temp_data);
+															for (int f = 1; f < number_floors; f++) {
+																item_gen_info* temp_data = new item_gen_info;
+																temp_data->item = wall;
+																temp_data->floor = f;
+																temp_data->angle = 270;
+																temp_data->expanded_layout_value = 22;
+																temp_data->total_floors = number_floors;
+																cell.items_on_wall.push_back(temp_data);
+															}
 														}
 													}
 													else {
@@ -1195,23 +1213,29 @@ building* city_gen::generate_building(building_build_data* buiding_data) {
 															cell.expanded_layout_info[q][x] = 31;
 															cell.type = wall_loading;
 															if (number_floors > 1) {
-																item_gen_info* temp_data = new item_gen_info;
-																temp_data->item = wall;
-																temp_data->floor = 2;
-																temp_data->angle = 270;
-																temp_data->expanded_layout_value = 22;
-																cell.items_on_wall.push_back(temp_data);
+																for (int f = 1; f < number_floors; f++) {
+																	item_gen_info* temp_data = new item_gen_info;
+																	temp_data->item = wall;
+																	temp_data->floor = f;
+																	temp_data->angle = 270;
+																	temp_data->expanded_layout_value = 22;
+																	temp_data->total_floors = number_floors;
+																	cell.items_on_wall.push_back(temp_data);
+																}
 															}
 														}
 														else {
 															cell.expanded_layout_info[q][x] = 22;
 															if (number_floors > 1) {
-																item_gen_info* temp_data = new item_gen_info;
-																temp_data->item = wall;
-																temp_data->floor = 2;
-																temp_data->angle = 270;
-																temp_data->expanded_layout_value = 22;
-																cell.items_on_wall.push_back(temp_data);
+																for (int f = 1; f < number_floors; f++) {
+																	item_gen_info* temp_data = new item_gen_info;
+																	temp_data->item = wall;
+																	temp_data->floor = f;
+																	temp_data->angle = 270;
+																	temp_data->expanded_layout_value = 22;
+																	temp_data->total_floors = number_floors;
+																	cell.items_on_wall.push_back(temp_data);
+																}
 															}
 														}
 													}
@@ -1231,12 +1255,16 @@ building* city_gen::generate_building(building_build_data* buiding_data) {
 														cell.expanded_layout_info[q][x] = 27;
 														door_spawned = true;
 														if (number_floors > 1) {
-															item_gen_info* temp_data = new item_gen_info;
-															temp_data->item = wall;
-															temp_data->floor = 2;
-															temp_data->angle = 270;
-															temp_data->expanded_layout_value = 22;
-															cell.items_on_wall.push_back(temp_data);
+															for (int f = 1; f < number_floors; f++) {
+																item_gen_info* temp_data = new item_gen_info;
+																temp_data->item = wall;
+																temp_data->floor = f;
+																temp_data->angle = 270;
+																temp_data->z_cube_offset = 7;
+																temp_data->expanded_layout_value = 22;
+																temp_data->total_floors = number_floors;
+																cell.items_on_wall.push_back(temp_data);
+															}
 														}
 													}
 													else {
@@ -1244,23 +1272,31 @@ building* city_gen::generate_building(building_build_data* buiding_data) {
 															cell.expanded_layout_info[q][x] = 31;
 															cell.type = wall_loading;
 															if (number_floors > 1) {
-																item_gen_info* temp_data = new item_gen_info;
-																temp_data->item = wall;
-																temp_data->floor = 2;
-																temp_data->angle = 270;
-																temp_data->expanded_layout_value = 22;
-																cell.items_on_wall.push_back(temp_data);
+																for (int f = 1; f < number_floors; f++) {
+																	item_gen_info* temp_data = new item_gen_info;
+																	temp_data->item = wall;
+																	temp_data->floor = f;
+																	temp_data->angle = 270;
+																	temp_data->expanded_layout_value = 22;
+																	temp_data->z_cube_offset = 7;
+																	temp_data->total_floors = number_floors;
+																	cell.items_on_wall.push_back(temp_data);
+																}
 															}
 														}
 														else {
 															cell.expanded_layout_info[q][x] = 22;
 															if (number_floors > 1) {
-																item_gen_info* temp_data = new item_gen_info;
-																temp_data->item = wall;
-																temp_data->floor = 2;
-																temp_data->angle = 270;
-																temp_data->expanded_layout_value = 22;
-																cell.items_on_wall.push_back(temp_data);
+																for (int f = 1; f < number_floors; f++) {
+																	item_gen_info* temp_data = new item_gen_info;
+																	temp_data->item = wall;
+																	temp_data->floor = f;
+																	temp_data->angle = 270;
+																	temp_data->z_cube_offset = 7;
+																	temp_data->expanded_layout_value = 22;
+																	temp_data->total_floors = number_floors;
+																	cell.items_on_wall.push_back(temp_data);
+																}
 															}
 														}
 													}
@@ -1280,12 +1316,14 @@ building* city_gen::generate_building(building_build_data* buiding_data) {
 														cell.expanded_layout_info[q][x] = 26;
 														door_spawned = true;
 														if (number_floors > 1) {
-															item_gen_info* temp_data = new item_gen_info;
-															temp_data->item = wall;
-															temp_data->floor = 2;
-															temp_data->angle = 180;
-															temp_data->expanded_layout_value = 22;
-															cell.items_on_wall.push_back(temp_data);
+															for (int f = 1; f < number_floors; f++) {
+																item_gen_info* temp_data = new item_gen_info;
+																temp_data->item = wall;
+																temp_data->floor = f;
+																temp_data->angle = 180;
+																temp_data->expanded_layout_value = 22;
+																cell.items_on_wall.push_back(temp_data);
+															}
 														}
 													}
 													else {
@@ -1293,23 +1331,27 @@ building* city_gen::generate_building(building_build_data* buiding_data) {
 															cell.expanded_layout_info[q][x] = 30;
 															cell.type = wall_loading;
 															if (number_floors > 1) {
-																item_gen_info* temp_data = new item_gen_info;
-																temp_data->item = wall;
-																temp_data->floor = 2;
-																temp_data->angle = 180;
-																temp_data->expanded_layout_value = 22;
-																cell.items_on_wall.push_back(temp_data);
+																for (int f = 1; f < number_floors; f++) {
+																	item_gen_info* temp_data = new item_gen_info;
+																	temp_data->item = wall;
+																	temp_data->floor = f;
+																	temp_data->angle = 180;
+																	temp_data->expanded_layout_value = 22;
+																	cell.items_on_wall.push_back(temp_data);
+																}
 															}
 														}
 														else {
 															cell.expanded_layout_info[q][x] = 21;
 															if (number_floors > 1) {
-																item_gen_info* temp_data = new item_gen_info;
-																temp_data->item = wall;
-																temp_data->floor = 2;
-																temp_data->angle = 180;
-																temp_data->expanded_layout_value = 22;
-																cell.items_on_wall.push_back(temp_data);
+																for (int f = 1; f < number_floors; f++) {
+																	item_gen_info* temp_data = new item_gen_info;
+																	temp_data->item = wall;
+																	temp_data->floor = f;
+																	temp_data->angle = 180;
+																	temp_data->expanded_layout_value = 22;
+																	cell.items_on_wall.push_back(temp_data);
+																}
 															}
 														}
 													}
@@ -1318,6 +1360,16 @@ building* city_gen::generate_building(building_build_data* buiding_data) {
 													if (dock_side == 1) {
 														if (x == 0 && (q == 4 || q == 6)) {
 															cell.expanded_layout_info[q][x] = 40;//the loading doors
+															if (number_floors > 1) {
+																for (int f = 1; f < number_floors; f++) {
+																	item_gen_info* temp_data = new item_gen_info;
+																	temp_data->item = wall;
+																	temp_data->floor = f;
+																	temp_data->angle = 180;
+																	temp_data->expanded_layout_value = 22;
+																	cell.items_on_wall.push_back(temp_data);
+																}
+															}
 														}
 													}
 													else
@@ -1335,12 +1387,16 @@ building* city_gen::generate_building(building_build_data* buiding_data) {
 														cell.expanded_layout_info[q][x] = 26;
 														door_spawned = true;
 														if (number_floors > 1) {
-															item_gen_info* temp_data = new item_gen_info;
-															temp_data->item = wall;
-															temp_data->floor = 2;
-															temp_data->angle = 180;
-															temp_data->expanded_layout_value = 22;
-															cell.items_on_wall.push_back(temp_data);
+															for (int f = 1; f < number_floors; f++) {
+																item_gen_info* temp_data = new item_gen_info;
+																temp_data->item = wall;
+																temp_data->floor = f;
+																temp_data->angle = 180;
+																temp_data->x_cube_offset = 7;
+																temp_data->expanded_layout_value = 22;
+																temp_data->total_floors = number_floors;
+																cell.items_on_wall.push_back(temp_data);
+															}
 														}
 													}
 													else {
@@ -1348,23 +1404,31 @@ building* city_gen::generate_building(building_build_data* buiding_data) {
 															cell.expanded_layout_info[q][x] = 30;
 															cell.type = wall_loading;
 															if (number_floors > 1) {
-																item_gen_info* temp_data = new item_gen_info;
-																temp_data->item = wall;
-																temp_data->floor = 2;
-																temp_data->angle = 180;
-																temp_data->expanded_layout_value = 22;
-																cell.items_on_wall.push_back(temp_data);
+																for (int f = 1; f < number_floors; f++) {
+																	item_gen_info* temp_data = new item_gen_info;
+																	temp_data->item = wall;
+																	temp_data->floor = f;
+																	temp_data->angle = 180;
+																	temp_data->x_cube_offset = 7;
+																	temp_data->expanded_layout_value = 22;
+																	temp_data->total_floors = number_floors;
+																	cell.items_on_wall.push_back(temp_data);
+																}
 															}
 														}
 														else {
 															cell.expanded_layout_info[q][x] = 21;
 															if (number_floors > 1) {
-																item_gen_info* temp_data = new item_gen_info;
-																temp_data->item = wall;
-																temp_data->floor = 2;
-																temp_data->angle = 180;
-																temp_data->expanded_layout_value = 22;
-																cell.items_on_wall.push_back(temp_data);
+																for (int f = 1; f < number_floors; f++) {
+																	item_gen_info* temp_data = new item_gen_info;
+																	temp_data->item = wall;
+																	temp_data->floor = f;
+																	temp_data->angle = 180;
+																	temp_data->x_cube_offset = 7;
+																	temp_data->expanded_layout_value = 22;
+																	temp_data->total_floors = number_floors;
+																	cell.items_on_wall.push_back(temp_data);
+																}
 															}
 														}
 													}
@@ -1530,6 +1594,7 @@ building* city_gen::generate_building(building_build_data* buiding_data) {
 							break;
 						}
 						temp_data->floor = number_floors;
+						temp_data->total_floors = number_floors;
 						cell.items_on_wall.push_back(temp_data);
 						if (add_filler) {
 							if (int_temp == 0) {
@@ -1543,6 +1608,7 @@ building* city_gen::generate_building(building_build_data* buiding_data) {
 								if (i == wall_x_end - 1) {
 									temp_data->z_cube_offset = 7;
 								}
+								temp_data->total_floors = number_floors;
 								cell.items_on_wall.push_back(temp_data);
 							}
 							else {
@@ -1557,6 +1623,7 @@ building* city_gen::generate_building(building_build_data* buiding_data) {
 									if (i == wall_x_end - 1) {
 										temp_data->z_cube_offset = 7;
 									}
+									temp_data->total_floors = number_floors;
 									cell.items_on_wall.push_back(temp_data);
 								}
 								int_temp = 0;
@@ -1575,6 +1642,7 @@ building* city_gen::generate_building(building_build_data* buiding_data) {
 
 		std::cout << "finishing generating building" << std::endl;
 
+		number_floors++;
 	return output;
 }
 

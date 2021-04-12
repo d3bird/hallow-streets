@@ -53,6 +53,7 @@ struct item_gen_info {
 	bool roof = false;
 	int roof_value;
 	int floor = 1;
+	int total_floors = 1;
 	int y_cube_offset = 0;
 	int x_cube_offset = 0;
 	int z_cube_offset = 0;
