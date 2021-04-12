@@ -41,6 +41,11 @@ object_manger::object_manger() {
 
 	cursed = new Shader("cursed.vs", "cursed.fs");
 	u_time = 0;
+	update_list = true; 
+	player_x = 0;
+	player_z = 0;
+	veiw_distance = 4;
+	city_layout_cells = NULL;
 	//demo 1 vars
 #ifdef DEMO1
 	angle = 0;
@@ -2691,7 +2696,45 @@ void object_manger::optimise_pipe_line() {
 	std::cout << "optimising the rendering pipeline" << std::endl;
 	std::cout << "creating rendering cells that are "<<key<<" x "<<key<<" big" << std::endl;
 
-	
+	for (int i = 0; i < items.size(); i++) {
+		item* temp_item = new item;
+		temp_item->model = items[i]->model;
+		temp_item->buffer = items[i]->buffer;
+		temp_item->buffer_size = items[i]->buffer_size;
+		temp_item->amount = items[i]->amount;
+		temp_item->modelMatrices = items[i]->modelMatrices;
+		temp_item->custom_shader = items[i]->custom_shader;
+		temp_item->item_data = items[i]->item_data;
+		temp_item->item_name = items[i]->item_name;
+		temp_item->type = items[i]->type;
+		temp_item->updatemats = items[i]->updatemats;
+		temp_item->draw = items[i]->draw;
+		optimised_items.push_back(temp_item);
+	}
+
+	if (city_layout_cells != NULL) {
+		bool clean = true;
+		int wrong = 0;
+		for (int i = 0; i < city_x_width; i++) {
+			for (int h = 0; h < city_z_width; h++) {
+				if (city_layout_cells[i][h].obj_in_cell.size() == 0) {
+					wrong++;
+					clean = false;
+					std::cout << i<<" , " <<h<< " is empty"<< std::endl;
+				}
+			}
+		}
+
+		if (clean) {
+			std::cout << "all cells were created correctly" << std::endl;
+		}
+		else {
+			std::cout << "there are " << wrong << " empty cells out of "<< city_x_width * city_z_width << std::endl;
+		}
+	}
+	else {
+		std::cout << "city_layout_cells was never set" << std::endl;
+	}
 
 	std::cout << "done creating rendering cells" << std::endl;
 	std::cout << "filling rendering cells" << std::endl;
@@ -2723,17 +2766,70 @@ void object_manger::optimise_pipe_line() {
 		}
 		
 	}
+	aggrigate_items_to_draw();
 	std::cout << "finished optimising the rendering pipeline" << std::endl;
 }
 
 
 void object_manger::draw_optimised() {
-	aggrigate_items_to_draw();
+	if (update_list) {
+		aggrigate_items_to_draw();
+	}
+	common->use();
+	common->setMat4("projection", projection);
+	common->setMat4("view", view);
+	for (int q = 0; q < optimised_items.size(); q++) {
+		//std::cout << q << std::endl;//useful to findout which model is breaking
+		if (optimised_items[q]->draw && q != 15) {
+			glm::mat4* matrix_temp = optimised_items[q]->modelMatrices;
+			glBindBuffer(GL_ARRAY_BUFFER, optimised_items[q]->buffer);
+			if (optimised_items[q]->updatemats) {
+				glBufferData(GL_ARRAY_BUFFER, optimised_items[q]->amount * sizeof(glm::mat4), &matrix_temp[0], GL_STATIC_DRAW);
+				optimised_items[q]->updatemats = false;
+			}
 
+			common->setInt("texture_diffuse1", 0);
+			glActiveTexture(GL_TEXTURE0);
+			glBindTexture(GL_TEXTURE_2D, optimised_items[q]->model->textures_loaded[0].id);
+			for (unsigned int i = 0; i < optimised_items[q]->model->meshes.size(); i++)
+			{
+				glBindVertexArray(optimised_items[q]->model->meshes[i].VAO);
+				glDrawElementsInstanced(GL_TRIANGLES, optimised_items[q]->model->meshes[i].indices.size(), GL_UNSIGNED_INT, 0, optimised_items[q]->amount);
+				glBindVertexArray(0);
+			}
+		}
+	}
 
 }
 
 void object_manger::aggrigate_items_to_draw() {
 
+	if (city_layout_cells != NULL) {
+
+	}
+	else {
+		std::cout << "can not update, city_layout_cells was NULL" << std::endl;
+	}
+	update_list = false;
 }
 
+void object_manger::set_veiw_distance(int i) { 
+	veiw_distance = i;
+	update_list = true;
+}
+void object_manger::set_player_pos(int x, int z) {
+	if (x != player_x) {
+		player_x = x;
+		update_list = true;
+	}
+	if (player_z != z) {
+		player_z = z;
+		update_list = true;
+	}
+}
+
+void object_manger::set_city_layout_cells(rending_cell** i, int x_w, int z_w) { 
+	city_layout_cells = i; 
+	city_x_width = x_w;
+	city_z_width = z_w;
+}

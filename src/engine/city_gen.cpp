@@ -26,6 +26,7 @@ city_gen::city_gen() {
 	layout_cells = NULL;
 	//generated_building = NULL;
 	height_map = NULL;
+	def_height = 4;
 	pass_key = NULL;
 	obj_count = 43;
 }
@@ -110,15 +111,19 @@ void city_gen::init() {
 
 		}
 	}
+	
 	//create the expanded version of the layout
 	layout_e = new int * [block_height* key];
-	for (int i = 0; i < block_height* key; i++) {
-		layout_e[i] = new int[block_width* key];
+	height_map = new double* [block_height * key];
+	for (int i = 0; i < block_height * key; i++) {
+		layout_e[i] = new int[block_width * key];
+		height_map[i] = new double[block_width * key];
 	}
 
 	for (int i = 0; i < block_height * key; i++) {
 		for (int h = 0; h < block_width * key; h++) {
 			layout_e[i][h] = 0;
+			height_map[i][h] = def_height;
 		}
 	}
 

@@ -89,7 +89,7 @@ private:
 
 	//check function to makesure that everything was inited
 	void check();
-	void add_object_to_cell(item_info* item, transfer_cell_item** cells, int i, int h);
+	void add_object_to_cell(item_info* item_data, rending_cell** cells, int xpos, int ypos);
 
 
 	glm::mat4 view;

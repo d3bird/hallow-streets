@@ -185,6 +185,7 @@ private:
 	//building* generated_building;
 
 	double** height_map;
+	double def_height;
 	int obj_count;
 	bool* pass_key;
 };

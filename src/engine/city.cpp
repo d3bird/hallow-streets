@@ -46,28 +46,30 @@ void city::update() {
 
 }
 
-void city::add_object_to_cell(item_info* item, transfer_cell_item** cells, int i, int h) {
-	return;
-	if (city_info == NULL) {
+void city::add_object_to_cell(item_info* item_data, rending_cell** cells, int xpos, int ypos) {
+	if (city_info == NULL || cells == NULL) {
 		std::cout << "can not add to cell, city info never created" << std::endl;
 		return;
 	}
-	if (item->x == -1 ||
-		item->y == -1 ||
-		item->z == -1) {
+	if (item_data->x == -1 ||
+		item_data->y == -1 ||
+		item_data->z == -1) {
 		std::cout << "object has -1 cords" << std::endl;
 		return;
 	}
+	
 
-	int new_x = i / 8;
-
-	if ((item->x >= (i * 8) * 2 && item->x < ((i + 1) * 8) * 2) &&
-		(item->z >= (h * 8) * 2 && item->z < ((h + 1) * 8) * 2)) {
-		cells[i][h].obj_in_cell.push_back(item);
+	//brute force place the block
+	for (int i = 0; i < city_info->get_height(); i++) {
+		for (int h = 0; h < city_info->get_width(); h++) {
+			if ((xpos >= cells[i][h].start_x && xpos <= cells[i][h].end_x) &&
+				(ypos >= cells[i][h].start_z && ypos <= cells[i][h].end_z)) {
+				cells[i][h].obj_in_cell.push_back(item_data);
+				return;
+			}
+		}
 	}
-
-
-	std::cout << "object could not be placed in cell x: " << item->x << " z: " << item->z << std::endl;
+	std::cout << "object could not be placed in cell x: " << xpos << " z: " << ypos << std::endl;
 }
 
 void city::init(object_manger* OBJM, animation_manager* an) {
@@ -92,18 +94,36 @@ void city::init(object_manger* OBJM, animation_manager* an) {
 	layout = city_info->get_layout();
 	int** layout_expanded = city_info->get_expanded_layout();
 
-	transfer_cell_item** cells;
+	int key = city_info->get_expandion_key();
+	x_width = city_info->get_height() * key;
+	z_width = city_info->get_width() * key;
 
-	cells = new transfer_cell_item * [city_info->get_height()];
+	rending_cell** cells;
+
+	cells = new rending_cell * [city_info->get_height()];
 	for (int i = 0; i < city_info->get_height(); i++) {
-		cells[i] = new transfer_cell_item[city_info->get_width()];
+		cells[i] = new rending_cell[city_info->get_width()];
+	}
+
+	for (int i = 0; i < city_info->get_height(); i++) {
+		for (int h = 0; h < city_info->get_width(); h++) {
+			//for (int x = 0; x < key; x++) {
+			//	for (int y = 0; y < key; y++) {
+			int x = key - 1;
+			int y = key - 1;
+			cells[i][h].start_x = (i * key);
+			cells[i][h].start_z = (h * key);
+			cells[i][h].end_x = (i * key) + x;
+			cells[i][h].end_z = (h * key) + y;
+			//	}
+			//}
+
+		}
 	}
 
 	//x_width = 9;// ROW;//rows
 	//z_width = 10;//COL;//collums
-	int key = city_info->get_expandion_key();
-	x_width = city_info->get_height() * key;
-	z_width = city_info->get_width() * key;
+
 
 	OBJM->set_block_size(0, 0, x_width, z_width, key);
 	int chicken_x_s = -1;
@@ -283,7 +303,7 @@ void city::init(object_manger* OBJM, animation_manager* an) {
 
 				temp = glm::translate(temp, glm::vec3(h * 2, 0, i * 2));
 				tempdata = OBJM->spawn_item(CUBE_T, h * 2, 0, i * 2, temp);
-				//add_object_to_cell(tempdata, cells);
+				add_object_to_cell(tempdata, cells,i,h);
 				//generated_mats_debug_cubes.push_back(temp);
 			}
 			else if (layout_expanded[i][h] == 3) {//for a wall
@@ -311,7 +331,7 @@ void city::init(object_manger* OBJM, animation_manager* an) {
 				tempdata->x = h * 2;
 				tempdata->y = 2;
 				tempdata->z = i * 2;
-				//add_object_to_cell(tempdata, cells);
+				add_object_to_cell(tempdata,cells,i,h);
 
 				//generated_mats_wall.push_back(temp);
 			}
@@ -346,7 +366,7 @@ void city::init(object_manger* OBJM, animation_manager* an) {
 				tempdata->x = h * 2;
 				tempdata->y = 2;
 				tempdata->z = i * 2;
-				//add_object_to_cell(tempdata, cells);
+				add_object_to_cell(tempdata,cells,i,h);
 
 				//generated_mats_wall_c.push_back(temp);
 			}
@@ -377,7 +397,7 @@ void city::init(object_manger* OBJM, animation_manager* an) {
 				tempdata->x = h * 2;
 				tempdata->y = 4;
 				tempdata->z = i * 2;
-				//add_object_to_cell(tempdata, cells);
+				add_object_to_cell(tempdata,cells,i,h);
 
 				//generated_mats_lightposts.push_back(temp);
 
@@ -440,7 +460,7 @@ void city::init(object_manger* OBJM, animation_manager* an) {
 				tempdata->x = x;
 				tempdata->y = y;
 				tempdata->z = z;
-				//add_object_to_cell(tempdata, cells);
+				add_object_to_cell(tempdata,cells,i,h);
 
 			}
 			else if (layout_expanded[i][h] == 17) {
@@ -476,7 +496,7 @@ void city::init(object_manger* OBJM, animation_manager* an) {
 				trans = glm::mat4(1.0f);
 				trans = glm::translate(trans, glm::vec3((h * 2), 2, (i * 2)));
 				tempdata = OBJM->spawn_item(CUBE_T, -1, -1, -1, trans);
-				//add_object_to_cell(tempdata, cells);
+				add_object_to_cell(tempdata,cells,i,h);
 
 			}
 			else if (layout_expanded[i][h] == 18) {
@@ -484,7 +504,7 @@ void city::init(object_manger* OBJM, animation_manager* an) {
 				glm::mat4 trans = glm::mat4(1.0f);
 				trans = glm::translate(trans, glm::vec3((h * 2), 2, (i * 2)));
 				tempdata = OBJM->spawn_item(CUBE_T, -1, -1, -1, trans);
-				//add_object_to_cell(tempdata, cells);
+				add_object_to_cell(tempdata,cells,i,h);
 
 			}
 			else if (19 <= layout_expanded[i][h] && layout_expanded[i][h] <= 22) {
@@ -505,7 +525,7 @@ void city::init(object_manger* OBJM, animation_manager* an) {
 				}
 
 				tempdata = OBJM->spawn_item(WALL_T, -1, -1, -1, trans);
-				//add_object_to_cell(tempdata, cells);
+				add_object_to_cell(tempdata,cells,i,h);
 
 			}
 			else if (24 <= layout_expanded[i][h] && layout_expanded[i][h] <= 27) {
@@ -526,7 +546,7 @@ void city::init(object_manger* OBJM, animation_manager* an) {
 				}
 
 				tempdata = OBJM->spawn_item(WALL_D_T, -1, -1, -1, trans);
-				//add_object_to_cell(tempdata, cells);
+				add_object_to_cell(tempdata,cells,i,h);
 
 			}
 			else if (28 <= layout_expanded[i][h] && layout_expanded[i][h] <= 31) {
@@ -547,7 +567,7 @@ void city::init(object_manger* OBJM, animation_manager* an) {
 				}
 
 				tempdata = OBJM->spawn_item(WALL_LA_T, -1, -1, -1, trans);
-				//add_object_to_cell(tempdata, cells);
+				add_object_to_cell(tempdata,cells,i,h);
 
 			}
 			else if (32 <= layout_expanded[i][h] && layout_expanded[i][h] <= 35) {
@@ -568,7 +588,7 @@ void city::init(object_manger* OBJM, animation_manager* an) {
 				}
 
 				tempdata = OBJM->spawn_item(FLOOR_LA_T, -1, -1, -1, trans);
-				//add_object_to_cell(tempdata, cells);
+				add_object_to_cell(tempdata,cells,i,h);
 
 				//std::cout << "creating a floor to draw" << std::endl;
 			}
@@ -591,7 +611,7 @@ void city::init(object_manger* OBJM, animation_manager* an) {
 
 				tempdata = OBJM->spawn_item(WALL_CLOCK_ANG_T, -1, -1, -1, trans);
 				//std::cout << "creating a floor to draw" << std::endl;
-				//add_object_to_cell(tempdata, cells);
+				add_object_to_cell(tempdata,cells,i,h);
 
 			}
 			else if (40 <= layout_expanded[i][h] && layout_expanded[i][h] <= 43) {
@@ -626,7 +646,7 @@ void city::init(object_manger* OBJM, animation_manager* an) {
 					AM->turn_object_into_door(tempdata, LOADING_DOOR_ROUTINE, 2);
 					one_time = false;
 				}
-				//add_object_to_cell(tempdata, cells);
+				add_object_to_cell(tempdata,cells,i,h);
 
 				std::cout << "creating a loading door" << std::endl;
 			}
@@ -733,20 +753,20 @@ void city::init(object_manger* OBJM, animation_manager* an) {
 
 	//test items
 	tempdata =OBJM->spawn_item(LEAVER_BOX_T, 1, 6, 1, trans);
-	//add_object_to_cell(tempdata, cells);
+	//add_object_to_cell(tempdata,cells,i,h);
 
 	tempdata = OBJM->spawn_item(LEAVER_T, 1, 6, 1, trans);
 
-	//add_object_to_cell(tempdata, cells);
+	//add_object_to_cell(tempdata,cells,i,h);
 	trans = glm::mat4(1.0f);
 	trans = glm::translate(trans, glm::vec3((4), 6, (2)));
 	tempdata = OBJM->spawn_item(TABLE_T, 1, 6, 1, trans);
 
-	//add_object_to_cell(tempdata, cells);
+	//add_object_to_cell(tempdata,cells,i,h);
 	trans = glm::mat4(1.0f);
 	trans = glm::translate(trans, glm::vec3((6), 6, (2)));
 	tempdata = OBJM->spawn_item(COMPUTER_T, 1, 6, 1, trans);
-	//add_object_to_cell(tempdata, cells);
+	//add_object_to_cell(tempdata,cells,i,h);
 
 	//test for the pathing area for the chicken routine
 	//std::cout << "low  " << low_x << "," << low_z << " || hig " << hig_x << "," << hig_z << std::endl;
@@ -779,7 +799,7 @@ void city::init(object_manger* OBJM, animation_manager* an) {
 	tempdata->x = 10;
 	tempdata->y = 4;
 	tempdata->z = 10;
-	//add_object_to_cell(tempdata, cells);
+	//add_object_to_cell(tempdata,cells,i,h);
 
 	cube_amount = x_width * z_width;
 
@@ -791,6 +811,8 @@ void city::init(object_manger* OBJM, animation_manager* an) {
 	pathing->set_key_for_passing_through(city_info->get_pas_key(), city_info->get_unq_obj_cnt());
 	pathing->init();
 	std::cout << "done" << std::endl;
+
+	OBJM->set_city_layout_cells(cells, city_info->get_height(), city_info->get_width());
 
 	if (cube_shader == NULL) {
 		cube_shader = new Shader("asteroids.vs", "asteroids.fs");

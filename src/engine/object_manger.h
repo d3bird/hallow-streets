@@ -115,22 +115,8 @@ struct item_loc {
 	}
 };
 
-struct transfer_cell_item {
-	int start_x = -1;
-	int start_z = -1;
-	int end_x = -1;
-	int end_z = -1;
-	std::vector< item_info*>obj_in_cell;
-};
-
-struct cell_item {
-	glm::mat4* modelMatrices;
-	item* item_object;
-};
-
 struct rending_cell {
-	glm::mat4* modelMatrices;
-	item* item_info;
+	std::vector<item_info *> obj_in_cell;
 	int start_x = -1;
 	int start_z = -1;
 	int end_x = -1;
@@ -185,6 +171,9 @@ public:
 	}
 
 	void optimise_pipe_line();
+	void set_veiw_distance(int i);
+	void set_player_pos(int x, int z);
+	void set_city_layout_cells(rending_cell** i, int x_w, int z_w);
 
 #ifdef DEMO1
 	void update_demo1();
@@ -247,7 +236,6 @@ private:
 
 	std::vector< item*> items;//every item
 	std::vector<block_loc*>* blocked_spots;
-	
 
 	//bool draw vars
 	bool draw_cubes;
@@ -280,13 +268,21 @@ private:
 	float u_time;
 
 	//optimised rendering
-	std::vector< rending_cell*>rending_cells;
+	rending_cell** city_layout_cells;
+	int city_x_width;
+	int city_z_width;
+	std::vector< item*> optimised_items;//items based on where the player is
 	int x_min;
 	int z_min; 
 	int x_max;
 	int z_max;
 	int number_of_cells;
 	int key;
+
+	int player_x;
+	int player_z;
+	bool update_list;
+	int veiw_distance;
 	//demo1 vars
 #ifdef DEMO1
 	float angle = 90.0f;
