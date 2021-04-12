@@ -68,3 +68,19 @@ void player::init() {
 
 }
 
+bool player::did_pos_change() { 
+	bool output = false;
+	glm::vec3 pos =cam->get_pos();
+	int x = ((pos.x / 2) / 8);
+	int z = ((pos.z / 2) / 8);
+	//std::cout << "player x_cell: "<<x<<" y_cell: "<<z << std::endl;
+	if (x_cell != x) {
+		x_cell = x;
+		output = true;
+	}
+	if (z_cell != z) {
+		z_cell =z;
+		output = true;
+	}
+	return output;
+}

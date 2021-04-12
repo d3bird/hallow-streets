@@ -32,6 +32,10 @@ public:
 
 	void set_height_map(double** h) { height_map = h; }
 
+	bool did_pos_change();
+	int get_x_cell() { return x_cell; }
+	int get_z_cell() { return z_cell; }
+
 private:
 
 	glm::mat4 view;
@@ -49,5 +53,8 @@ private:
 	timing* Time;
 	float* deltatime;
 	
+	int x_cell;
+	int z_cell;
+
 };
 

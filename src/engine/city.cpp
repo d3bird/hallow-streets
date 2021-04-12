@@ -46,11 +46,17 @@ void city::update() {
 
 }
 
-void city::add_object_to_cell(item_info* item_data, rending_cell** cells, int xpos, int ypos) {
+void city::add_object_to_cell(item_info* item_data, rending_cell** cells, int xpos, int ypos,bool fromcell) {
 	if (city_info == NULL || cells == NULL) {
 		std::cout << "can not add to cell, city info never created" << std::endl;
 		return;
 	}
+
+	if (fromcell) {
+		cells[xpos][ypos].obj_in_cell.push_back(item_data);
+		return;
+	}
+
 	if (item_data->x == -1 ||
 		item_data->y == -1 ||
 		item_data->z == -1) {
@@ -686,13 +692,16 @@ void city::init(object_manger* OBJM, animation_manager* an) {
 						}
 						if (wall_obj->roof_value == 1) {
 							tempdata = OBJM->spawn_item(SLANTED_ROOF_T, x, y, z, trans);
+							add_object_to_cell(tempdata, cells, i, h, true);
 						}
 						else if (wall_obj->roof_value == 2) {
 							tempdata = OBJM->spawn_item(ROOF_FILL_T, x, y, z, trans);
+							add_object_to_cell(tempdata, cells, i, h, true);
 						}
 						else if (wall_obj->roof_value == 3) {
 							//std::cout << "spawning a gneric floor" << std::endl;
 							tempdata = OBJM->spawn_item(GENERIC_FLOOR_T, x, y, z, trans);
+							add_object_to_cell(tempdata, cells, i, h, true);
 						}
 
 					}
@@ -723,15 +732,19 @@ void city::init(object_manger* OBJM, animation_manager* an) {
 						{
 						case 4:
 							tempdata = OBJM->spawn_item(WALL_C_T, x, y, z, trans);
+							add_object_to_cell(tempdata, cells, i, h, true);
 							break;
 						case 15:
 							tempdata = OBJM->spawn_item(WALL_C_T, x, y, z, trans);
+							add_object_to_cell(tempdata, cells, i, h, true);
 							break;
 						case 16:
 							tempdata = OBJM->spawn_item(WALL_C_T, x, y, z, trans);
+							add_object_to_cell(tempdata, cells, i, h, true);
 							break;
 						case 22:
 							tempdata = OBJM->spawn_item(WALL_T, x, y, z, trans);
+							add_object_to_cell(tempdata, cells, i, h, true);
 							break;
 						default:
 							std::cout << "does not reconize: " << wall_obj->expanded_layout_value << std::endl;

@@ -49,7 +49,7 @@ void world::draw_single() {
 
 //draw with deferred shadering
 void world::draw_deferred() {
-
+    
     glBindFramebuffer(GL_FRAMEBUFFER, gBuffer);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -63,6 +63,9 @@ void world::draw_deferred() {
     //City->draw();
     OBJM->set_cam(view);
     //OBJM->draw();
+    if (Player->did_pos_change()) {
+        OBJM->set_player_pos(Player->get_x_cell(), Player->get_z_cell());
+    }
     OBJM->draw_optimised();
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 

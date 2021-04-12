@@ -268,6 +268,9 @@ private:
 	float u_time;
 
 	//optimised rendering
+	void add_rending_cell_to_list(rending_cell cell);
+	void clear_optimised_items();
+
 	rending_cell** city_layout_cells;
 	int city_x_width;
 	int city_z_width;
@@ -278,11 +281,15 @@ private:
 	int z_max;
 	int number_of_cells;
 	int key;
-
-	int player_x;
+	//what cell the player is in
+	int player_x; 
 	int player_z;
+
 	bool update_list;
 	int veiw_distance;
+	int veiw_type =1;
+	//1 is square around the player
+	//2 is 180 in front of the player
 	//demo1 vars
 #ifdef DEMO1
 	float angle = 90.0f;

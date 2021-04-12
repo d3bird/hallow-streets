@@ -46,6 +46,8 @@ object_manger::object_manger() {
 	player_z = 0;
 	veiw_distance = 4;
 	city_layout_cells = NULL;
+	player_x = 0;
+	player_z = 0;
 	//demo 1 vars
 #ifdef DEMO1
 	angle = 0;
@@ -2691,24 +2693,26 @@ std::string object_manger::item_type_to_string(item_type i) {
 	return output;
 }
 
-
 void object_manger::optimise_pipe_line() {
 	std::cout << "optimising the rendering pipeline" << std::endl;
 	std::cout << "creating rendering cells that are "<<key<<" x "<<key<<" big" << std::endl;
 
+	//creates the base line for the optimasation
 	for (int i = 0; i < items.size(); i++) {
 		item* temp_item = new item;
 		temp_item->model = items[i]->model;
 		temp_item->buffer = items[i]->buffer;
 		temp_item->buffer_size = items[i]->buffer_size;
-		temp_item->amount = items[i]->amount;
-		temp_item->modelMatrices = items[i]->modelMatrices;
+		//temp_item->amount = items[i]->amount;
+		temp_item->amount = 0;
+		//temp_item->modelMatrices = items[i]->modelMatrices;
+		temp_item->modelMatrices = new glm::mat4[temp_item->buffer_size];
 		temp_item->custom_shader = items[i]->custom_shader;
-		temp_item->item_data = items[i]->item_data;
+		//temp_item->item_data = items[i]->item_data;
 		temp_item->item_name = items[i]->item_name;
 		temp_item->type = items[i]->type;
 		temp_item->updatemats = items[i]->updatemats;
-		temp_item->draw = items[i]->draw;
+		temp_item->draw = false;
 		optimised_items.push_back(temp_item);
 	}
 
@@ -2770,7 +2774,6 @@ void object_manger::optimise_pipe_line() {
 	std::cout << "finished optimising the rendering pipeline" << std::endl;
 }
 
-
 void object_manger::draw_optimised() {
 	if (update_list) {
 		aggrigate_items_to_draw();
@@ -2805,7 +2808,34 @@ void object_manger::draw_optimised() {
 void object_manger::aggrigate_items_to_draw() {
 
 	if (city_layout_cells != NULL) {
+		//player_x = 0;
+		//player_z = 0;
+		clear_optimised_items();
+		if (veiw_type == 1) {// the square around the player
+			int x_start = player_x - veiw_distance;
+			int z_start = player_z - veiw_distance;
+			int x_end = player_x + veiw_distance;
+			int z_end = player_z + veiw_distance;
+			if (x_start < 0) {
+				x_start = 0;
+			}
+			if (z_start < 0) {
+				z_start = 0;
+			}
+			if (x_end >= city_x_width) {
+				x_end = city_x_width;
+			}
+			if (z_end >= city_z_width) {
+				z_end = city_z_width;
+			}
 
+			for (int i = x_start; i < x_end; i++) {
+				for (int h = z_start; h < z_end; h++) {
+					add_rending_cell_to_list(city_layout_cells[i][h]);
+				}
+			}
+
+		}
 	}
 	else {
 		std::cout << "can not update, city_layout_cells was NULL" << std::endl;
@@ -2813,17 +2843,136 @@ void object_manger::aggrigate_items_to_draw() {
 	update_list = false;
 }
 
+void object_manger::add_rending_cell_to_list(rending_cell cell) {
+	item_info* temp_data;
+	for (int q = 0; q < cell.obj_in_cell.size(); q++) {
+		temp_data = cell.obj_in_cell[q];
+		int item_id = -1;
+		switch (temp_data->type) {
+		case CUBE_T:
+			item_id = 0;
+			break;
+		case SIDEWALK_T:
+			item_id = 1;
+			break;
+		case LIGHT_POST_T:
+			item_id = 2;
+			break;
+		case WALL_T:
+			item_id = 3;
+			break;
+		case WALL_C_T:
+			item_id = 4;
+			break;
+		case SIDESTREET_T:
+			item_id = 5;
+			break;
+		case SKYTRACK_S_T:
+			item_id = 6;
+			break;
+		case SKYTRACK_C_T:
+			item_id = 7;
+			break;
+		case CHICKEN_T:
+			item_id = 8;
+			break;
+		case SKYTRACK_CART:
+			item_id = 9;
+			break;
+		case CANNON_FRAME_T:
+			item_id = 10;
+			break;
+		case CANNON_PLATFORM_T:
+			item_id = 11;
+			break;
+		case CANNON_T:
+			item_id = 12;
+			break;
+		case ZAP_TOWER_T:
+			item_id = 13;
+			break;
+		case ZAP_SPHERE_T:
+			item_id = 14;
+			break;
+		case CURSE_CHICKEN_T:
+			item_id = 15;
+			break;
+		case WALL_D_T:
+			item_id = 16;
+			break;
+		case WALL_LA_T:
+			item_id = 17;
+			break;
+		case FLOOR_LA_T:
+			item_id = 18;
+			break;
+		case WALL_CLOCK_ANG_T:
+			item_id = 19;
+			break;
+		case LOADING_DOOR_T:
+			item_id = 20;
+			break;
+		case LEAVER_BOX_T:
+			item_id = 21;
+			break;
+		case LEAVER_T:
+			item_id = 22;
+			break;
+		case TABLE_T:
+			item_id = 23;
+			break;
+		case COMPUTER_T:
+			item_id = 24;
+			break;
+		case SLANTED_ROOF_T:
+			item_id = 25;
+			break;
+		case ROOF_FILL_T:
+			item_id = 26;
+			break;
+		case GENERIC_FLOOR_T:
+			item_id = 27;
+			break;
+		default:
+			std::cout << "not a reconized item type" << std::endl;
+			break;
+		}
+
+		if (optimised_items[item_id]->draw == false) {
+			optimised_items[item_id]->draw = true;
+		}
+
+		int buffer_spot = optimised_items[item_id]->amount;
+		optimised_items[item_id]->amount++;
+
+		optimised_items[item_id]->modelMatrices[buffer_spot] =
+			items[temp_data->item_id]->modelMatrices[temp_data->buffer_loc];
+		optimised_items[temp_data->item_id]->updatemats = true;
+	}
+}
+
+
+void object_manger::clear_optimised_items() {
+
+	for (int i = 0; i < optimised_items.size(); i++) {
+		optimised_items[i]->draw = false;
+		optimised_items[i]->amount = 0;
+	}
+}
+
+
 void object_manger::set_veiw_distance(int i) { 
 	veiw_distance = i;
 	update_list = true;
+	veiw_type = 1;//
 }
 void object_manger::set_player_pos(int x, int z) {
 	if (x != player_x) {
-		player_x = x;
+		player_z = x;
 		update_list = true;
 	}
 	if (player_z != z) {
-		player_z = z;
+		player_x = z;
 		update_list = true;
 	}
 }
