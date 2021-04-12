@@ -62,13 +62,14 @@ public:
     glm::vec3 get_pos() { return Position; }
     glm::vec3 get_up() { return Up; }
     glm::vec3 get_look() { return Front; }
-
+    glm::vec3* get_Front_no_Y() { return &Front_no_Y; cam_move = false; }
+    bool did_cam_move() { return cam_move; }
     float MovementSpeed;
 private:
     void updateCameraVectors();
 
     bool free_cam;
-
+    bool cam_move;
     // camera Attributes
     glm::vec3 Position;
     glm::vec3 Front;

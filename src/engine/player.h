@@ -35,8 +35,15 @@ public:
 	bool did_pos_change();
 	int get_x_cell() { return x_cell; }
 	int get_z_cell() { return z_cell; }
-
+	int get_direction();
 private:
+
+	enum look_direction {
+		NORTH = 0, NORTH_EAST = 1, NORTH_WEST = 2, WEST = 3, EAST = 4,
+		SOUTH = 5, SOUTH_EAST = 6, SOUTH_WEST = 7, LOST =8
+	};
+	
+	std::string look_direction_to_string(look_direction i);
 
 	glm::mat4 view;
 	glm::mat4 projection;
@@ -52,7 +59,7 @@ private:
 	Camera* cam;
 	timing* Time;
 	float* deltatime;
-	
+	glm::vec3* look;
 	int x_cell;
 	int z_cell;
 

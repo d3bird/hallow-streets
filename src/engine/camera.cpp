@@ -88,6 +88,7 @@ void Camera::updateCameraVectors(){
         front.y = 0;
         Front_no_Y = glm::normalize(front);
     }
+    cam_move = true;
     front.y = sin(glm::radians(Pitch));
     Front = glm::normalize(front);
     // also re-calculate the Right and Up vector

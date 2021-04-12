@@ -70,7 +70,8 @@ bool online_play;
 bool take_input = true;;
 
 player* Player;
-bool freecam = true;
+bool freecam = false;
+
 int main() {
 
     camera= new Camera(glm::vec3(7.9019, 29.3491, 18.9233), glm::vec3(0.0f, 1.0f, 0.0f), -89.2999, -71.7001);//looking at the whole World

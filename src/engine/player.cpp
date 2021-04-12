@@ -54,7 +54,7 @@ void player::init() {
 	space = new Shader("planet.vs", "planet.fs"); 
 	std::cout << "loading models" << std::endl;
 	moon = new Model("resources/objects/planet/planet.obj");
-
+	glm::vec3* look = cam->get_Front_no_Y();
 	if (Time != NULL) {
 		std::cout << "setting time" << std::endl;
 		deltatime = Time->get_time_change();
@@ -81,6 +81,78 @@ bool player::did_pos_change() {
 	if (z_cell != z) {
 		z_cell =z;
 		output = true;
+	}
+	return output;
+}
+
+
+int player::get_direction() {
+
+	look_direction i = LOST;
+
+	if ((look->z > -.8 && look->z < -.2) &&
+		(look->x > .2 && look->x < .8)) {
+		i = NORTH_EAST;
+	}
+	else if ((look->z > -.8 && look->z < -.2) &&
+		(look->x < -.2 && look->x > -.8)) {
+		i = NORTH_WEST;
+	}
+	else if ((look->z < .8 && look->z > .2) &&
+		(look->x > .2 && look->x < .8)) {
+		i = SOUTH_EAST;
+	}
+	else if ((look->z < .8 && look->z > .2) &&
+		(look->x < -.2 && look->x > -.8)) {
+		i = SOUTH_WEST;
+	}
+
+	else if (look->z >= .8) {
+		i = SOUTH;
+	}
+	else if (look->z <= -.8) {
+		i = NORTH;
+	}
+	else if (look->x >= .8) {
+		i = EAST;
+	}
+	else if (look->x <= -.8) {
+		i = WEST;
+	}
+
+	//std::cout << "looking " << look_direction_to_string(i) << ", x_look: " << look->x << " y_look: " << look->z << std::endl;
+	return i;
+}
+
+std::string player::look_direction_to_string(look_direction i) {
+	std::string output = "unkown";
+	switch (i)
+	{
+	case player::NORTH:
+		output = "NORTH";
+		break;
+	case player::NORTH_EAST:
+		output = "NORTH_EAST";
+		break;
+	case player::NORTH_WEST:
+		output = "NORTH_WEST";
+		break;
+	case player::WEST:
+		output = "WEST";
+		break;
+	case player::EAST:
+		output = "EAST";
+		break;
+	case player::SOUTH:
+		output = "SOUTH";
+		break;
+	case player::SOUTH_EAST:
+		output = "SOUTH_EAST";
+		break;
+	case player::SOUTH_WEST:
+		output = "SOUTH_WEST";
+		break;
+
 	}
 	return output;
 }
