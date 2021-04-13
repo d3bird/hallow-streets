@@ -55,3 +55,7 @@ stb_image.h
 glm
 assimp
 irrKlang
+imgui
+# libs needed but not included in this build
+boost
+
