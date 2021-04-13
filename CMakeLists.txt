@@ -106,7 +106,7 @@ file(GLOB_RECURSE SOURCE
 )
 
 set(NAME "${CHAPTER}")
-add_executable(${NAME} ${SOURCE})
+add_executable(${NAME} ${SOURCE} ${CMAKE_SOURCE_DIR}/resources/icon/icon.rc)
 target_link_libraries(${NAME} ${LIBS})
 if(WIN32)
     set_target_properties(${NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/bin/${CHAPTER}")
