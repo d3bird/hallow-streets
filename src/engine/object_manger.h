@@ -185,9 +185,11 @@ public:
 	void set_veiw_distance(int i);
 	void set_player_pos(int x, int z);
 	void set_look_dir(int i) { look_dir = i; update_list = true; }
-	void set_veiw_type(int i) { veiw_type = i; }
+	void set_veiw_type(int i) { veiw_type = i; update_list = true;}
 	void set_city_layout_cells(rending_cell** i, int x_w, int z_w);
-	void set_draw_offest(int dir, int amount);
+	int get_veiw_distance() { return veiw_distance; }
+	void set_veiw_width(int i) { width = i; update_list = true;}
+	int get_veiw_width() {return width; }
 
 	//setting
 	direction_offsets* get_east_off() { return east_off; }
@@ -309,7 +311,7 @@ private:
 	int veiw_distance;
 	int veiw_type =1;
 	int look_dir;
-
+	int width;
 	direction_offsets* east_off;
 	direction_offsets* west_off;
 	direction_offsets* north_off;

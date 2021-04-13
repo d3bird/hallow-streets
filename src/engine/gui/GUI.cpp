@@ -50,6 +50,7 @@ GUI::GUI() {
     item_data = NULL;
     actors = NULL;
     routines = NULL;
+    frustum_win = false;
     routines_edit_index = -1;
     show_actors_that_follow_routine = -1;
     follow = DEFF_ERROR_ROUTINE;
@@ -87,6 +88,8 @@ GUI::GUI() {
     dir_changed = false;
     dir_selection = 0;
     dir_changed = true;
+    veiw_disance = -1;
+    veiw_width = -1;
 }
 
 GUI::~GUI() {
@@ -797,6 +800,7 @@ void GUI::debug_info() {
             if (ImGui::MenuItem("audio settings", "")) { tab = 1; }
             if (ImGui::MenuItem("model information", "")) { tab = 2; }
             if (ImGui::MenuItem("server information", "")) { tab = 3; }
+            if (ImGui::MenuItem("frustum culling", "")) { tab = 4; }
             if (ImGui::MenuItem("close", "")) { debug_info_draw = false; }
             ImGui::EndMenu();
         }
@@ -841,6 +845,9 @@ void GUI::debug_info() {
         }
         tab = 0;
         break;
+    case 4:
+        frustum_win = true;
+            break;
     case 0:
     default:
         ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
@@ -861,6 +868,9 @@ void GUI::debug_info() {
     if (draw_model_windows) {
         draw_model_window();
     }
+    if (frustum_win) {
+        draw_frustum_win();
+    }
     // Display contents in a scrolling region
    /* ImGui::TextColored(ImVec4(1, 1, 0, 1), "Important Stuff");
     ImGui::BeginChild("Scrolling");
@@ -869,6 +879,37 @@ void GUI::debug_info() {
     ImGui::EndChild();*/
     ImGui::End();
 
+}
+
+void GUI::draw_frustum_win() {
+    ImGui::Begin("frustum culling information", &frustum_win);
+    ImGui::Text("frustum culling information");
+    if (OBJM != NULL) {
+        if (veiw_disance == -1) {
+            veiw_disance = OBJM->get_veiw_distance();
+        }
+        if (veiw_width == -1) {
+            veiw_width = OBJM->get_veiw_width();
+        }
+        ImGui::Text("edit veiw distance");
+        if (ImGui::InputInt("distance:", &veiw_disance)) {
+            if (veiw_disance < 1) {
+                veiw_disance = 1;
+            }
+            OBJM->set_veiw_distance(veiw_disance);
+        }
+        ImGui::Text("edit veiw width");
+        if (ImGui::InputInt("width:", &veiw_width)) {
+           if (veiw_width < 1) {
+                veiw_width = 1;
+            }
+            OBJM->set_veiw_width(veiw_width);
+        }
+    }
+    else {
+        ImGui::Text("OBJM is null");
+    }
+    ImGui::End();
 }
 
 void GUI::draw_rendering_module() {

@@ -160,5 +160,10 @@ private:
 
 	int dir_selection;
 	bool dir_changed;
+
+	void draw_frustum_win();
+	bool frustum_win;
+	int veiw_disance;
+	int veiw_width;
 };
 

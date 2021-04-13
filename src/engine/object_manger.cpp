@@ -74,7 +74,7 @@ object_manger::object_manger() {
 	south_off->x_end_off = 0;
 	south_off->z_end_off = 0;
 
-
+	width = 4;
 	//demo 1 vars
 #ifdef DEMO1
 	angle = 0;
@@ -2868,7 +2868,6 @@ void object_manger::aggrigate_items_to_draw() {
 		}
 		else if (veiw_type == 2) {// the area in front of the play
 			if (look_dir != -1) {
-				int width = 4;//how wide the screen should be
 				int x_start = player_x - veiw_distance;
 				int z_start = player_z - veiw_distance;
 				int x_end = player_x + veiw_distance;
