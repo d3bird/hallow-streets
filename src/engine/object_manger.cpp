@@ -2878,6 +2878,8 @@ void object_manger::aggrigate_items_to_draw() {
 				case 0://north
 					/*z_end = player_z + 1;*/
 					x_end = player_x + 1;
+					z_start = player_z - width;
+					z_end = player_z + width;
 					break;
 				case 1://north east
 					break;
@@ -2886,14 +2888,20 @@ void object_manger::aggrigate_items_to_draw() {
 				case 3://west
 					//x_end = player_x + 1;
 					z_end = player_z + 1;
+					x_start = player_x - width;
+					x_end = player_x + width;
 					break;
 				case 4://east
 					/*x_start = player_x - 1;*/
 					z_start = player_z - 1;
+					x_start = player_x - width;
+					x_end = player_x + width;
 					break;
 				case 5://south
 					/*z_start = player_z - 1;*/
 					x_start = player_x - 1;
+					z_start = player_z - width;
+					z_end = player_z + width;
 					break;
 				case 6://south east
 					break;
