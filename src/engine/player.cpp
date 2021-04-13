@@ -11,7 +11,8 @@ player::player(Camera* c, bool free){
 	cam = c;
 
 	height_map = NULL;
-
+	look = NULL;
+	dir = -2;
 	if (free_camera) {
 		cam->activate_free_Cam();
 
@@ -19,7 +20,6 @@ player::player(Camera* c, bool free){
 	else {
 		cam->deactivate_free_Cam();
 	}
-
 }
 
 player::~player(){
@@ -54,7 +54,7 @@ void player::init() {
 	space = new Shader("planet.vs", "planet.fs"); 
 	std::cout << "loading models" << std::endl;
 	moon = new Model("resources/objects/planet/planet.obj");
-	glm::vec3* look = cam->get_Front_no_Y();
+	look = cam->get_Front_no_Y();
 	if (Time != NULL) {
 		std::cout << "setting time" << std::endl;
 		deltatime = Time->get_time_change();
@@ -87,7 +87,9 @@ bool player::did_pos_change() {
 
 
 int player::get_direction() {
-
+	if (look == NULL) {
+		look = cam->get_Front_no_Y();
+	}
 	look_direction i = LOST;
 
 	if ((look->z > -.8 && look->z < -.2) &&

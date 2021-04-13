@@ -123,6 +123,17 @@ struct rending_cell {
 	int end_z = -1;
 };
 
+struct direction_offsets {
+	int x_start_off;
+	bool x_s_set_to_player = false;
+	int z_start_off;
+	bool z_s_set_to_player = false;
+	int x_end_off;
+	bool x_e_set_to_player = false;
+	int z_end_off;
+	bool z_e_set_to_player = false;
+};
+
 class object_manger{
 public:
 
@@ -173,7 +184,16 @@ public:
 	void optimise_pipe_line();
 	void set_veiw_distance(int i);
 	void set_player_pos(int x, int z);
+	void set_look_dir(int i) { look_dir = i; update_list = true; }
+	void set_veiw_type(int i) { veiw_type = i; }
 	void set_city_layout_cells(rending_cell** i, int x_w, int z_w);
+	void set_draw_offest(int dir, int amount);
+
+	//setting
+	direction_offsets* get_east_off() { return east_off; }
+	direction_offsets* get_west_off() { return west_off; }
+	direction_offsets* get_north_off() { return north_off; }
+	direction_offsets* get_south_off() { return south_off; }
 
 #ifdef DEMO1
 	void update_demo1();
@@ -288,6 +308,13 @@ private:
 	bool update_list;
 	int veiw_distance;
 	int veiw_type =1;
+	int look_dir;
+
+	direction_offsets* east_off;
+	direction_offsets* west_off;
+	direction_offsets* north_off;
+	direction_offsets* south_off;
+
 	//1 is square around the player
 	//2 is 180 in front of the player
 	//demo1 vars

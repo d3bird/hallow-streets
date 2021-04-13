@@ -43,6 +43,7 @@ GUI::GUI() {
     spawn_item = false;
     show_animation_stats = false;
     edit_routine = false;
+    edit_rendering = false;
     network = NULL;
     OBJM = NULL;
     AM = NULL;
@@ -78,6 +79,14 @@ GUI::GUI() {
     server_info = false;
     buffer_length = 100;
     clear_message = false;
+
+    east_off = NULL;
+    west_off = NULL;
+    north_off = NULL;
+    south_off = NULL;
+    dir_changed = false;
+    dir_selection = 0;
+    dir_changed = true;
 }
 
 GUI::~GUI() {
@@ -220,6 +229,7 @@ void GUI::draw_model_window() {
         spawn_item = true;
         show_animation_stats = false;
         edit_routine = false;
+        edit_rendering = false;
     }
     if (ImGui::Button("edit cell")) {
         spawn_item = false;
@@ -227,6 +237,7 @@ void GUI::draw_model_window() {
         edit_cell = true;
         show_animation_stats = false;
         edit_routine = false;
+        edit_rendering = false;
     }
     if (ImGui::Button("edit animation routine")) {
         spawn_item = false;
@@ -234,6 +245,7 @@ void GUI::draw_model_window() {
         show_item_stats = false;
         show_animation_stats = false;
         edit_routine = true;
+        edit_rendering = false;
     }
     if (ImGui::Button("show item stats")) {
         spawn_item = false;
@@ -241,6 +253,7 @@ void GUI::draw_model_window() {
         show_item_stats = true;
         show_animation_stats = false;
         edit_routine = false;
+        edit_rendering = false;
     }
     if (ImGui::Button("show animation stats")) {
         spawn_item = false;
@@ -248,8 +261,16 @@ void GUI::draw_model_window() {
         show_item_stats = false;
         show_animation_stats = true;
         edit_routine = false;
+        edit_rendering = false;
     }
-   
+    if (ImGui::Button("set rendering data")) {
+        spawn_item = false;
+        edit_cell = false;
+        show_item_stats = false;
+        show_animation_stats = false;
+        edit_routine = false;
+        edit_rendering = true;
+    }
     ImGui::EndChild();
     ImGui::SameLine();
     ImGui::InvisibleButton("vsplitter", ImVec2(8.0f, height));
@@ -489,6 +510,9 @@ void GUI::draw_model_window() {
             }
 
         }
+    }
+    else if (edit_rendering) {
+    draw_rendering_module();
     }
     ImGui::EndChild();
     ImGui::InvisibleButton("hsplitter", ImVec2(-1, 8.0f));
@@ -754,6 +778,9 @@ void GUI::draw_model_window() {
         }
         ImGui::EndChild();
     }
+    else if (edit_rendering) {
+        draw_rendering_bottom_module();
+    }
     ImGui::EndChild();
     ImGui::PopStyleVar();
 
@@ -814,7 +841,6 @@ void GUI::debug_info() {
         }
         tab = 0;
         break;
-
     case 0:
     default:
         ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
@@ -845,6 +871,210 @@ void GUI::debug_info() {
 
 }
 
+void GUI::draw_rendering_module() {
+
+    std::string temp = "Currently rendering";
+    ImGui::Text(temp.c_str());
+    temp = "veiw distance";
+    ImGui::Text(temp.c_str());
+    temp = "the player is looking to the ";
+    ImGui::Text(temp.c_str());
+    temp = "currently editing ";
+    std::string n;
+    switch (dir_selection)
+    {
+    case 0:
+        n = "north";
+        temp = temp + n;
+        break;
+    case 1:
+        n = "east";
+        temp = temp + n;
+        break;
+    case 2:
+        n = "west";
+        temp = temp + n;
+        break;
+    case 3:
+        n = "south";
+        temp = temp + n;
+        break;
+    }
+    ImGui::Text(temp.c_str());
+    if (ImGui::Checkbox("set x_start to player", &x_start)) {
+        x_start = !x_start;
+    }
+    if (ImGui::Checkbox("set z_start to player", &x_start)) {
+        x_start = !x_start;
+    }
+    if (ImGui::Checkbox("set x_end to player", &x_start)) {
+        x_start = !x_start;
+    }
+    if (ImGui::Checkbox("set z_end to player", &x_start)) {
+        x_start = !x_start;
+    }
+    ImGui::InputInt("x_start_off", &x_start_off);
+    ImGui::InputInt("z_start_off", &z_start_off);
+    ImGui::InputInt("x_end_off", &x_end_off);
+    ImGui::InputInt("z_end_off", &z_end_off);
+
+    switch (dir_selection)
+    {
+    case 0:
+        if (north_off == NULL) {
+            north_off = OBJM->get_north_off();
+        }
+        north_off->x_s_set_to_player = x_start;
+        north_off->z_s_set_to_player = z_start;
+        north_off->x_e_set_to_player = x_end;
+        north_off->z_e_set_to_player = z_end;
+
+        north_off->x_start_off = x_start_off;
+        north_off->z_start_off = z_start_off;
+        north_off->x_end_off = x_end_off;
+        north_off->z_end_off = z_end_off;
+
+        break;
+    case 1:
+        if (east_off == NULL) {
+            east_off = OBJM->get_east_off();
+        }
+        east_off->x_s_set_to_player = x_start;
+        east_off->z_s_set_to_player = z_start;
+        east_off->x_e_set_to_player = x_end;
+        east_off->z_e_set_to_player = z_end;
+
+        east_off->x_start_off = x_start_off;
+        east_off->z_start_off = z_start_off;
+        east_off->x_end_off = x_end_off;
+        east_off->z_end_off = z_end_off;
+
+        break;
+    case 2:
+        if (west_off == NULL) {
+            west_off = OBJM->get_west_off();
+        }
+        west_off->x_s_set_to_player = x_start;
+        west_off->z_s_set_to_player = z_start;
+        west_off->x_e_set_to_player = x_end;
+        west_off->z_e_set_to_player = z_end;
+
+        west_off->x_start_off = x_start_off;
+        west_off->z_start_off = z_start_off;
+        west_off->x_end_off = x_end_off;
+        west_off->z_end_off = z_end_off;
+
+        break;
+    case 3:
+        if (south_off == NULL) {
+            south_off = OBJM->get_south_off();
+        }
+        south_off->x_s_set_to_player = x_start;
+        south_off->z_s_set_to_player = z_start;
+        south_off->x_e_set_to_player = x_end;
+        south_off->z_e_set_to_player = z_end;
+
+        south_off->x_start_off = x_start_off;
+        south_off->z_start_off = z_start_off;
+        south_off->x_end_off = x_end_off;
+        south_off->z_end_off = z_end_off;
+
+        break;
+    }
+}
+
+void GUI::draw_rendering_bottom_module() {
+    ImGui::Text("select direction to edit");
+    int new_dir_selection = dir_selection;
+    if (ImGui::Button("north")) {
+        new_dir_selection = 0;
+    }
+    if (ImGui::Button("east")) {
+        new_dir_selection = 1;
+    }
+    if (ImGui::Button("west")) {
+        new_dir_selection = 2;
+    }
+    if (ImGui::Button("south")) {
+        new_dir_selection = 3;
+    }
+    if (new_dir_selection != dir_changed) {
+        dir_selection = new_dir_selection;
+        dir_changed = true;
+    }
+
+    if (dir_changed) {
+        switch (dir_selection)
+        {
+        case 0:
+            if (OBJM != NULL) {
+                if (north_off == NULL) {
+                    north_off = OBJM->get_north_off();
+                }
+                x_start = north_off->x_s_set_to_player;
+                z_start = north_off->z_s_set_to_player;
+                x_end = north_off->x_e_set_to_player;
+                z_end = north_off->z_e_set_to_player;
+
+                x_start_off = north_off->x_start_off;
+                z_start_off = north_off->z_start_off;
+                x_end_off = north_off->x_end_off;
+                z_end_off = north_off->z_end_off;
+            }
+            break;
+        case 1:
+            if (OBJM != NULL) {
+                if (east_off == NULL) {
+                    east_off = OBJM->get_east_off();
+                }
+                x_start = east_off->x_s_set_to_player;
+                z_start = east_off->z_s_set_to_player;
+                x_end = east_off->x_e_set_to_player;
+                z_end = east_off->z_e_set_to_player;
+
+                x_start_off = east_off->x_start_off;
+                z_start_off = east_off->z_start_off;
+                x_end_off = east_off->x_end_off;
+                z_end_off = east_off->z_end_off;
+            }
+            break;
+        case 2:
+            if (OBJM != NULL) {
+                if (west_off == NULL) {
+                    west_off = OBJM->get_west_off();
+                }
+                x_start = west_off->x_s_set_to_player;
+                z_start = west_off->z_s_set_to_player;
+                x_end = west_off->x_e_set_to_player;
+                z_end = west_off->z_e_set_to_player;
+
+                x_start_off = west_off->x_start_off;
+                z_start_off = west_off->z_start_off;
+                x_end_off = west_off->x_end_off;
+                z_end_off = west_off->z_end_off;
+            }
+            break;
+        case 3:
+            if (OBJM != NULL) {
+                if (south_off == NULL) {
+                    south_off = OBJM->get_south_off();
+                }
+                x_start = south_off->x_s_set_to_player;
+                z_start = south_off->z_s_set_to_player;
+                x_end = south_off->x_e_set_to_player;
+                z_end = south_off->z_e_set_to_player;
+
+                x_start_off = south_off->x_start_off;
+                z_start_off = south_off->z_start_off;
+                x_end_off = south_off->x_end_off;
+                z_end_off = south_off->z_end_off;
+            }
+            break;
+        }
+        dir_changed = false;
+    }
+
+}
 
 static float f = 0.0f;
 

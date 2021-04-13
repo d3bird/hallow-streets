@@ -66,6 +66,10 @@ void world::draw_deferred() {
     if (Player->did_pos_change()) {
         OBJM->set_player_pos(Player->get_x_cell(), Player->get_z_cell());
     }
+     
+    OBJM->set_look_dir(Player->get_direction());
+
+    //OBJM->set_look_dir(Player->get_direction());
     OBJM->draw_optimised();
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
@@ -185,7 +189,6 @@ void world::update() {
     if (network != NULL) {
         network->update();
     }
-
     
     ADM->update();
 
@@ -316,7 +319,12 @@ void world::init(GUI* g,network_manager* net, bool ser) {
 
     draw_speakers = ADM->draw_speaker_locations();
     speakers_locs = ADM->get_speaker_locations();
-
+    
+    OBJM->set_veiw_distance(8);
+    Player->did_pos_change();
+    OBJM->set_player_pos(Player->get_x_cell(), Player->get_z_cell());
+    //OBJM->set_look_dir(Player->get_direction());
+    OBJM->set_veiw_type(2);
     OBJM->optimise_pipe_line();
 
 	std::cout << "finished initing objects" << std::endl;

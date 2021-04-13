@@ -48,6 +48,33 @@ object_manger::object_manger() {
 	city_layout_cells = NULL;
 	player_x = 0;
 	player_z = 0;
+	look_dir = -1;
+
+	east_off = new direction_offsets;
+	east_off->x_start_off = 0;
+	east_off->z_start_off = 0;
+	east_off->x_end_off = 0;
+	east_off->z_end_off = 0;
+
+	west_off = new direction_offsets;
+	west_off->x_start_off = 0;
+	west_off->z_start_off = 0;
+	west_off->x_end_off = 0;
+	west_off->z_end_off = 0;
+
+	north_off = new direction_offsets;
+	north_off->x_start_off = 0;
+	north_off->z_start_off = 0;
+	north_off->x_end_off = 0;
+	north_off->z_end_off = 0;
+
+	south_off = new direction_offsets;
+	south_off->x_start_off = 0;
+	south_off->z_start_off = 0;
+	south_off->x_end_off = 0;
+	south_off->z_end_off = 0;
+
+
 	//demo 1 vars
 #ifdef DEMO1
 	angle = 0;
@@ -75,6 +102,10 @@ object_manger::object_manger() {
 
 object_manger::~object_manger() {
 	delete blocked_spots;
+	delete east_off;
+	delete west_off;
+	delete north_off;
+	delete south_off;
 	//TODO add the mem clearing 
 	//glDeleteVertexArrays(1, &VAO);
 	//glDeleteBuffers(1, &VBO);
@@ -2834,7 +2865,75 @@ void object_manger::aggrigate_items_to_draw() {
 					add_rending_cell_to_list(city_layout_cells[i][h]);
 				}
 			}
+		}
+		else if (veiw_type == 2) {// the area in front of the play
+			if (look_dir != -1) {
+				int width = 4;//how wide the screen should be
+				int x_start = player_x - veiw_distance;
+				int z_start = player_z - veiw_distance;
+				int x_end = player_x + veiw_distance;
+				int z_end = player_z + veiw_distance;
+				
+				switch (look_dir) {
+				case 0://north
+					/*z_end = player_z + 1;*/
+					x_end = player_x + 1;
+					break;
+				case 1://north east
+					break;
+				case 2://north west
+					break;
+				case 3://west
+					//x_end = player_x + 1;
+					z_end = player_z + 1;
+					break;
+				case 4://east
+					/*x_start = player_x - 1;*/
+					z_start = player_z - 1;
+					break;
+				case 5://south
+					/*z_start = player_z - 1;*/
+					x_start = player_x - 1;
+					break;
+				case 6://south east
+					break;
+				case 7://south west
+					break;
+				}
 
+				if (x_start < 0) {
+					x_start = 0;
+				}
+				if (z_start < 0) {
+					z_start = 0;
+				}
+				if (x_end >= city_x_width) {
+					x_end = city_x_width;
+				}
+				if (z_end >= city_z_width) {
+					z_end = city_z_width;
+				}
+				if (x_start == x_end) {
+					x_end++;
+					if (x_end >= city_x_width) {
+						x_end = city_x_width;
+						x_start--;
+					}
+				}
+
+				if (z_start == z_end) {
+					z_end++;
+					if (z_end >= city_z_width) {
+						z_end = city_z_width;
+						z_start--;
+					}
+				}
+				for (int i = x_start; i < x_end; i++) {
+					for (int h = z_start; h < z_end; h++) {
+						add_rending_cell_to_list(city_layout_cells[i][h]);
+					}
+				}
+			}
 		}
 	}
 	else {
@@ -2964,8 +3063,8 @@ void object_manger::clear_optimised_items() {
 void object_manger::set_veiw_distance(int i) { 
 	veiw_distance = i;
 	update_list = true;
-	veiw_type = 1;//
 }
+
 void object_manger::set_player_pos(int x, int z) {
 	if (x != player_x) {
 		player_z = x;

@@ -55,7 +55,8 @@ private:
 
 	void draw_demo_window();
 	void draw_example_from_class();
-
+	void draw_rendering_module();
+	void draw_rendering_bottom_module();
 	void draw_server_window();
 	bool draw_server_windows;
 	bool chat;
@@ -75,6 +76,7 @@ private:
 	bool show_item_stats;
 	bool show_animation_stats;
 	bool edit_routine;
+	bool edit_rendering;
 	std::vector< item*>* item_data;
 	std::vector<actor*>* actors;
 	std::vector<routine*>* routines;
@@ -139,5 +141,24 @@ private:
 	unsigned int VBO, VAO;
 	Shader* gui_window;
 	Camera* cam;
+
+	direction_offsets* east_off;
+	direction_offsets* west_off;
+	direction_offsets* north_off;
+	direction_offsets* south_off;
+
+	int x_start_off;
+	int x_start_off_t;
+	int z_start_off;
+	int x_end_off;
+	int z_end_off;
+
+	bool x_start;
+	bool z_start;
+	bool x_end;
+	bool z_end;
+
+	int dir_selection;
+	bool dir_changed;
 };
 

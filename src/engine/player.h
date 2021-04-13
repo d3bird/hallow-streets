@@ -36,11 +36,13 @@ public:
 	int get_x_cell() { return x_cell; }
 	int get_z_cell() { return z_cell; }
 	int get_direction();
+	bool did_dir_change();
+
 private:
 
 	enum look_direction {
 		NORTH = 0, NORTH_EAST = 1, NORTH_WEST = 2, WEST = 3, EAST = 4,
-		SOUTH = 5, SOUTH_EAST = 6, SOUTH_WEST = 7, LOST =8
+		SOUTH = 5, SOUTH_EAST = 6, SOUTH_WEST = 7, LOST =-1
 	};
 	
 	std::string look_direction_to_string(look_direction i);
@@ -51,7 +53,8 @@ private:
 	bool update_cam;
 	
 	bool free_camera;
-
+	int dir;
+	bool dir_change;
 	double** height_map;//the height for the player at each point
 
 	Model* moon;
