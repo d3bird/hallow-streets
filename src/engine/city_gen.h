@@ -24,9 +24,10 @@
 */
 
 //what kind of cell to generate
-enum city_square { reserverd =-1, cube =1, open=2, wall=3, wall_d=4, wall_c=5, chicken_pen =14,
-	road_top= 0 ,road_bot =6, road_left = 7, road_right = 8, road_turn = 9, road_open = 10, road_curve = 11, road_inside_curve = 12, small_road =13,
-	wall_loading =14, roof_place = 15
+enum city_square {
+	reserverd = -1, cube = 1, open = 2, wall = 3, wall_d = 4, wall_c = 5, chicken_pen = 14,
+	road_top = 0, road_bot = 6, road_left = 7, road_right = 8, road_turn = 9, road_open = 10, road_curve = 11, road_inside_curve = 12, small_road = 13,
+	wall_loading = 14, roof_place = 15, outside = 16, inside = 17
 };  //large roads
 
 //what kind of district
@@ -113,6 +114,7 @@ public:
 	//misc function
 	void print_layout();
 	void print_expanded_layout();
+	void print_height_map();
 
 private:
 
@@ -123,8 +125,12 @@ private:
 
 	void create_chicken_pen(int i_start, int h_start, int i_max, int h_max);
 
+	void converte_expanded_to_height(int input, int i, int h);
 
+	void create_height_map();
 	bool is_road(int i, int h, int road_type =-1);
+
+	
 
 	//creates the city layout using the layout
 	void create_expanded_layout();
@@ -175,6 +181,7 @@ private:
 		int y_end = -1;
 		int size = -1;
 	};
+
 	building* generate_building(building_build_data* buiding_data);
 	bool check_buiding_data(building_build_data* buiding_data);
 
@@ -238,4 +245,7 @@ private:
  * 41 LOADING_DOOR_T 90 degree trun
  * 42 LOADING_DOOR_T 180 degree trun
  * 43 LOADING_DOOR_T 270 degree trun
+ * 
+ * 
+ * 50 wall blocker
 */

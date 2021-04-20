@@ -58,13 +58,19 @@ public:
 
     void activate_free_Cam() { free_cam = true; }
     void deactivate_free_Cam() { free_cam = false; }
+    
+    glm::vec3 project_movement(Camera_Movement direction, float deltaTime);
 
+    void set_pos(glm::vec3 i) { Position = i; }
     glm::vec3 get_pos() { return Position; }
     glm::vec3 get_up() { return Up; }
     glm::vec3 get_look() { return Front; }
     glm::vec3* get_Front_no_Y() { return &Front_no_Y; cam_move = false; }
     bool did_cam_move() { return cam_move; }
     float MovementSpeed;
+
+    void set_height(float h) { Position.y = h; }
+
 private:
     void updateCameraVectors();
 

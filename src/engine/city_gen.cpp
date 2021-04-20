@@ -136,6 +136,8 @@ void city_gen::init() {
 		//layout[6][9] = open;//fix a error in the premade street layout
 	}
 	create_expanded_layout();
+	create_height_map();
+	print_height_map();
 
 	rail_section* rail_s;
 	if (start_r_x != -1 && start_r_y != -1) {
@@ -163,7 +165,44 @@ void city_gen::init() {
 		std::cout << "there was a problem getting time in the city" << std::endl;
 		while (true);
 	}
+	
+	//print_expanded_layout();
 	std::cout << "finished the city" << std::endl;
+}
+
+void city_gen::create_height_map() {
+
+	for (int i = 0; i < block_height * key; i++) {
+		for (int h = 0; h < block_width*key; h++) {
+			int obj = layout_e[i][h];
+			if (obj != 1) {
+
+				//street lights
+				if (obj == 5 || (obj >= 11 && obj <= 13)) {
+					height_map[i][h] = 7;
+				}
+				//walls
+				else if ((obj >= 2 && obj <= 4) ||
+					(obj >= 14 && obj <= 16) ||
+					(obj >= 19 && obj <= 31 ||
+						(obj >= 40 && obj <= 43)) ||
+					(obj ==50)) {
+					height_map[i][h] = 5;
+				}
+				//non collision objects
+				else if ((obj >= 6 && obj <= 10) ||
+					(obj >= 17 && obj <= 18) || 
+					(obj >= 32 && obj <= 39)  ) {
+
+					height_map[i][h] = def_height;
+				}
+				else {
+					height_map[i][h] = 9;
+				}
+			}
+		}
+	}
+
 }
 
 void city_gen::create_city_block(int x1, int y1, int x2, int y2) {
@@ -509,9 +548,11 @@ void city_gen::create_expanded_layout() {
 				*/
 				if (is_road(i - 1, h) && is_road(i, h - 1)) {
 					set = 15;
-				}else if (is_road(i - 1, h) && is_road(i, h + 1)) {
+				}
+				else if (is_road(i - 1, h) && is_road(i, h + 1)) {
 					set = 14;
-				}else if (is_road(i + 1, h) && is_road(i, h - 1)) {
+				}
+				else if (is_road(i + 1, h) && is_road(i, h - 1)) {
 					set = 16;
 				}
 				else {
@@ -524,6 +565,9 @@ void city_gen::create_expanded_layout() {
 				break;
 			case reserverd://cell information
 				grab_info_from_cells = true;
+				break;
+			case road_curve:
+				set = 1;
 				break;
 			case open:
 			default:
@@ -605,17 +649,71 @@ void city_gen::create_expanded_layout() {
 
 }
 
+void city_gen::converte_expanded_to_height(int input, int i, int h) {
+	double output = def_height;
+
+	switch (input) {
+	case 2:
+	case 3:	
+	case 4:
+	case 10:
+	case 14:
+	case 15:
+	case 16:
+
+	case 19:
+	case 20:
+	case 21:
+	case 22:
+
+	case 24:
+	case 25:
+	case 26:
+	case 27:
+
+	case 28:
+	case 29:
+	case 30:
+	case 31:
+	
+	case 40:
+	case 41:
+	case 42:
+	case 43:
+
+	case 50:
+		output = 9;
+		break;
+	}
+
+	height_map[i][h] = output;
+
+	height_map[i+1][h] = output;
+	height_map[i-1][h] = output;
+	/*height_map[i][h+1] = output;
+	height_map[i][h-1] = output;*/
+}
+
 void city_gen::create_tile_from_cell(int i, int h) {
 	//std::cout << "creating tile from cell" << std::endl;
 	cell_data cell = layout_cells[i][h];
 	if (cell.expanded_layout_info != NULL) {
+
 		int set = cell.expanded_layout_info[0][0];
 		layout_e[i * key][h * key] = set;
+		/*if (set != 1) {
+			height_map[i * key][h * key] = 9;
+		}*/
 		if (key != 1) {
 			for (int x = 0; x < key; x++) {
 				for (int y = 0; y < key; y++) {
 					set = cell.expanded_layout_info[x][y];
 					layout_e[(i * key) + x][(h * key) + y] = set;
+
+					/*if (set != 1) {
+						height_map[(i * key) + x][(h * key) + y] = 9;
+					}*/
+
 				}
 			}
 		}
@@ -872,6 +970,23 @@ void city_gen::print_expanded_layout() {
 
 }
 
+void city_gen::print_height_map() {
+	std::cout << "printing the height map" << std::endl;
+
+	for (int i = 0; i < block_height * key; i++) {
+		for (int h = 0; h < block_width * key; h++) {
+			if (height_map[i][h] != 4) {
+				std::cout << height_map[i][h] << " ";
+			}
+			else {
+				std::cout << "  ";
+			}
+		}
+		std::cout << std::endl;
+	}
+
+}
+
 void city_gen::use_premade_map() {
 
 }
@@ -1061,7 +1176,7 @@ building* city_gen::generate_building(building_build_data* buiding_data) {
 				cell_data cell;
 				cell.x_loc = i;
 				cell.y_loc = h;
-
+				cell.type = reserverd;
 				cell.expanded_layout_info = new int* [key];
 				for (int i = 0; i < key; i++) {
 					cell.expanded_layout_info[i] = new int[key];
@@ -1087,6 +1202,7 @@ building* city_gen::generate_building(building_build_data* buiding_data) {
 										cell.type = wall_c;
 										if (q == 0 && x == 0) {
 											cell.expanded_layout_info[q][x] = 15;
+
 											if (number_floors > 1) {
 												for (int f = 1; f < number_floors; f++) {
 													item_gen_info* temp_data = new item_gen_info;
@@ -1105,7 +1221,8 @@ building* city_gen::generate_building(building_build_data* buiding_data) {
 											}
 											else
 												if (q == 0 || x == 0) {
-													cell.expanded_layout_info[q][x] = 0;
+													cell.expanded_layout_info[q][x] = 50;
+													cell.type = wall_c;
 												}
 												else {
 													cell.expanded_layout_info[q][x] = 1;
@@ -1131,7 +1248,8 @@ building* city_gen::generate_building(building_build_data* buiding_data) {
 										}
 										else {
 											if (q == 0 || x == key - 1) {
-												cell.expanded_layout_info[q][x] = 0;
+												cell.expanded_layout_info[q][x] = 50;
+												cell.type = wall_c;
 											}
 											else {
 												cell.expanded_layout_info[q][x] = 1;
@@ -1157,7 +1275,8 @@ building* city_gen::generate_building(building_build_data* buiding_data) {
 										}
 										else {
 											if (q == key - 1 || x == 0) {
-												cell.expanded_layout_info[q][x] = 0;
+												cell.expanded_layout_info[q][x] = 50;
+												cell.type = wall_c;
 											}
 											else {
 												cell.expanded_layout_info[q][x] = 1;
@@ -1184,7 +1303,8 @@ building* city_gen::generate_building(building_build_data* buiding_data) {
 										}
 										else {
 											if (q == key - 1 || x == key - 1) {
-												cell.expanded_layout_info[q][x] = 0;
+												cell.expanded_layout_info[q][x] = 50;
+												cell.type = wall_c;
 											}
 											else {
 												cell.expanded_layout_info[q][x] = 1;
@@ -1200,6 +1320,7 @@ building* city_gen::generate_building(building_build_data* buiding_data) {
 												if (q == 0 && x == 0) {
 													if (spawn_door && !door_spawned) {
 														cell.expanded_layout_info[q][x] = 27;
+														cell.type = wall;
 														door_spawned = true;
 														if (number_floors > 1) {
 															for (int f = 1; f < number_floors; f++) {
@@ -1231,6 +1352,7 @@ building* city_gen::generate_building(building_build_data* buiding_data) {
 														}
 														else {
 															cell.expanded_layout_info[q][x] = 22;
+															cell.type = wall;
 															if (number_floors > 1) {
 																for (int f = 1; f < number_floors; f++) {
 																	item_gen_info* temp_data = new item_gen_info;
@@ -1247,7 +1369,8 @@ building* city_gen::generate_building(building_build_data* buiding_data) {
 												}
 												else {
 													if (q == 0) {
-														cell.expanded_layout_info[q][x] = 0;
+														cell.expanded_layout_info[q][x] = 50;
+														cell.type = wall;
 													}
 													else {
 														cell.expanded_layout_info[q][x] = 1;
@@ -1258,6 +1381,7 @@ building* city_gen::generate_building(building_build_data* buiding_data) {
 												if (q == key - 1 && x == 0) {
 													if (spawn_door && !door_spawned) {
 														cell.expanded_layout_info[q][x] = 27;
+														cell.type = wall;
 														door_spawned = true;
 														if (number_floors > 1) {
 															for (int f = 1; f < number_floors; f++) {
@@ -1291,6 +1415,7 @@ building* city_gen::generate_building(building_build_data* buiding_data) {
 														}
 														else {
 															cell.expanded_layout_info[q][x] = 22;
+															cell.type = wall;
 															if (number_floors > 1) {
 																for (int f = 1; f < number_floors; f++) {
 																	item_gen_info* temp_data = new item_gen_info;
@@ -1308,7 +1433,7 @@ building* city_gen::generate_building(building_build_data* buiding_data) {
 												}
 												else {
 													if (q == key - 1) {
-														cell.expanded_layout_info[q][x] = 0;
+														cell.expanded_layout_info[q][x] = 50;
 													}
 													else {
 														cell.expanded_layout_info[q][x] = 1;
@@ -1320,6 +1445,7 @@ building* city_gen::generate_building(building_build_data* buiding_data) {
 													if (spawn_door && !door_spawned) {
 														cell.expanded_layout_info[q][x] = 26;
 														door_spawned = true;
+														cell.type = wall;
 														if (number_floors > 1) {
 															for (int f = 1; f < number_floors; f++) {
 																item_gen_info* temp_data = new item_gen_info;
@@ -1348,6 +1474,7 @@ building* city_gen::generate_building(building_build_data* buiding_data) {
 														}
 														else {
 															cell.expanded_layout_info[q][x] = 21;
+															cell.type = wall;
 															if (number_floors > 1) {
 																for (int f = 1; f < number_floors; f++) {
 																	item_gen_info* temp_data = new item_gen_info;
@@ -1365,6 +1492,7 @@ building* city_gen::generate_building(building_build_data* buiding_data) {
 													if (dock_side == 1) {
 														if (x == 0 && (q == 4 || q == 6)) {
 															cell.expanded_layout_info[q][x] = 40;//the loading doors
+															cell.type = wall;
 															if (number_floors > 1) {
 																for (int f = 1; f < number_floors; f++) {
 																	item_gen_info* temp_data = new item_gen_info;
@@ -1379,7 +1507,8 @@ building* city_gen::generate_building(building_build_data* buiding_data) {
 													}
 													else
 														if (x == 0) {
-															cell.expanded_layout_info[q][x] = 0;
+															cell.expanded_layout_info[q][x] = 50;
+															cell.type = wall;
 														}
 														else {
 															cell.expanded_layout_info[q][x] = 1;
@@ -1390,6 +1519,7 @@ building* city_gen::generate_building(building_build_data* buiding_data) {
 												if (q == 0 && x == key - 1) {
 													if (spawn_door && !door_spawned) {
 														cell.expanded_layout_info[q][x] = 26;
+														cell.type = wall;
 														door_spawned = true;
 														if (number_floors > 1) {
 															for (int f = 1; f < number_floors; f++) {
@@ -1423,6 +1553,7 @@ building* city_gen::generate_building(building_build_data* buiding_data) {
 														}
 														else {
 															cell.expanded_layout_info[q][x] = 21;
+															cell.type = wall;
 															if (number_floors > 1) {
 																for (int f = 1; f < number_floors; f++) {
 																	item_gen_info* temp_data = new item_gen_info;
@@ -1440,7 +1571,7 @@ building* city_gen::generate_building(building_build_data* buiding_data) {
 												}
 												else {
 													if (x == key - 1) {
-														cell.expanded_layout_info[q][x] = 0;
+														cell.expanded_layout_info[q][x] = 50;
 													}
 													else {
 														cell.expanded_layout_info[q][x] = 1;
@@ -1637,7 +1768,7 @@ building* city_gen::generate_building(building_build_data* buiding_data) {
 
 					}
 					else {//outside the walls
-						
+					cell.type = outside;
 					}
 				}
 				layout_cells[i][h] = cell;

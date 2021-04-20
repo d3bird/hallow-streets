@@ -9,10 +9,11 @@ player::player(Camera* c, bool free){
 
 	free_camera = free;
 	cam = c;
-
+	player_height = 2;
 	height_map = NULL;
 	look = NULL;
 	dir = -2;
+	tolerence = .2;
 	if (free_camera) {
 		cam->activate_free_Cam();
 
@@ -43,8 +44,60 @@ void player::draw() {
 void player::update() {
 
 	if (height_map != NULL) {
+		glm::vec3 pos = cam->get_pos();
+		int x = ((pos.x / 2) / 8);
+		int z = ((pos.z / 2) / 8);
+
+
 
 	}
+}
+
+void player::projected_movement(Camera_Movement move, float time) {
+
+	if (height_map != NULL && !free_camera) {
+		//std::cout << "checking height" << std::endl;
+		bool pass = true;
+		glm::vec3 old_pos = cam->get_pos();
+		int old_x = ((old_pos.x / 2));
+		int old_z = ((old_pos.z / 2));
+		double old_height = height_map[old_x][old_z];
+		
+		glm::vec3 pos = cam->project_movement(move, time);
+		int x = ((pos.x / 2));
+		int z = ((pos.z / 2));
+
+		double new_height = height_map[x][z];
+
+		cam->set_height(height_map[old_x][old_z]+ player_height);
+
+		//std::cout << "old_x " << old_x << " old_z " << old_z << " | " << " x " << x << " | " << z << std::endl;
+
+		if (new_height > old_height) {
+			if (new_height - old_height >= tolerence) {
+				pass = false;
+			}
+		}
+		else if(new_height< old_height){
+			if (old_height - new_height >= tolerence) {
+				pass = false;
+			}
+		}
+		if (pass) {
+			cam->ProcessKeyboard(move, time);
+			cam->set_height(height_map[x][z] + player_height);
+		}
+		else {
+			//old_pos.x = old_x*2;
+			//old_pos.z = old_z*2;
+			//cam->set_pos(old_pos);
+		}
+		//std::cout << "checking height, old: "<< old_height<<" new: "<< new_height << std::endl;
+	}
+	else {
+		cam->ProcessKeyboard(move, time);
+	}
+
 }
 
 void player::init() {

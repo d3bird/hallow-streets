@@ -32,11 +32,15 @@ public:
 
 	void set_height_map(double** h) { height_map = h; }
 
+	void set_free_camera(bool i) { free_camera = i; }
+
 	bool did_pos_change();
 	int get_x_cell() { return x_cell; }
 	int get_z_cell() { return z_cell; }
 	int get_direction();
 	bool did_dir_change();
+
+	void projected_movement(Camera_Movement move, float time);
 
 private:
 
@@ -66,5 +70,7 @@ private:
 	int x_cell;
 	int z_cell;
 
+	double player_height;
+	double tolerence;
 };
 

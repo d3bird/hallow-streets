@@ -74,7 +74,7 @@ bool freecam = false;
 
 int main() {
 
-    camera= new Camera(glm::vec3(7.9019, 29.3491, 18.9233), glm::vec3(0.0f, 1.0f, 0.0f), -89.2999, -71.7001);//looking at the whole World
+    camera= new Camera(glm::vec3(0, 29.3491, 0), glm::vec3(0.0f, 1.0f, 0.0f), -89.2999, -71.7001);//looking at the whole World
     keys = new keyboard_manger();
     typing = false;
     glfwInit();
@@ -262,7 +262,7 @@ void start_networking() {
 bool running_d1 = false;
 #endif // DEMO1
 
-void process_movement(GLFWwindow *window){
+void process_movement(GLFWwindow* window) {
 
     if (!take_input) {
         //std::cout << "input for keyboard is turned off" << std::endl;
@@ -272,21 +272,22 @@ void process_movement(GLFWwindow *window){
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-        camera->ProcessKeyboard(FORWARD, *deltaTime);
+        Player->projected_movement(FORWARD, *deltaTime);
     if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-        camera->ProcessKeyboard(BACKWARD, *deltaTime);
+        Player->projected_movement(BACKWARD, *deltaTime);
     if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-        camera->ProcessKeyboard(LEFT, *deltaTime);
+        Player->projected_movement(LEFT, *deltaTime);
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-        camera->ProcessKeyboard(RIGHT, *deltaTime);
-    if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
-        camera->ProcessKeyboard(UP, *deltaTime);
-    if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
-        camera->ProcessKeyboard(DOWN, *deltaTime);
+        Player->projected_movement(RIGHT, *deltaTime);
+    if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS){}
+      //  Player->projected_movement(UP, *deltaTime);
+    if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS){}
+        //Player->projected_movement(DOWN, *deltaTime);
 
-    if (!freecam) {
-        Player->update();//update the y pose
-    }
+
+    //if (!freecam) {
+    //    Player->update();//update the y pose
+    //}
 }
 
 void key_board_input(GLFWwindow* window, int key, int scancode, int action, int mods) {
