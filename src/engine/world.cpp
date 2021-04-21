@@ -62,7 +62,7 @@ void world::draw_deferred() {
     //City->set_cam(view);
     //City->draw();
     OBJM->set_cam(view);
-    //OBJM->draw();
+    OBJM->draw();
     if (Player->did_pos_change()) {
         OBJM->set_player_pos(Player->get_x_cell(), Player->get_z_cell());
     }
@@ -70,7 +70,8 @@ void world::draw_deferred() {
     OBJM->set_look_dir(Player->get_direction());
 
     //OBJM->set_look_dir(Player->get_direction());
-    OBJM->draw_optimised();
+  //  OBJM->draw_optimised();
+    //OBJM->draw_height_map_degbug();
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
   //  std::cout << "lighting tests" << std::endl;
@@ -293,7 +294,6 @@ void world::init(GUI* g,network_manager* net, bool ser) {
 	City->init(OBJM, AM);
 
     Player->set_height_map(City->get_height_map());
-
 	Sky = new sky();
 	Sky->set_projection(projection);
 	Sky->set_cam(view);
@@ -327,6 +327,8 @@ void world::init(GUI* g,network_manager* net, bool ser) {
     OBJM->set_veiw_type(2);
     OBJM->optimise_pipe_line();
 
+
+   // City->print_height_map();
 	std::cout << "finished initing objects" << std::endl;
 	std::cout << std::endl;
 

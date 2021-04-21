@@ -191,6 +191,9 @@ public:
 	void set_veiw_width(int i) { width = i; update_list = true;}
 	int get_veiw_width() {return width; }
 
+	void create_height_map_debig(double** height_m, int height, int block_width, double def_height);
+
+	void draw_height_map_degbug();
 	//setting
 	direction_offsets* get_east_off() { return east_off; }
 	direction_offsets* get_west_off() { return west_off; }
@@ -316,6 +319,9 @@ private:
 	direction_offsets* west_off;
 	direction_offsets* north_off;
 	direction_offsets* south_off;
+
+
+	item* height_map;
 
 	//1 is square around the player
 	//2 is 180 in front of the player

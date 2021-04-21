@@ -41,6 +41,11 @@ public:
 	bool did_dir_change();
 
 	void projected_movement(Camera_Movement move, float time);
+	void projected_movement2(Camera_Movement move, float time);//testing function
+	void projected_movement3(Camera_Movement move, float time);//testing function
+	void projected_movement4(Camera_Movement move, float time);//testing function
+
+	void print_heights_around_player();
 
 private:
 
@@ -72,5 +77,10 @@ private:
 
 	double player_height;
 	double tolerence;
+
+	bool change_cube(glm::vec3& pos, int dir);
+	bool can_pass_with(double heigh, int i, int h);
+	int determ_dirction_moving(glm::vec3& pos, glm::vec3& new_pos);
+
 };
 

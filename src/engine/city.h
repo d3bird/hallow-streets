@@ -80,6 +80,8 @@ public:
 	void set_online(bool i) { online = i; }
 	void set_server(bool i) { server = i; }
 
+	void print_height_map() { city_info->print_height_map(); }
+
 private:
 
 	bool objects_inited;

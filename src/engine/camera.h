@@ -59,7 +59,8 @@ public:
     void activate_free_Cam() { free_cam = true; }
     void deactivate_free_Cam() { free_cam = false; }
     
-    glm::vec3 project_movement(Camera_Movement direction, float deltaTime);
+    glm::vec3 project_movement(Camera_Movement direction, float deltaTime, float dist = 1);
+    glm::vec3 project_movement2(Camera_Movement direction, float deltaTime, float dist =1);
 
     void set_pos(glm::vec3 i) { Position = i; }
     glm::vec3 get_pos() { return Position; }

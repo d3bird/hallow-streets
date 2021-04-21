@@ -45,30 +45,36 @@ void Camera::ProcessKeyboard(Camera_Movement direction, float deltaTime) {
 
 }
 
-glm::vec3 Camera::project_movement(Camera_Movement direction, float deltaTime) {
+glm::vec3 Camera::project_movement(Camera_Movement direction, float deltaTime, float dist) {
     glm::vec3 Position_t = Position;
     float velocity = MovementSpeed * deltaTime;
     if (free_cam) {
         velocity *= 6;
 
-        if (direction == FORWARD)
+        if (direction == FORWARD) {
             Position_t += Front * velocity;
-        if (direction == BACKWARD)
+        }
+        if (direction == BACKWARD) {
             Position_t -= Front * velocity;
+        }
     }
     else {
         velocity *= 6;
-        if (direction == FORWARD)
+        velocity *= dist;
+        if (direction == FORWARD) {
             Position_t += Front_no_Y * velocity;
-        if (direction == BACKWARD)
+        }
+        if (direction == BACKWARD) {
             Position_t -= Front_no_Y * velocity;
-
+        }
     }
 
-    if (direction == LEFT)
+    if (direction == LEFT) {
         Position_t -= Right * velocity;
-    if (direction == RIGHT)
+    }
+    if (direction == RIGHT) {
         Position_t += Right * velocity;
+    }
 
     if (direction == UP)
         Position_t.y += velocity;
@@ -77,7 +83,6 @@ glm::vec3 Camera::project_movement(Camera_Movement direction, float deltaTime) {
 
     return Position_t;
 }
-
 // processes input received from a mouse input system. Expects the offset value in both the x and y direction.
 void Camera::ProcessMouseMovement(float xoffset, float yoffset, GLboolean constrainPitch){
     xoffset *= MouseSensitivity;

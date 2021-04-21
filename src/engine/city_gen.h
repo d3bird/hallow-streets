@@ -116,6 +116,8 @@ public:
 	void print_expanded_layout();
 	void print_height_map();
 
+	double get_def_height() { return def_height; }
+
 private:
 
 	void create_city_block(int x1, int y1, int x2, int y2);

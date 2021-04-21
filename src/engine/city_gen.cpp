@@ -137,7 +137,7 @@ void city_gen::init() {
 	}
 	create_expanded_layout();
 	create_height_map();
-	print_height_map();
+	//print_height_map();
 
 	rail_section* rail_s;
 	if (start_r_x != -1 && start_r_y != -1) {
@@ -180,6 +180,12 @@ void city_gen::create_height_map() {
 				//street lights
 				if (obj == 5 || (obj >= 11 && obj <= 13)) {
 					height_map[i][h] = 7;
+					/*height_map[i-1][h] = 7;
+					height_map[i][h-1] = 7;
+					height_map[i + 1][h] = 7;
+					height_map[i][h + 1] = 7;
+
+					height_map[i-1][h - 1] = 7;*/
 				}
 				//walls
 				else if ((obj >= 2 && obj <= 4) ||
@@ -187,7 +193,9 @@ void city_gen::create_height_map() {
 					(obj >= 19 && obj <= 31 ||
 						(obj >= 40 && obj <= 43)) ||
 					(obj ==50)) {
-					height_map[i][h] = 5;
+					height_map[i][h] = 8;
+					//height_map[i-1][h] = 8;
+					//height_map[i + 1][h] = 8;
 				}
 				//non collision objects
 				else if ((obj >= 6 && obj <= 10) ||

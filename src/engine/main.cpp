@@ -74,7 +74,7 @@ bool freecam = false;
 
 int main() {
 
-    camera= new Camera(glm::vec3(0, 29.3491, 0), glm::vec3(0.0f, 1.0f, 0.0f), -89.2999, -71.7001);//looking at the whole World
+    camera= new Camera(glm::vec3(4, 29.3491, 4), glm::vec3(0.0f, 1.0f, 0.0f), -89.2999, -71.7001);//looking at the whole World
     keys = new keyboard_manger();
     typing = false;
     glfwInit();
@@ -381,6 +381,10 @@ void key_board_input(GLFWwindow* window, int key, int scancode, int action, int 
 
     if (key == GLFW_KEY_TAB && action == GLFW_RELEASE)
         gui->set_draw_debug_info(true);
+
+    if (key == GLFW_KEY_P && action == GLFW_RELEASE)
+        Player->print_heights_around_player();
+
 
     if (network != NULL) {
         if (key == GLFW_KEY_Z && action == GLFW_RELEASE) {

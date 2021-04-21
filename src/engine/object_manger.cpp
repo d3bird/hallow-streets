@@ -3088,3 +3088,132 @@ void object_manger::set_city_layout_cells(rending_cell** i, int x_w, int z_w) {
 	city_x_width = x_w;
 	city_z_width = z_w;
 }
+
+
+void object_manger::create_height_map_debig(double** height_m, int height, int block_width, double def_height) {
+	std::cout << "creating height map" << std::endl;
+
+	Model* model;
+	unsigned int buffer;
+	unsigned int buffer_size;
+	unsigned int amount;
+	glm::mat4* modelMatrices;
+	Shader* custom_shader;
+	vector<item_info*> item_data;
+	std::string* item_name;
+	item_type type = CUBE_T;
+
+	item_name = new std::string("cube debug object");
+	buffer = 0;
+
+		buffer_size = (height * key)*(block_width * key);
+
+	amount = 0;
+	modelMatrices = new glm::mat4[buffer_size];
+	custom_shader = NULL;
+
+	if (items.size() >= 1) {
+		model = items[0]->model;
+	}
+	else {
+		model = new Model("resources/objects/cube/cube.obj");
+	}
+	std::cout << "making buffer" << std::endl;
+	glGenBuffers(1, &buffer);
+	glBindBuffer(GL_ARRAY_BUFFER, buffer);
+	glBufferData(GL_ARRAY_BUFFER, amount * sizeof(glm::mat4), &modelMatrices[0], GL_STATIC_DRAW);
+
+	for (unsigned int i = 0; i < model->meshes.size(); i++)
+	{
+		unsigned int VAO = model->meshes[i].VAO;
+		glBindVertexArray(VAO);
+		// set attribute pointers for matrix (4 times vec4)
+		glEnableVertexAttribArray(3);
+		glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)0);
+		glEnableVertexAttribArray(4);
+		glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(sizeof(glm::vec4)));
+		glEnableVertexAttribArray(5);
+		glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(2 * sizeof(glm::vec4)));
+		glEnableVertexAttribArray(6);
+		glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(3 * sizeof(glm::vec4)));
+
+		glVertexAttribDivisor(3, 1);
+		glVertexAttribDivisor(4, 1);
+		glVertexAttribDivisor(5, 1);
+		glVertexAttribDivisor(6, 1);
+
+		glBindVertexArray(0);
+	}
+	std::cout << "done" << std::endl;
+	std::cout << "creating cube" << std::endl;
+
+	for (int i = 0; i < height; i++) {
+		for (int h = 0; h < block_width; h++) {
+			if (height_m[i][h] != def_height) {
+				glm::mat4 temp = glm::mat4(1.0f);
+
+				temp = glm::translate(temp, glm::vec3(h * 2, 0, i * 2));
+				modelMatrices[amount] =temp;
+				amount++;
+				if (amount >= buffer_size) {
+					std::cout << "can not add more debug height map cubles" << std::endl;
+					amount--;
+					break;
+				}
+			}
+		}
+	}
+	std::cout << "done" << std::endl;
+	std::cout << "creating item" << std::endl;
+	height_map = new item;
+	height_map->model = model;
+	height_map->buffer = buffer;
+	height_map->buffer_size = buffer_size;
+	height_map->amount = amount;
+	height_map->modelMatrices = modelMatrices;
+	height_map->custom_shader = custom_shader;
+	height_map->item_data = item_data;
+	height_map->item_name = item_name;
+	height_map->type = type;
+	height_map->updatemats = true;
+	height_map->draw = true;
+	std::cout << "done" << std::endl;
+
+}
+
+
+void object_manger::draw_height_map_degbug() {
+
+	if (height_map != NULL) {
+		common->use();
+		common->setMat4("projection", projection);
+		common->setMat4("view", view);
+		//std::cout << q << std::endl;//useful to findout which model is breaking
+		if (height_map->draw) {
+			//std::cout << "test1" << std::endl;
+			glm::mat4* matrix_temp = height_map->modelMatrices;
+			glBindBuffer(GL_ARRAY_BUFFER, height_map->buffer);
+			//std::cout << "test2" << std::endl;
+
+			if (height_map->updatemats) {
+				glBufferData(GL_ARRAY_BUFFER, height_map->amount * sizeof(glm::mat4), &matrix_temp[0], GL_STATIC_DRAW);
+				height_map->updatemats = false;
+			}
+			//std::cout << "test3" << std::endl;
+//
+			common->setInt("texture_diffuse1", 0);
+			glActiveTexture(GL_TEXTURE0);
+			glBindTexture(GL_TEXTURE_2D, height_map->model->textures_loaded[0].id);
+			//std::cout << "test4" << std::endl;
+
+			for (unsigned int i = 0; i < height_map->model->meshes.size(); i++)
+			{
+				glBindVertexArray(height_map->model->meshes[i].VAO);
+				glDrawElementsInstanced(GL_TRIANGLES, height_map->model->meshes[i].indices.size(), GL_UNSIGNED_INT, 0, height_map->amount);
+				glBindVertexArray(0);
+			}
+			//std::cout << "test5" << std::endl;
+
+		}
+	}
+}
