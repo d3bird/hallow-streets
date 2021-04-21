@@ -38,6 +38,7 @@ object_manger::object_manger() {
 	draw_computer = true;
 	draw_roofs = true;
 	draw_generic_floor = true;
+	draw_robots = true;
 
 	cursed = new Shader("cursed.vs", "cursed.fs");
 	u_time = 0;
@@ -491,6 +492,9 @@ void object_manger::init() {
 	create_slanted_roof_object();
 	create_roof_fill_object();
 	create_generic_floor_object();
+
+	create_robots_object();
+
 	std::cout << "finished creating the object manager" << std::endl;
 }
 
@@ -644,6 +648,123 @@ void object_manger::create_cube_objects() {
 	items.push_back(temp);
 
 }
+
+void object_manger::create_robots_object() {
+
+	unsigned int buffer;
+	unsigned int buffer_size;
+	unsigned int amount;
+	glm::mat4* modelMatrices;
+	Shader* custom_shader;
+	Model* model;
+
+	std::string* item_name_t = new std::string("robot head object");
+
+	//creating the alter object
+	buffer = 0;
+	buffer_size = 200;
+	amount = 0;
+	modelMatrices = new glm::mat4[buffer_size];
+	custom_shader = NULL;
+	model = new Model("resources/objects/robot/robot_head1.obj");
+
+
+	glGenBuffers(1, &buffer);
+	glBindBuffer(GL_ARRAY_BUFFER, buffer);
+	glBufferData(GL_ARRAY_BUFFER, amount * sizeof(glm::mat4), &modelMatrices[0], GL_STATIC_DRAW);
+
+	for (unsigned int i = 0; i < model->meshes.size(); i++)
+	{
+		unsigned int VAO = model->meshes[i].VAO;
+		glBindVertexArray(VAO);
+		// set attribute pointers for matrix (4 times vec4)
+		glEnableVertexAttribArray(3);
+		glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)0);
+		glEnableVertexAttribArray(4);
+		glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(sizeof(glm::vec4)));
+		glEnableVertexAttribArray(5);
+		glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(2 * sizeof(glm::vec4)));
+		glEnableVertexAttribArray(6);
+		glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(3 * sizeof(glm::vec4)));
+
+		glVertexAttribDivisor(3, 1);
+		glVertexAttribDivisor(4, 1);
+		glVertexAttribDivisor(5, 1);
+		glVertexAttribDivisor(6, 1);
+
+		glBindVertexArray(0);
+	}
+
+	item* temp = new item;
+	temp->buffer_size = buffer_size;
+	temp->buffer = buffer;
+	temp->amount = amount;
+	temp->model = model;
+	temp->modelMatrices = modelMatrices;
+	temp->custom_shader = custom_shader;
+	temp->item_name = item_name_t;
+
+	temp->type = ROBOT_HEAD_T;
+	temp->draw = draw_robots;
+
+	items.push_back(temp);
+
+	//creating the body
+
+	item_name_t = new std::string("robot body object");
+
+	//creating the alter object
+	buffer = 0;
+	buffer_size = 200;
+	amount = 0;
+	modelMatrices = new glm::mat4[buffer_size];
+	custom_shader = NULL;
+	model = new Model("resources/objects/robot/robot_body1.obj");
+
+
+
+	glGenBuffers(1, &buffer);
+	glBindBuffer(GL_ARRAY_BUFFER, buffer);
+	glBufferData(GL_ARRAY_BUFFER, amount * sizeof(glm::mat4), &modelMatrices[0], GL_STATIC_DRAW);
+
+	for (unsigned int i = 0; i < model->meshes.size(); i++)
+	{
+		unsigned int VAO = model->meshes[i].VAO;
+		glBindVertexArray(VAO);
+		// set attribute pointers for matrix (4 times vec4)
+		glEnableVertexAttribArray(3);
+		glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)0);
+		glEnableVertexAttribArray(4);
+		glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(sizeof(glm::vec4)));
+		glEnableVertexAttribArray(5);
+		glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(2 * sizeof(glm::vec4)));
+		glEnableVertexAttribArray(6);
+		glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(3 * sizeof(glm::vec4)));
+
+		glVertexAttribDivisor(3, 1);
+		glVertexAttribDivisor(4, 1);
+		glVertexAttribDivisor(5, 1);
+		glVertexAttribDivisor(6, 1);
+
+		glBindVertexArray(0);
+	}
+
+	 temp = new item;
+	temp->buffer_size = buffer_size;
+	temp->buffer = buffer;
+	temp->amount = amount;
+	temp->model = model;
+	temp->modelMatrices = modelMatrices;
+	temp->custom_shader = custom_shader;
+	temp->item_name = item_name_t;
+
+	temp->type = ROBOT_HEAD_T;
+	temp->draw = draw_robots;
+
+	items.push_back(temp);
+
+}
+
 
 void object_manger::create_sidewalk_objects() {
 
@@ -2556,6 +2677,30 @@ item_info* object_manger::spawn_item(item_type type, int x,int y, int z, glm::ma
 		item_id = 27;
 		buffer_loc = items[27]->amount;
 		items[27]->amount++;
+		max_stack_size = 1;
+		stackable = false;
+		y_f = 2;
+		break;
+	case ROBOT_HEAD_T:
+		if (items[28]->amount >= items[28]->buffer_size) {
+			std::cout << "there are too many cannon " << std::endl;
+			return NULL;
+		}
+		item_id = 28;
+		buffer_loc = items[28]->amount;
+		items[28]->amount++;
+		max_stack_size = 1;
+		stackable = false;
+		y_f = 2;
+		break;
+	case ROBOT_BASE_T:
+		if (items[29]->amount >= items[29]->buffer_size) {
+			std::cout << "there are too many cannon " << std::endl;
+			return NULL;
+		}
+		item_id = 29;
+		buffer_loc = items[29]->amount;
+		items[29]->amount++;
 		max_stack_size = 1;
 		stackable = false;
 		y_f = 2;

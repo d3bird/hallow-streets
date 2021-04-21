@@ -35,7 +35,7 @@ enum item_type {
 	CANNON_FRAME_T, CANNON_PLATFORM_T, CANNON_T,
 	ZAP_TOWER_T, ZAP_SPHERE_T, CURSE_CHICKEN_T, WALL_D_T, WALL_LA_T, FLOOR_LA_T,
 	WALL_CLOCK_ANG_T, LOADING_DOOR_T, LEAVER_BOX_T, LEAVER_T, TABLE_T, COMPUTER_T,
-	SLANTED_ROOF_T, ROOF_FILL_T, GENERIC_FLOOR_T
+	SLANTED_ROOF_T, ROOF_FILL_T, GENERIC_FLOOR_T, ROBOT_HEAD_T, ROBOT_BASE_T
 };
 
 //the information on each unique object
@@ -242,6 +242,8 @@ private:
 	void create_roof_fill_object();
 	void create_generic_floor_object();
 
+	void create_robots_object();
+
 	//timing
 	timing* Time;
 	float* deltatime;
@@ -287,6 +289,7 @@ private:
 	bool draw_computer;
 	bool draw_roofs;
 	bool draw_generic_floor;
+	bool draw_robots;
 
 	//cursed objects
 	Shader* cursed;

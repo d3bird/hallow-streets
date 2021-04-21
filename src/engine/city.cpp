@@ -781,6 +781,15 @@ void city::init(object_manger* OBJM, animation_manager* an) {
 	tempdata = OBJM->spawn_item(COMPUTER_T, 1, 6, 1, trans);
 	//add_object_to_cell(tempdata,cells,i,h);
 
+	trans = glm::mat4(1.0f);
+	trans = glm::translate(trans, glm::vec3((10), 6, (2)));
+	tempdata = OBJM->spawn_item(ROBOT_BASE_T, 1, 6, 1, trans);
+
+	trans = glm::mat4(1.0f);
+	trans = glm::translate(trans, glm::vec3((10), 6, (2)));
+	tempdata = OBJM->spawn_item(ROBOT_HEAD_T, 1, 6, 1, trans);
+	//add_object_to_cell(tempdata,cells,i,h);
+
 	//test for the pathing area for the chicken routine
 	//std::cout << "low  " << low_x << "," << low_z << " || hig " << hig_x << "," << hig_z << std::endl;
 	std::cout << "chicken number " <<num_chickens<< std::endl;

@@ -70,7 +70,7 @@ bool online_play;
 bool take_input = true;;
 
 player* Player;
-bool freecam = false;
+bool freecam = true;
 
 int main() {
 
