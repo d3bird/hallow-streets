@@ -31,7 +31,7 @@
 enum routine_designation {
 	DEFF_ERROR_ROUTINE = 0, DEFF_WORLD_ROUTINE = 1, CHICKEN_ROUTINE = 2, RAIL_ROUTINE = 3,
 	CHICKEN_TRANS1_ROUTINE = 4, CHICKEN_TRANS2_ROUTINE = 5, CANNON_ROUTINE = 6, ZAP_TOWER_ROUTINE = 7, CANNON_PLATFORM_ROUTINE = 8,
-	ZAP_SPHERE_ROUTINE = 9, PHYSICS_ROUTINE = 10, LOADING_DOOR_ROUTINE = 11
+	ZAP_SPHERE_ROUTINE = 9, PHYSICS_ROUTINE = 10, LOADING_DOOR_ROUTINE = 11, ROBOT_PATRAL =12
 };
 
 
@@ -119,6 +119,44 @@ struct actor{
 	physx::PxActor* physics_ret = NULL;
 };
 
+struct map_pair {
+	int x;
+	int z;
+};
+
+struct robot_route {
+	std::string* name = NULL;
+	int id;
+	std::vector< map_pair> nav_points;
+	bool stationary = false;
+	bool look_around = true;
+};
+
+struct actor_robot {
+	item_info* body;
+	item_info* head;
+
+	sound* soun;
+	bool has_sound = false;
+
+	std::vector<glm::vec3> nav_points;
+	int index =0;//where in the patural it is at
+	int id;
+	robot_route* routine;
+	bool in_designated_area = true;
+
+	float move_speed = 30;
+
+	int animation_section = 0;
+
+	float cooldown = 0;
+	float cooldown_max = 10;
+
+	bool need_to_turn = true;
+	float turn_speed = 1.0f;
+	float turn_to = 0.0f;
+};
+
 class animation_manager {
 public:
 	animation_manager();
@@ -135,6 +173,10 @@ public:
 	void define_routine(routine_designation route, glm::vec3 point);
 
 	void init();
+
+	void turn_objects_into_actor(item_info* body, item_info* head, int route_id);
+
+	int create_route(std::vector<int> &x_points, std::vector<int> &z_points, std::string* name);
 
 	void print_routines();
 
@@ -166,6 +208,10 @@ private:
 	void create_chicken();
 
 	void update_doors(float *time);
+
+	void update_robots(float* time);
+
+	void generate_points_for_robot(actor_robot* new_robot);
 
 	timing* Time;
 	float* deltatime;
@@ -224,6 +270,9 @@ private:
 
 	std::queue<bool> chickens_to_make;
 	std::queue<int> chickens_to_make_angles;
+
+	std::vector< actor_robot*> robots;
+	std::vector< robot_route*> robot_routes;
 
 	//physics
 	bool update_physics;

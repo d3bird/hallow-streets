@@ -76,6 +76,12 @@ struct building {
 	std::vector<cell_data*> cell_info;
 };
 
+struct gen_route {
+	std::vector<int> x_map;
+	std::vector<int> z_map;
+	std::string* name;
+};
+
 class city_gen{
 public:
 	city_gen();
@@ -118,6 +124,8 @@ public:
 
 	double get_def_height() { return def_height; }
 
+	std::vector< gen_route*> get_generate_routs() { return generated_routes; }
+
 private:
 
 	void create_city_block(int x1, int y1, int x2, int y2);
@@ -132,7 +140,7 @@ private:
 	void create_height_map();
 	bool is_road(int i, int h, int road_type =-1);
 
-	
+	void generate_routes();
 
 	//creates the city layout using the layout
 	void create_expanded_layout();
@@ -197,6 +205,8 @@ private:
 	double def_height;
 	int obj_count;
 	bool* pass_key;
+
+	std::vector< gen_route*> generated_routes;
 };
 
 /* generation key for what each number means on the expanded layout

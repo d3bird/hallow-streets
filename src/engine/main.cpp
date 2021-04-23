@@ -279,10 +279,10 @@ void process_movement(GLFWwindow* window) {
         Player->projected_movement(LEFT, *deltaTime);
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
         Player->projected_movement(RIGHT, *deltaTime);
-    if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS){}
-      //  Player->projected_movement(UP, *deltaTime);
-    if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS){}
-        //Player->projected_movement(DOWN, *deltaTime);
+    if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {}
+         Player->projected_movement(UP, *deltaTime);
+    if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS) {}
+         Player->projected_movement(DOWN, *deltaTime);
 
 
     //if (!freecam) {

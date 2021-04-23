@@ -260,6 +260,7 @@ void animation_manager::update() {
 	float cool = (*deltatime) * 5;
 
 	update_doors(&time_mes);
+	update_robots(&time_mes);
 
 	glm::mat4 trans = glm::mat4(1.0f);
 
@@ -742,7 +743,6 @@ void animation_manager::update_doors(float* time) {
 		}
 	}
 }
-
 
 //takes a object and add an animation pattern
 int animation_manager::turn_object_into_actor(item_info* obje, routine_designation route , bool physics, sound* soun) {
@@ -1554,4 +1554,211 @@ void animation_manager::print_routines() {
 		}
 		std::cout << std::endl;
 	}
+}
+
+void animation_manager::update_robots(float* time) {
+
+	for (int i = 0; i < robots.size(); i++) {
+		if (!robots[i]->nav_points.empty()) {
+
+			glm::vec3 current_loc = glm::vec3(robots[i]->body->x, robots[i]->body->y, robots[i]->body->z);
+
+			float speed = robots[i]->move_speed * (*time);
+
+			//int route_index = get_routine_index(robots[i]->routine);
+
+			//std::cout << "updateing " << route_index<<" with behavior "<< routines[0][route_index]->behavior << std::endl;
+			//if (routines[0][route_index]->behavior == 1) {
+				//std::cout << "updateing " << route_index<<" with behavior "<< routines[0][route_index]->behavior << std::endl;
+
+				//react to the cammera location
+			//if (routines[0][route_index]->behavior == 1) {
+			//	glm::vec3 cam_loc = cam->get_pos();
+
+			//	if ((diff_btwn_pnt(current_loc.x, cam_loc.x) >= 0 && diff_btwn_pnt(current_loc.x, cam_loc.x) <= 10)
+			//		&& (diff_btwn_pnt(current_loc.z, cam_loc.z) >= 0 && diff_btwn_pnt(current_loc.z, cam_loc.z) <= 10)) {
+
+			//		if (determin_direction(current_loc.x, cam_loc.x)) {
+			//			actors[0][i]->nav_points[0].x = current_loc.x - 4.0f;
+			//		}
+			//		else {
+			//			actors[0][i]->nav_points[0].x = current_loc.x + 4.0f;
+			//		}
+
+			//		if (determin_direction(current_loc.z, cam_loc.z)) {
+			//			actors[0][i]->nav_points[0].z = current_loc.z - 4.0f;
+			//		}
+			//		else {
+			//			actors[0][i]->nav_points[0].z = current_loc.z + 4.0f;
+			//		}
+
+			//		if (actors[0][i]->cooldown <= 0) {
+			//			//std::cout << "playing sound" << std::endl;
+			//			sound_system->play_3D_sound(chicken_alarm_call, current_loc);
+			//			actors[0][i]->cooldown = actors[0][i]->cooldown_max;
+			//		}
+			//	}
+			//}
+
+
+			glm::vec3 nav_point = robots[i]->nav_points[0];
+			bool reached_x = false;
+			bool reached_y = false;
+			bool reached_z = false;
+			float temp;//remaining distance
+			//move x
+			temp = diff_btwn_pnt(current_loc.x, nav_point.x);
+
+			if (speed <= temp) {
+				// std::cout << current_loc.x << " " << current_loc.y << " " << current_loc.z << " || " << speed << " <> " << temp << " && " << nav_point.x << std::endl;
+				if (determin_direction(current_loc.x, nav_point.x)) {
+					current_loc.x += speed;
+				}
+				else {
+					current_loc.x -= speed;
+				}
+			}
+			else {
+				//std::cout << "can not move anymore on x axis" << std::endl;
+				current_loc.x = nav_point.x;
+				reached_x = true;
+			}
+
+			//move y
+			temp = diff_btwn_pnt(current_loc.y, nav_point.y);
+
+			if (speed <= temp) {
+				// std::cout << current_loc.x << " " << current_loc.y << " " << current_loc.z << " || " << speed << " <> " << temp << " && " << nav_point.x << std::endl;
+				if (determin_direction(current_loc.y, nav_point.y)) {
+					current_loc.y += speed;
+				}
+				else {
+					current_loc.y -= speed;
+				}
+			}
+			else {
+				//std::cout << "can not move anymore on x axis" << std::endl;
+				current_loc.y = nav_point.y;
+				reached_y = true;
+			}
+
+			//move z
+			temp = diff_btwn_pnt(current_loc.z, nav_point.z);
+
+			if (speed <= temp) {
+				// std::cout << current_loc.x << " " << current_loc.y << " " << current_loc.z << " || " << speed << " <> " << temp << " && " << nav_point.x << std::endl;
+				if (determin_direction(current_loc.z, nav_point.z)) {
+					current_loc.z += speed;
+				}
+				else {
+					current_loc.z -= speed;
+				}
+			}
+			else {
+				//std::cout << "can not move anymore on x axis" << std::endl;
+				current_loc.z = nav_point.z;
+				reached_z = true;
+			}
+
+			//trans = glm::translate(trans, glm::vec3(current_loc.x, current_loc.y, current_loc.z));
+			//beast_matrices[all_creatures[i]->get_buffer_loc()] = trans;
+
+
+			//std::cout << "c_loc: " << current_loc.x << " " << current_loc.y << " " << current_loc.z <<" || nav " << nav_point.x << " " << nav_point.y << " " << nav_point.z << std::endl;
+
+
+			robots[i]->body->x = current_loc.x;
+			robots[i]->body->y = current_loc.y;
+			robots[i]->body->z = current_loc.z;
+
+			update_pak update_pac;
+
+			update_pac.x = current_loc.x;
+			update_pac.y = current_loc.y;
+			update_pac.z = current_loc.z;
+
+			update_pac.x_scale = 1;
+			update_pac.y_scale = 1;
+			update_pac.z_scale = 1;
+
+			update_pac.buffer_loc = robots[i]->body->buffer_loc;
+			update_pac.item_id = robots[i]->body->item_id;
+
+			OBJM->update_item_matrix(&update_pac);
+
+			update_pac.buffer_loc = robots[i]->head->buffer_loc;
+			update_pac.item_id = robots[i]->head->item_id;
+
+			OBJM->update_item_matrix(&update_pac);
+
+			if (reached_x && reached_z && reached_y) {
+
+				if (robots[i]->nav_points.size() == 1) {
+					robots[i]->nav_points.pop_back();
+				}
+				else {
+					robots[i]->nav_points.erase(robots[i]->nav_points.begin());
+				}
+			}
+
+		}
+		else {
+			generate_points_for_robot(robots[i]);
+		}
+	}
+}
+
+int animation_manager::create_route(std::vector<int>& x_points, std::vector<int>& z_points, std::string* name) {
+	int id = robot_routes.size();
+	robot_route* temp_route = new robot_route;
+	temp_route->name = name;
+	temp_route->id = id;
+
+	for (int i = 0; i < x_points.size(); i++) {
+		map_pair map_temp;
+		map_temp.x = x_points[i];
+		map_temp.z = z_points[i];
+
+		temp_route->nav_points.push_back(map_temp);
+	}
+	robot_routes.push_back(temp_route);
+	return id;
+}
+
+void animation_manager::turn_objects_into_actor(item_info* body, item_info* head, int route_id) {
+	actor_robot* new_robot = new  actor_robot;
+	new_robot->head = head;
+	new_robot->body = body;
+	new_robot->routine = NULL;
+	if (route_id >= 0 && route_id < robot_routes.size()) {
+		new_robot->routine = robot_routes[route_id];
+		std::cout << "route_id does match a rout that has been created" << std::endl;
+	}
+
+	generate_points_for_robot(new_robot);
+	robots.push_back(new_robot);
+}
+
+void animation_manager::generate_points_for_robot(actor_robot* new_robot) {
+	std::cout << "generating points" << std::endl;
+	int index = new_robot->index;
+	index++;
+	if (new_robot->routine != NULL) {
+		std::cout << "index "<<index<<" size "<< new_robot->routine->nav_points.size() << std::endl;
+		robot_route* routine = new_robot->routine;
+		if (index >= routine->nav_points.size()) {
+			index = 0;
+		}
+
+		int x = routine->nav_points[index].x;
+		int z = routine->nav_points[index].z;
+		glm::vec3 temp_point(x * 2, new_robot->body->y, z * 2);
+		new_robot->nav_points.push_back(temp_point);
+		new_robot->index= index;
+	}
+	else {// no routine
+
+	}
+
+
 }

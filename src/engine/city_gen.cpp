@@ -138,6 +138,8 @@ void city_gen::init() {
 	create_expanded_layout();
 	create_height_map();
 	//print_height_map();
+	print_expanded_layout();
+	generate_routes();
 
 	rail_section* rail_s;
 	if (start_r_x != -1 && start_r_y != -1) {
@@ -574,6 +576,7 @@ void city_gen::create_expanded_layout() {
 			case reserverd://cell information
 				grab_info_from_cells = true;
 				break;
+			case road_inside_curve:
 			case road_curve:
 				set = 1;
 				break;
@@ -921,6 +924,40 @@ void city_gen::create_wall_tile(int start_x, int start_y) {
 void city_gen::create_empty_tile(int start_x, int start_y) {
 
 
+}
+
+
+void city_gen::generate_routes() {
+	gen_route* temp_route;
+	int temp_x;
+	int temp_z;
+
+	temp_route = new gen_route;
+	temp_route->name = new std::string("outside_road");
+	//for (int i = 0; i < block_height; i++) {
+	//for (int h = 0; h < block_width; h++) {
+
+	temp_x = 0;
+	temp_route->x_map.push_back(temp_x);
+	temp_z = 0;
+	temp_route->z_map.push_back(temp_z);
+
+	temp_x = (block_width -1)*key;
+	temp_route->x_map.push_back(temp_x);
+	temp_z = 0;
+	temp_route->z_map.push_back(temp_z);
+
+	temp_x = (block_width - 1)* key;
+	temp_route->x_map.push_back(temp_x);
+	temp_z = (block_height-1)* key;
+	temp_route->z_map.push_back(temp_z);
+
+	temp_x = 0;
+	temp_route->x_map.push_back(temp_x);
+	temp_z = (block_height - 1)* key;
+	temp_route->z_map.push_back(temp_z);
+
+	generated_routes.push_back(temp_route);
 }
 
 

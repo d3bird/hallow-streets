@@ -290,6 +290,20 @@ void city::init(object_manger* OBJM, animation_manager* an) {
 	AM->define_routine(CANNON_PLATFORM_ROUTINE, platform_point_ob);
 
 
+	//create the routines for the robots
+	std::vector< gen_route*> generated_routes = city_info->get_generate_routs();
+	for (int i = 0; i < generated_routes.size(); i++) {
+		std::vector<int> x_temp;
+		std::vector<int> z_temp;
+		for (int q = 0; q < generated_routes[i]->x_map.size(); q++) {
+			x_temp.push_back(generated_routes[i]->x_map[q]);
+			z_temp.push_back(generated_routes[i]->z_map[q]);
+		}
+		AM->create_route(x_temp, z_temp, generated_routes[i]->name);
+		x_temp.clear();
+		z_temp.clear();
+	}
+
 	//define the objects with routines
 	AM->turn_object_into_actor(cart, RAIL_ROUTINE);
 	AM->turn_object_into_actor(platform, CANNON_PLATFORM_ROUTINE);
@@ -783,12 +797,14 @@ void city::init(object_manger* OBJM, animation_manager* an) {
 
 	trans = glm::mat4(1.0f);
 	trans = glm::translate(trans, glm::vec3((10), 6, (2)));
-	tempdata = OBJM->spawn_item(ROBOT_BASE_T, 1, 6, 1, trans);
+	item_info* body = OBJM->spawn_item(ROBOT_BASE_T, 1, 6, 1, trans);
 
 	trans = glm::mat4(1.0f);
 	trans = glm::translate(trans, glm::vec3((10), 6, (2)));
-	tempdata = OBJM->spawn_item(ROBOT_HEAD_T, 1, 6, 1, trans);
+	item_info* head = OBJM->spawn_item(ROBOT_HEAD_T, 1, 6, 1, trans);
 	//add_object_to_cell(tempdata,cells,i,h);
+	AM->turn_objects_into_actor(body, head, 0);
+
 
 	//test for the pathing area for the chicken routine
 	//std::cout << "low  " << low_x << "," << low_z << " || hig " << hig_x << "," << hig_z << std::endl;
