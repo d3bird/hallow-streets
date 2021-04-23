@@ -47,6 +47,8 @@ public:
 	path_finding();
 	~path_finding();
 
+	std::vector<glm::vec3>* get_pathing(int loc_x, int loc_z,int dest_x, int dest_z);
+
 	void aStarSearch(Pair src, Pair dest);
 
 	void tracePath(cell** cellDetails, Pair dest);
@@ -70,6 +72,8 @@ private:
 	bool isDestination(int row, int col, Pair dest);
 	bool isUnBlocked(int row, int col);
 	bool isValid(int row, int col);
+
+	std::vector<glm::vec3> *generated_points;
 
 	int** expanded_layout;
 	bool* key_pass_through_key;

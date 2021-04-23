@@ -9,6 +9,8 @@ path_finding::path_finding(){
 	terrian_map = NULL;
 	x_width = 9;// ROW;//rows
 	z_width = 10;//COL;//collums
+
+	generated_points = new std::vector<glm::vec3>;
 }
 
 path_finding::~path_finding(){
@@ -16,11 +18,30 @@ path_finding::~path_finding(){
 }
 
 
+std::vector<glm::vec3>* path_finding::get_pathing(int loc_x, int loc_z, int dest_x, int dest_z) {
+	if (generated_points != NULL) {
+		generated_points->clear();
+		std::cout << "from x: " << loc_x << " , " << loc_z << " to " << dest_x << " , " << dest_z << std::endl;
+		
+		//the x and z has to be switched for the path finding
+		//Pair src = make_pair(loc_x, loc_z);
+		Pair src = make_pair(loc_z, loc_x);
+
+		//Pair dest = make_pair(dest_x, dest_z);
+		Pair dest = make_pair(dest_z, dest_x);
+
+		aStarSearch(src, dest);
+
+	}
+	return generated_points;
+}
+
+
 void path_finding::init() {
 	std::cout << "" << std::endl;
 	std::cout << "creating path finding" << std::endl;
 
-
+	std::cout << "x_width "<< x_width<< " z_width "<< z_width << std::endl;
 	terrian_map = new map_tile * [x_width];
 	for (int i = 0; i < x_width; i++) {
 		terrian_map[i] = new map_tile[z_width];
@@ -84,7 +105,7 @@ void path_finding::init() {
 	// Destination is the left-most top-most corner 
 	Pair dest = make_pair(0, 0);
 
-	aStarSearch(src, dest);
+	//aStarSearch(src, dest);
 	std::cout << "done" << std::endl;
 	std::cout << "" << std::endl;
 }
@@ -144,7 +165,15 @@ double path_finding::calculateHValue(int row, int col, Pair dest)
 // to destination 
 void path_finding::tracePath(cell** cellDetails, Pair dest)
 {
-	printf("\nThe Path is ");
+	if (generated_points == NULL) {
+		generated_points = new std::vector<glm::vec3>();
+	}
+	else {
+		if (generated_points[0].size() > 0) {
+			generated_points[0].clear();
+		}
+	}
+	//printf("\nThe Path is ");
 	int row = dest.first;
 	int col = dest.second;
 
@@ -165,7 +194,8 @@ void path_finding::tracePath(cell** cellDetails, Pair dest)
 	{
 		pair<int, int> p = Path.top();
 		Path.pop();
-		printf("-> (%d,%d) ", p.first, p.second);
+		//printf("-> (%d,%d) ", p.first, p.second);
+		generated_points->push_back(glm::vec3(p.second * 2, 6, p.first * 2));
 	}
 
 	return;

@@ -848,6 +848,8 @@ void city::init(object_manger* OBJM, animation_manager* an) {
 	pathing->set_expanded_layout(layout_expanded);
 	pathing->set_key_for_passing_through(city_info->get_pas_key(), city_info->get_unq_obj_cnt());
 	pathing->init();
+
+	AM->set_path_finding(pathing);
 	std::cout << "done" << std::endl;
 
 	OBJM->set_city_layout_cells(cells, city_info->get_height(), city_info->get_width());

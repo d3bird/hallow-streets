@@ -140,6 +140,11 @@ struct actor_robot {
 	bool has_sound = false;
 
 	std::vector<glm::vec3> nav_points;
+	int map_x = 0;
+	int map_z = 0;
+
+	int dest_x = 0;
+	int dest_z = 0;
 	int index =0;//where in the patural it is at
 	int id;
 	robot_route* routine;
@@ -196,6 +201,8 @@ public:
 	void update_actor_id(int id,glm::vec3& loc, glm::vec3& rot,float angle);
 
 	int get_routine_index(routine_designation i);
+
+	void set_path_finding(path_finding* p) { Pathing = p; }
 
 private:
 
@@ -273,7 +280,7 @@ private:
 
 	std::vector< actor_robot*> robots;
 	std::vector< robot_route*> robot_routes;
-
+	path_finding* Pathing;
 	//physics
 	bool update_physics;
 	bool init_physics_;

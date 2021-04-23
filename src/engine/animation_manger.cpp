@@ -47,6 +47,9 @@ animation_manager::animation_manager() {
 
 	update_physics = false;
 	init_physics_ = false;
+
+	//robot setters
+	Pathing = NULL;
 }
 
 animation_manager::~animation_manager() {
@@ -1693,6 +1696,9 @@ void animation_manager::update_robots(float* time) {
 
 			if (reached_x && reached_z && reached_y) {
 
+				robots[i]->map_x = robots[i]->dest_x;
+				robots[i]->map_z = robots[i]->dest_z;
+
 				if (robots[i]->nav_points.size() == 1) {
 					robots[i]->nav_points.pop_back();
 				}
@@ -1752,9 +1758,19 @@ void animation_manager::generate_points_for_robot(actor_robot* new_robot) {
 
 		int x = routine->nav_points[index].x;
 		int z = routine->nav_points[index].z;
-		glm::vec3 temp_point(x * 2, new_robot->body->y, z * 2);
-		new_robot->nav_points.push_back(temp_point);
-		new_robot->index= index;
+
+		if (Pathing != NULL) {
+			new_robot->nav_points = *Pathing->get_pathing(new_robot->map_x, new_robot->map_z, x, z);
+			//glm::vec3 temp_point(x * 2, new_robot->body->y, z * 2);
+			//new_robot->nav_points.push_back(temp_point);
+			new_robot->index = index;
+			new_robot->dest_x = x;
+			new_robot->dest_z = z;
+
+		}
+		else {
+			std::cout << "pathing is null" << std::endl;
+		}
 	}
 	else {// no routine
 
