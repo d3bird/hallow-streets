@@ -129,7 +129,10 @@ void city::init(object_manger* OBJM, animation_manager* an) {
 
 	//x_width = 9;// ROW;//rows
 	//z_width = 10;//COL;//collums
-
+	stealth *Stealth = new stealth();
+	Stealth->set_cam(cam);
+	Stealth->init(OBJM);
+	AM->set_stealth(Stealth);
 
 	OBJM->set_block_size(0, 0, x_width, z_width, key);
 	int chicken_x_s = -1;
@@ -299,7 +302,13 @@ void city::init(object_manger* OBJM, animation_manager* an) {
 			x_temp.push_back(generated_routes[i]->x_map[q]);
 			z_temp.push_back(generated_routes[i]->z_map[q]);
 		}
-		AM->create_route(x_temp, z_temp, generated_routes[i]->name);
+		if (x_temp.size() == 1) {
+			int temp =AM->create_route(x_temp, z_temp, generated_routes[i]->name, true);//stationary
+			std::cout << "creating a stationary spot, "<< temp << std::endl;
+		}
+		else {
+			AM->create_route(x_temp, z_temp, generated_routes[i]->name);
+		}
 		x_temp.clear();
 		z_temp.clear();
 	}
@@ -805,6 +814,16 @@ void city::init(object_manger* OBJM, animation_manager* an) {
 	//add_object_to_cell(tempdata,cells,i,h);
 	AM->turn_objects_into_actor(body, head, 0);
 
+
+	trans = glm::mat4(1.0f);
+	trans = glm::translate(trans, glm::vec3((10), 6, (4)));
+	 body = OBJM->spawn_item(ROBOT_BASE_T, 1, 6, 1, trans);
+
+	trans = glm::mat4(1.0f);
+	trans = glm::translate(trans, glm::vec3((10), 6, (4)));
+	 head = OBJM->spawn_item(ROBOT_HEAD_T, 1, 6, 1, trans);
+	//add_object_to_cell(tempdata,cells,i,h);
+	AM->turn_objects_into_actor(body, head, 1);
 
 	//test for the pathing area for the chicken routine
 	//std::cout << "low  " << low_x << "," << low_z << " || hig " << hig_x << "," << hig_z << std::endl;

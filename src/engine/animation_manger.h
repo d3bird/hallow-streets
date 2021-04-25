@@ -16,6 +16,7 @@
 #include <string>
 
 #include "object_manger.h"
+#include "stealth.h"
 #include "audio_manger.h"
 #include "time.h"
 #include "path_finding.h"
@@ -147,7 +148,7 @@ struct actor_robot {
 	int dest_z = 0;
 	int index =0;//where in the patural it is at
 	int id;
-	robot_route* routine;
+	robot_route* routine = NULL;
 	bool in_designated_area = true;
 
 	float move_speed = 30;
@@ -157,9 +158,12 @@ struct actor_robot {
 	float cooldown = 0;
 	float cooldown_max = 10;
 
+	bool alerted = true;
+	float head_angle =0;
+	float turn_speed = 6;
+	float turn_speed_fast = 18;
+
 	bool need_to_turn = true;
-	float turn_speed = 1.0f;
-	float turn_to = 0.0f;
 };
 
 class animation_manager {
@@ -181,7 +185,7 @@ public:
 
 	void turn_objects_into_actor(item_info* body, item_info* head, int route_id);
 
-	int create_route(std::vector<int> &x_points, std::vector<int> &z_points, std::string* name);
+	int create_route(std::vector<int> &x_points, std::vector<int> &z_points, std::string* name, bool stat =false);
 
 	void print_routines();
 
@@ -204,6 +208,8 @@ public:
 
 	void set_path_finding(path_finding* p) { Pathing = p; }
 
+	void set_stealth(stealth* S) { Stealth = S; }
+
 private:
 
 	void init_physics();
@@ -218,7 +224,7 @@ private:
 
 	void update_robots(float* time);
 
-	void generate_points_for_robot(actor_robot* new_robot);
+	bool generate_points_for_robot(actor_robot* new_robot);
 
 	timing* Time;
 	float* deltatime;
@@ -281,6 +287,9 @@ private:
 	std::vector< actor_robot*> robots;
 	std::vector< robot_route*> robot_routes;
 	path_finding* Pathing;
+
+	stealth* Stealth;
+
 	//physics
 	bool update_physics;
 	bool init_physics_;

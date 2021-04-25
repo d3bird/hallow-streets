@@ -569,6 +569,7 @@ void object_manger::update_item_matrix(update_pak* data, glm::mat4 given_mat) {
 		//model = glm::scale(model, glm::vec3(data->x_scale, data->y_scale, data->z_scale));
 		if (given_mat == glm::mat4(-1.0f)) {
 			model = glm::translate(model, glm::vec3(data->x, data->y, data->z));
+			model = glm::rotate(model, glm::radians(data->angle), glm::vec3(data->rox_x, data->rox_y, data->rox_z));
 		}
 		else {
 			model = given_mat;
@@ -601,6 +602,7 @@ void object_manger::create_cube_objects() {
 	}
 	else {
 		buffer_size = max_cubes;
+		buffer_size += 10;//add some extra for debug cubes
 	}
 
 	amount = 0;

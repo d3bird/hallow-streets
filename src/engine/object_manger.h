@@ -90,6 +90,10 @@ struct update_pak {
 	float x_scale;
 	float y_scale;
 	float z_scale;
+	float rox_x = 0;
+	float rox_y = 1;
+	float rox_z = 0;
+	float angle =0;
 };
 
 //transfer object to tell the terrian what to block in bulk after the objects are created

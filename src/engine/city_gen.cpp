@@ -138,7 +138,7 @@ void city_gen::init() {
 	create_expanded_layout();
 	create_height_map();
 	//print_height_map();
-	print_expanded_layout();
+	//print_expanded_layout();
 	generate_routes();
 
 	rail_section* rail_s;
@@ -957,6 +957,12 @@ void city_gen::generate_routes() {
 	temp_z = (block_height - 1)* key;
 	temp_route->z_map.push_back(temp_z);
 
+	generated_routes.push_back(temp_route);
+
+	temp_route = new gen_route;
+	temp_route->name = new std::string("stationary");
+	temp_route->x_map.push_back(4);
+	temp_route->z_map.push_back(4);
 	generated_routes.push_back(temp_route);
 }
 

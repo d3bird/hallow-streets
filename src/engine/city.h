@@ -21,10 +21,9 @@
 #include "city_gen.h"
 #include "animation_manger.h"
 #include "object_manger.h"
+#include "camera.h"
 
 using namespace std;
-
-
 
 struct rail_cart {
 
@@ -81,6 +80,7 @@ public:
 	void set_server(bool i) { server = i; }
 
 	void print_height_map() { city_info->print_height_map(); }
+	void set_camera(Camera* c) { cam = c; }
 
 private:
 
@@ -103,7 +103,7 @@ private:
 	city_gen* city_info;
 	city_square** layout;
 	path_finding* pathing;
-
+	Camera* cam;
 	//rail carts
 	item* rail_carts;
 

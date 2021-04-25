@@ -21,7 +21,7 @@ path_finding::~path_finding(){
 std::vector<glm::vec3>* path_finding::get_pathing(int loc_x, int loc_z, int dest_x, int dest_z) {
 	if (generated_points != NULL) {
 		generated_points->clear();
-		std::cout << "from x: " << loc_x << " , " << loc_z << " to " << dest_x << " , " << dest_z << std::endl;
+		//std::cout << "from x: " << loc_x << " , " << loc_z << " to " << dest_x << " , " << dest_z << std::endl;
 		
 		//the x and z has to be switched for the path finding
 		//Pair src = make_pair(loc_x, loc_z);

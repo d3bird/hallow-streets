@@ -50,6 +50,7 @@ animation_manager::animation_manager() {
 
 	//robot setters
 	Pathing = NULL;
+	Stealth = NULL;
 }
 
 animation_manager::~animation_manager() {
@@ -86,6 +87,13 @@ void animation_manager::init() {
 	//Severity	Code	Description	Project	File	Line	Suppression State
 //	Error	LNK2019	unresolved external symbol "public: __cdecl physx::PxDefaultErrorCallback::PxDefaultErrorCallback(void)" (? ? 0PxDefaultErrorCallback@physx@@QEAA@XZ) referenced in function "private: void __cdecl animation_manager::init_physics(void)" (? init_physics@animation_manager@@AEAAXXZ)	engine	C : \Users\dogbi\OneDrive\Desktop\hallow_streets\build\animation_manger.obj	1
 
+	/*if (OBJM == NULL) {
+		Stealth = new stealth();
+		Stealth->init(OBJM);
+	}
+	else {
+		Stealth = NULL;
+	}*/
 
 	if (Time != NULL) {
 		deltatime = Time->get_time_change();
@@ -1562,9 +1570,10 @@ void animation_manager::print_routines() {
 void animation_manager::update_robots(float* time) {
 
 	for (int i = 0; i < robots.size(); i++) {
+		glm::vec3 current_loc = glm::vec3(robots[i]->body->x, robots[i]->body->y, robots[i]->body->z);
 		if (!robots[i]->nav_points.empty()) {
 
-			glm::vec3 current_loc = glm::vec3(robots[i]->body->x, robots[i]->body->y, robots[i]->body->z);
+			
 
 			float speed = robots[i]->move_speed * (*time);
 
@@ -1688,12 +1697,25 @@ void animation_manager::update_robots(float* time) {
 			update_pac.item_id = robots[i]->body->item_id;
 
 			OBJM->update_item_matrix(&update_pac);
-
-			update_pac.buffer_loc = robots[i]->head->buffer_loc;
-			update_pac.item_id = robots[i]->head->item_id;
-
-			OBJM->update_item_matrix(&update_pac);
-
+			if (robots[i]->routine != NULL && robots[i]->routine->look_around) {
+				update_pac.buffer_loc = robots[i]->head->buffer_loc;
+				update_pac.item_id = robots[i]->head->item_id;
+				if (robots[i]->alerted) {
+					robots[i]->head_angle += robots[i]->turn_speed_fast * (*time);
+				}
+				else {
+					robots[i]->head_angle += robots[i]->turn_speed * (*time);
+				}
+				if (robots[i]->head_angle > 360) {
+					robots[i]->head_angle -= 360;
+				}
+				//std::cout << "head_angle: " << robots[i]->head_angle << std::endl;
+				update_pac.angle = robots[i]->head_angle;
+				update_pac.rox_x = 0;
+				update_pac.rox_y = 1;
+				update_pac.rox_z = 0;
+				OBJM->update_item_matrix(&update_pac);
+			}
 			if (reached_x && reached_z && reached_y) {
 
 				robots[i]->map_x = robots[i]->dest_x;
@@ -1709,24 +1731,74 @@ void animation_manager::update_robots(float* time) {
 
 		}
 		else {
-			generate_points_for_robot(robots[i]);
+			if(generate_points_for_robot(robots[i])){
+				//if the robot is stationary and need to do other things
+			
+				if (robots[i]->routine != NULL && robots[i]->routine->look_around) {
+					robots[i]->body->x = current_loc.x;
+					robots[i]->body->y = current_loc.y;
+					robots[i]->body->z = current_loc.z;
+
+					update_pak update_pac;
+
+					update_pac.x = current_loc.x;
+					update_pac.y = current_loc.y;
+					update_pac.z = current_loc.z;
+
+					update_pac.x_scale = 1;
+					update_pac.y_scale = 1;
+					update_pac.z_scale = 1;
+
+					update_pac.buffer_loc = robots[i]->head->buffer_loc;
+					update_pac.item_id = robots[i]->head->item_id;
+					if (robots[i]->alerted) {
+						robots[i]->head_angle += robots[i]->turn_speed_fast * (*time);
+					}
+					else {
+						robots[i]->head_angle += robots[i]->turn_speed * (*time);
+					}
+					if (robots[i]->head_angle > 360) {
+						robots[i]->head_angle -= 360;
+					}
+					//std::cout << "head_angle: " << robots[i]->head_angle << std::endl;
+					update_pac.angle = robots[i]->head_angle;
+					//update_pac.angle = 180;
+					update_pac.rox_x = 0;
+					update_pac.rox_y = 1;
+					update_pac.rox_z = 0;
+					OBJM->update_item_matrix(&update_pac);
+				}
+
+				if (Stealth != NULL) {
+					Stealth->set_debug_stealth_test(current_loc, robots[i]->head_angle, 6);
+					if (Stealth->is_cam_in_veiw(cam->get_pos() ,current_loc, robots[i]->head_angle, 6)) {
+						std::cout << "player is in range" << std::endl;
+					}
+				}
+				else {
+					std::cout << "Stealth was null" << std::endl;
+				}
+
+			}
 		}
 	}
 }
 
-int animation_manager::create_route(std::vector<int>& x_points, std::vector<int>& z_points, std::string* name) {
+int animation_manager::create_route(std::vector<int>& x_points, std::vector<int>& z_points, std::string* name, bool stat) {
 	int id = robot_routes.size();
 	robot_route* temp_route = new robot_route;
 	temp_route->name = name;
 	temp_route->id = id;
+	temp_route->stationary = stat;
+	//if (!stat) {
+		for (int i = 0; i < x_points.size(); i++) {
+			map_pair map_temp;
+			map_temp.x = x_points[i];
+			map_temp.z = z_points[i];
 
-	for (int i = 0; i < x_points.size(); i++) {
-		map_pair map_temp;
-		map_temp.x = x_points[i];
-		map_temp.z = z_points[i];
-
-		temp_route->nav_points.push_back(map_temp);
-	}
+			temp_route->nav_points.push_back(map_temp);
+		}
+	//}
 	robot_routes.push_back(temp_route);
 	return id;
 }
@@ -1738,17 +1810,50 @@ void animation_manager::turn_objects_into_actor(item_info* body, item_info* head
 	new_robot->routine = NULL;
 	if (route_id >= 0 && route_id < robot_routes.size()) {
 		new_robot->routine = robot_routes[route_id];
-		std::cout << "route_id does match a rout that has been created" << std::endl;
+	}
+	else {
+		std::cout << "route_id(" << route_id << ") does match a rout that has been created, total: " << robot_routes.size() << std::endl;
 	}
 
 	generate_points_for_robot(new_robot);
 	robots.push_back(new_robot);
 }
 
-void animation_manager::generate_points_for_robot(actor_robot* new_robot) {
-	std::cout << "generating points" << std::endl;
+bool animation_manager::generate_points_for_robot(actor_robot* new_robot) {
+	//std::cout << "generating points" << std::endl;
+	if (new_robot == NULL) {
+		return false;
+	}
 	int index = new_robot->index;
 	index++;
+
+	if (new_robot->routine->stationary) {
+		if (Pathing != NULL && new_robot->routine != NULL) {
+			robot_route* routine = new_robot->routine;
+		//	std::cout << "updating stationary points 1" << std::endl;
+			if (!routine->nav_points.empty()&&
+				(new_robot->map_x != new_robot->routine->nav_points[0].x) &&
+				(new_robot->map_z != new_robot->routine->nav_points[0].z)) {
+				//std::cout << "updating stationary points 2" << std::endl;
+				robot_route* routine = new_robot->routine;
+				int x = routine->nav_points[0].x;
+				int z = routine->nav_points[0].z;
+				//std::cout << "updating stationary points 3" << std::endl;
+				new_robot->nav_points = *Pathing->get_pathing(new_robot->map_x, new_robot->map_z, x, z);
+				new_robot->dest_x = x;
+				new_robot->dest_z = z;
+			}
+			else {
+			//	std::cout << "no nav points" << std::endl;
+			}
+		}
+		else {
+			std::cout << "new_robot->routine == NULL" << std::endl;
+		}
+		return true;
+	}
+
+
 	if (new_robot->routine != NULL) {
 		std::cout << "index "<<index<<" size "<< new_robot->routine->nav_points.size() << std::endl;
 		robot_route* routine = new_robot->routine;
@@ -1776,5 +1881,5 @@ void animation_manager::generate_points_for_robot(actor_robot* new_robot) {
 
 	}
 
-
+	return false;
 }

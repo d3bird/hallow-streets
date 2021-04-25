@@ -59,7 +59,9 @@ public:
 	void set_cam_pos(glm::vec3 i) { cam_pos = i; }
 
 	void change_projection(glm::mat4 i);
-	void set_camera_obj(Camera* cam) { ADM->set_cam(cam); AM->set_cam(cam); }
+	void set_camera_obj(Camera* cam) {
+		ADM->set_cam(cam); AM->set_cam(cam); City->set_camera(cam);
+	}
 	void set_text_engine(text_engine* txt) { text_render = txt; }
 
 	void set_online(bool i) { online = i; }
