@@ -292,27 +292,6 @@ void city::init(object_manger* OBJM, animation_manager* an) {
 	platform_point_ob.x -= 30;
 	AM->define_routine(CANNON_PLATFORM_ROUTINE, platform_point_ob);
 
-
-	//create the routines for the robots
-	std::vector< gen_route*> generated_routes = city_info->get_generate_routs();
-	for (int i = 0; i < generated_routes.size(); i++) {
-		std::vector<int> x_temp;
-		std::vector<int> z_temp;
-		for (int q = 0; q < generated_routes[i]->x_map.size(); q++) {
-			x_temp.push_back(generated_routes[i]->x_map[q]);
-			z_temp.push_back(generated_routes[i]->z_map[q]);
-		}
-		if (x_temp.size() == 1) {
-			int temp =AM->create_route(x_temp, z_temp, generated_routes[i]->name, true);//stationary
-			std::cout << "creating a stationary spot, "<< temp << std::endl;
-		}
-		else {
-			AM->create_route(x_temp, z_temp, generated_routes[i]->name);
-		}
-		x_temp.clear();
-		z_temp.clear();
-	}
-
 	//define the objects with routines
 	AM->turn_object_into_actor(cart, RAIL_ROUTINE);
 	AM->turn_object_into_actor(platform, CANNON_PLATFORM_ROUTINE);
@@ -802,9 +781,13 @@ void city::init(object_manger* OBJM, animation_manager* an) {
 	trans = glm::mat4(1.0f);
 	trans = glm::translate(trans, glm::vec3((6), 6, (2)));
 	tempdata = OBJM->spawn_item(COMPUTER_T, 1, 6, 1, trans);
-	//add_object_to_cell(tempdata,cells,i,h);
 
 	trans = glm::mat4(1.0f);
+	trans = glm::translate(trans, glm::vec3((10), 6, (2)));
+	tempdata = OBJM->spawn_item(SOUND_TRAP_T, 1, 6, 1, trans);
+	//add_object_to_cell(tempdata,cells,i,h);
+
+	/*trans = glm::mat4(1.0f);
 	trans = glm::translate(trans, glm::vec3((10), 6, (2)));
 	item_info* body = OBJM->spawn_item(ROBOT_BASE_T, 1, 6, 1, trans);
 
@@ -823,7 +806,7 @@ void city::init(object_manger* OBJM, animation_manager* an) {
 	trans = glm::translate(trans, glm::vec3((10), 6, (4)));
 	 head = OBJM->spawn_item(ROBOT_HEAD_T, 1, 6, 1, trans);
 	//add_object_to_cell(tempdata,cells,i,h);
-	AM->turn_objects_into_actor(body, head, 1);
+	AM->turn_objects_into_actor(body, head, 1);*/
 
 	//test for the pathing area for the chicken routine
 	//std::cout << "low  " << low_x << "," << low_z << " || hig " << hig_x << "," << hig_z << std::endl;
@@ -867,6 +850,44 @@ void city::init(object_manger* OBJM, animation_manager* an) {
 	pathing->set_expanded_layout(layout_expanded);
 	pathing->set_key_for_passing_through(city_info->get_pas_key(), city_info->get_unq_obj_cnt());
 	pathing->init();
+
+
+	//create the routines for the robots
+	city_info->test_routines(pathing);
+	std::vector< gen_route*> generated_routes = city_info->get_generate_routs();
+	for (int i = 0; i < generated_routes.size(); i++) {
+
+		int rout_num = -1;
+		std::vector<int> x_temp;
+		std::vector<int> z_temp;
+		for (int q = 0; q < generated_routes[i]->x_map.size(); q++) {
+			x_temp.push_back(generated_routes[i]->x_map[q]);
+			z_temp.push_back(generated_routes[i]->z_map[q]);
+		}
+		if (x_temp.size() == 1) {
+			rout_num = AM->create_route(x_temp, z_temp, generated_routes[i]->name, true);//stationary
+			std::cout << "creating a stationary spot, " << rout_num << std::endl;
+		}
+		else {
+			rout_num = AM->create_route(x_temp, z_temp, generated_routes[i]->name);
+		}
+
+		//create a robot for that route
+		if (rout_num != -1) {
+			glm::mat4 trans = glm::mat4(1.0f);
+			trans = glm::translate(trans, glm::vec3((x_temp[0]), 6, (z_temp[0])));
+			item_info* body = OBJM->spawn_item(ROBOT_BASE_T, 1, 6, 1, trans);
+
+			trans = glm::mat4(1.0f);
+			trans = glm::translate(trans, glm::vec3((x_temp[0]), 6, (z_temp[0])));
+			item_info* head = OBJM->spawn_item(ROBOT_HEAD_T, 1, 6, 1, trans);
+			//add_object_to_cell(tempdata,cells,i,h);
+			AM->turn_objects_into_actor(body, head, rout_num);
+		}
+
+		x_temp.clear();
+		z_temp.clear();
+	}
 
 	AM->set_path_finding(pathing);
 	std::cout << "done" << std::endl;
