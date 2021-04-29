@@ -49,9 +49,7 @@ public:
 
 	std::vector<glm::vec3>* get_pathing(int loc_x, int loc_z,int dest_x, int dest_z);
 
-	void aStarSearch(Pair src, Pair dest);
-
-	void tracePath(cell** cellDetails, Pair dest);
+	
 	void print_map();
 
 	void init();
@@ -66,6 +64,9 @@ public:
 	bool** get_map_for_debug();
 
 private:
+
+	void aStarSearch(Pair src, Pair dest);
+	void tracePath(cell** cellDetails, Pair dest);
 
 	bool can_pass(int object_id);
 
