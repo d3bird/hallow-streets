@@ -63,7 +63,7 @@ public:
 	void set_key_for_passing_through(bool* key, int amt) { 
 		key_pass_through_key = key; amnt_of_dif_obj = amt;	}
 
-	map_tile** get_map_for_debug(){return terrian_map; }
+	bool** get_map_for_debug();
 
 private:
 
@@ -83,9 +83,13 @@ private:
 
 	//path finding data
 	map_tile** terrian_map;
+	bool** path_map;
 	unsigned int x_width = 9;// ROW;//rows
 	unsigned int z_width = 10;//COL;//collums
 	int cube_amount;
 
+	//map info
+	bool** closedList;
+	cell** cellDetails;
 };
 

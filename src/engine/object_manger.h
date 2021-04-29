@@ -198,6 +198,10 @@ public:
 	void create_height_map_debig(double** height_m, int height, int block_width, double def_height);
 
 	void draw_height_map_degbug();
+
+	void draw_pathfinding_map_degbug();
+	void set_path_debug_map(bool** map, int height, int block_width);
+
 	//setting
 	direction_offsets* get_east_off() { return east_off; }
 	direction_offsets* get_west_off() { return west_off; }
@@ -332,6 +336,7 @@ private:
 
 
 	item* height_map;
+	item* path_map;
 
 	//1 is square around the player
 	//2 is 180 in front of the player

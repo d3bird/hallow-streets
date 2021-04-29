@@ -9,8 +9,10 @@ path_finding::path_finding(){
 	terrian_map = NULL;
 	x_width = 9;// ROW;//rows
 	z_width = 10;//COL;//collums
-
+	path_map = NULL;
 	generated_points = new std::vector<glm::vec3>;
+	closedList = NULL;
+	cellDetails = NULL;
 }
 
 path_finding::~path_finding(){
@@ -36,6 +38,30 @@ std::vector<glm::vec3>* path_finding::get_pathing(int loc_x, int loc_z, int dest
 		}
 	}
 	return generated_points;
+}
+
+bool** path_finding::get_map_for_debug() {
+	if (path_map == NULL) {
+
+		path_map = new bool* [x_width];
+		for (int i = 0; i < x_width; i++) {
+			path_map[i] = new bool[z_width];
+		}
+
+		for (int x = 0; x < x_width; x++) {
+			for (int z = 0; z < z_width; z++) {
+				if (terrian_map[x][z].blocked == false) {
+					path_map[x][z] = true;
+				}
+				else {
+					path_map[x][z] = false;
+				}
+			}
+		}
+
+	}
+	
+	return path_map;
 }
 
 
@@ -82,24 +108,51 @@ void path_finding::init() {
 
 	}
 
-	//generate the complete path finding refference map
+	////generate the complete path finding refference map
+	//for (int x = 0; x < x_width; x++) {
+	//	for (int z = 0; z < z_width; z++) {
+	//		switch (expanded_layout[x][z])
+	//		{
+	//		case 0:
+	//			terrian_map[x][z].blocked = true;
+	//			terrian_map[x][z].type = 0;
+	//			break;
+	//		case 1:
+	//			terrian_map[x][z].blocked = false;
+	//			break;
+	//		default:
+	//			break;
+	//		}
+
+	//	}
+	//}
+
+		//generate the complete path finding refference map
 	for (int x = 0; x < x_width; x++) {
 		for (int z = 0; z < z_width; z++) {
-			switch (expanded_layout[x][z])
-			{
-			case 0:
+			if (can_pass(expanded_layout[x][z])){
+				terrian_map[x][z].blocked = false;
+			}
+			else {
 				terrian_map[x][z].blocked = true;
 				terrian_map[x][z].type = 0;
-				break;
-			case 1:
-				terrian_map[x][z].blocked = false;
-				break;
-			default:
-				break;
 			}
-
 		}
 	}
+
+	//print the debig map
+	for (int x = 0; x < x_width; x++) {
+		for (int z = 0; z < z_width; z++) {
+			if(isUnBlocked(x, z)){
+				std::cout<<"  ";
+			}
+			else {
+				std::cout << " 1";
+			}
+		}
+		std::cout << std::endl;
+	}
+
 	//print_map();
 	// Source is the left-most bottom-most corner 
 	Pair src = make_pair(8, 0);
@@ -196,7 +249,7 @@ void path_finding::tracePath(cell** cellDetails, Pair dest)
 	{
 		pair<int, int> p = Path.top();
 		Path.pop();
-		//printf("-> (%d,%d) ", p.first, p.second);
+		printf("-> (%d,%d) ", p.first, p.second);
 		generated_points->push_back(glm::vec3(p.second * 2, 6, p.first * 2));
 	}
 
@@ -242,9 +295,11 @@ void path_finding::aStarSearch(Pair src, Pair dest) {
 	// that no cell has been included yet 
 	// This closed list is implemented as a boolean 2D array 
 
-	bool** closedList = new bool* [x_width];
-	for (int i = 0; i < x_width; i++) {
-		closedList[i] = new bool[z_width];
+	if (closedList == NULL) {
+		closedList = new bool* [x_width];
+		for (int i = 0; i < x_width; i++) {
+			closedList[i] = new bool[z_width];
+		}
 	}
 
 	for (int x = 0; x < x_width; x++) {
@@ -255,11 +310,12 @@ void path_finding::aStarSearch(Pair src, Pair dest) {
 
 	// Declare a 2D array of structure to hold the details 
 	//of that cell 
-	cell** cellDetails = new cell * [x_width];
-	for (int i = 0; i < x_width; i++) {
-		cellDetails[i] = new cell[z_width];
+	if (cellDetails == NULL) {
+		cellDetails = new cell * [x_width];
+		for (int i = 0; i < x_width; i++) {
+			cellDetails[i] = new cell[z_width];
+		}
 	}
-
 
 	int i, j;
 

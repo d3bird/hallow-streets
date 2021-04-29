@@ -1815,7 +1815,7 @@ void animation_manager::turn_objects_into_actor(item_info* body, item_info* head
 		std::cout << "route_id(" << route_id << ") does match a rout that has been created, total: " << robot_routes.size() << std::endl;
 	}
 
-	generate_points_for_robot(new_robot);
+	//generate_points_for_robot(new_robot);
 	robots.push_back(new_robot);
 }
 

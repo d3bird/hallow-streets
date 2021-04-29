@@ -72,6 +72,7 @@ void world::draw_deferred() {
     //OBJM->set_look_dir(Player->get_direction());
   //  OBJM->draw_optimised();
     //OBJM->draw_height_map_degbug();
+    OBJM->draw_pathfinding_map_degbug();
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
   //  std::cout << "lighting tests" << std::endl;

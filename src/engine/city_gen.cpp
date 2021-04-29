@@ -968,44 +968,42 @@ void city_gen::generate_routes() {
 	temp_z = (block_height - 1)* key;
 	temp_route->z_map.push_back(temp_z);
 
-	generated_routes.push_back(temp_route);
+//	generated_routes.push_back(temp_route);
 
 	//test stationary
 	temp_route = new gen_route;
 	temp_route->name = new std::string("stationary");
 	temp_route->x_map.push_back(4);
 	temp_route->z_map.push_back(4);
-	generated_routes.push_back(temp_route);
+//	generated_routes.push_back(temp_route);
 
 
 	for (int i = 0; i < outside_waypoint.size(); i++) {
 		create_stationary_route(outside_waypoint[i].x, outside_waypoint[i].z);
 	}
 
-	for (int i = 0; i < block_height * key; i++) {
-		for (int h = 0; h < block_width * key; h++) {
-			switch (layout_e[i][h]) {
-			case 24:
-				if(layout_e[i][h-1] == 1)
-				//create_stationary_route(i, h-1);
-				break;
-			case 25:
-				if (layout_e[i-1][h] == 1)
-				//	create_stationary_route(i-1, h);
-				break;
-			case 26:
-				if (layout_e[i+1][h] == 1)
-				//	create_stationary_route(i+1, h);
-				break;
-			case 27:
-				if (layout_e[i][h+1] == 1)
-				//	create_stationary_route(i, h+1);
-				break;
+	temp_route = new gen_route;
+	temp_route->name = new std::string("test movment");
+	temp_route->x_map.push_back(8);
+	temp_route->z_map.push_back(8);
 
+	for (int i = 0; i < block_height; i++) {
+		for (int h = 0; h < block_width; h++) {
+			if (layout[i][h] == small_road) {
+				if (layout[i - 1][h] == small_road &&
+					layout[i + 1][h] == small_road &&
+					layout[i][h-1] == small_road &&
+					layout[i][h+1] == small_road) {
+					std::cout << "found a intercetion" << std::endl;
+					temp_route->x_map.push_back((i * key)+2);
+					temp_route->z_map.push_back((i * key) + 2);
+					break;
+				}
 			}
 			
 		}
 	}
+	generated_routes.push_back(temp_route);
 }
 
 

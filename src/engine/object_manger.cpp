@@ -15,11 +15,11 @@ object_manger::object_manger() {
 	max_cubes = 0;
 
 	draw_cubes = true;
-	draw_wall = true;
-	draw_wall_with_door = true;
-	draw_wall_loading_area = true;
-	draw_wall_c = true;
-	draw_sidewalk = true;
+	draw_wall = false;
+	draw_wall_with_door = false;
+	draw_wall_loading_area = false;
+	draw_wall_c = false;
+	draw_sidewalk = false;
 	draw_light_post = true;
 	draw_sideroads = true;
 	draw_sky_rail_s = true;
@@ -75,6 +75,8 @@ object_manger::object_manger() {
 	south_off->z_start_off = 0;
 	south_off->x_end_off = 0;
 	south_off->z_end_off = 0;
+
+	path_map = NULL;
 
 	width = 4;
 	//demo 1 vars
@@ -3446,4 +3448,132 @@ void object_manger::draw_height_map_degbug() {
 
 		}
 	}
+}
+
+void object_manger::draw_pathfinding_map_degbug() {
+
+	if (path_map != NULL) {
+		common->use();
+		common->setMat4("projection", projection);
+		common->setMat4("view", view);
+		//std::cout << q << std::endl;//useful to findout which model is breaking
+		if (path_map->draw) {
+			//std::cout << "test1" << std::endl;
+			glm::mat4* matrix_temp = path_map->modelMatrices;
+			glBindBuffer(GL_ARRAY_BUFFER, path_map->buffer);
+			//std::cout << "test2" << std::endl;
+
+			if (path_map->updatemats) {
+				glBufferData(GL_ARRAY_BUFFER, path_map->amount * sizeof(glm::mat4), &matrix_temp[0], GL_STATIC_DRAW);
+				path_map->updatemats = false;
+			}
+			//std::cout << "test3" << std::endl;
+//
+			common->setInt("texture_diffuse1", 0);
+			glActiveTexture(GL_TEXTURE0);
+			glBindTexture(GL_TEXTURE_2D, path_map->model->textures_loaded[0].id);
+			//std::cout << "test4" << std::endl;
+
+			for (unsigned int i = 0; i < path_map->model->meshes.size(); i++)
+			{
+				glBindVertexArray(path_map->model->meshes[i].VAO);
+				glDrawElementsInstanced(GL_TRIANGLES, path_map->model->meshes[i].indices.size(), GL_UNSIGNED_INT, 0, path_map->amount);
+				glBindVertexArray(0);
+			}
+			//std::cout << "test5" << std::endl;
+
+		}
+	}
+}
+
+void object_manger::set_path_debug_map(bool** map, int height, int block_width) {
+	std::cout << "creating debug path map" << std::endl;
+
+	Model* model;
+	unsigned int buffer;
+	unsigned int buffer_size;
+	unsigned int amount;
+	glm::mat4* modelMatrices;
+	Shader* custom_shader;
+	vector<item_info*> item_data;
+	std::string* item_name;
+	item_type type = CUBE_T;
+
+	item_name = new std::string("cube debug object");
+	buffer = 0;
+
+	buffer_size = (height * key) * (block_width * key);
+
+	amount = 0;
+	modelMatrices = new glm::mat4[buffer_size];
+	custom_shader = NULL;
+
+	if (items.size() >= 1) {
+		model = items[0]->model;
+	}
+	else {
+		model = new Model("resources/objects/cube/cube.obj");
+	}
+	std::cout << "making buffer" << std::endl;
+	glGenBuffers(1, &buffer);
+	glBindBuffer(GL_ARRAY_BUFFER, buffer);
+	glBufferData(GL_ARRAY_BUFFER, amount * sizeof(glm::mat4), &modelMatrices[0], GL_STATIC_DRAW);
+
+	for (unsigned int i = 0; i < model->meshes.size(); i++)
+	{
+		unsigned int VAO = model->meshes[i].VAO;
+		glBindVertexArray(VAO);
+		// set attribute pointers for matrix (4 times vec4)
+		glEnableVertexAttribArray(3);
+		glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)0);
+		glEnableVertexAttribArray(4);
+		glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(sizeof(glm::vec4)));
+		glEnableVertexAttribArray(5);
+		glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(2 * sizeof(glm::vec4)));
+		glEnableVertexAttribArray(6);
+		glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(3 * sizeof(glm::vec4)));
+
+		glVertexAttribDivisor(3, 1);
+		glVertexAttribDivisor(4, 1);
+		glVertexAttribDivisor(5, 1);
+		glVertexAttribDivisor(6, 1);
+
+		glBindVertexArray(0);
+	}
+
+	std::cout << "done" << std::endl;
+	std::cout << "creating cube" << std::endl;
+
+	for (int i = 0; i < height; i++) {
+		for (int h = 0; h < block_width; h++) {
+			if (map[i][h]) {
+				glm::mat4 temp = glm::mat4(1.0f);
+
+				temp = glm::translate(temp, glm::vec3(h * 2, 0, i * 2));
+				modelMatrices[amount] = temp;
+				amount++;
+				if (amount >= buffer_size) {
+					std::cout << "can not add more debug path map cubles" << std::endl;
+					amount--;
+					break;
+				}
+			}
+		}
+	}
+	std::cout << "done" << std::endl;
+	std::cout << "creating item" << std::endl;
+	path_map = new item;
+	path_map->model = model;
+	path_map->buffer = buffer;
+	path_map->buffer_size = buffer_size;
+	path_map->amount = amount;
+	path_map->modelMatrices = modelMatrices;
+	path_map->custom_shader = custom_shader;
+	path_map->item_data = item_data;
+	path_map->item_name = item_name;
+	path_map->type = type;
+	path_map->updatemats = true;
+	path_map->draw = true;
+	std::cout << "done" << std::endl;
+
 }

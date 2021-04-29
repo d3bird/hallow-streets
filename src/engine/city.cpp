@@ -288,7 +288,6 @@ void city::init(object_manger* OBJM, animation_manager* an) {
 
 	AM->define_routine(CANNON_ROUTINE, platform_point_ob);
 
-
 	platform_point_ob.x -= 30;
 	AM->define_routine(CANNON_PLATFORM_ROUTINE, platform_point_ob);
 
@@ -899,6 +898,10 @@ void city::init(object_manger* OBJM, animation_manager* an) {
 		city_info->get_def_height());*/
 
 	//city_info->print_height_map();
+
+	OBJM->set_path_debug_map(pathing->get_map_for_debug(),
+		city_info->get_height() * key, city_info->get_width() * key);
+
 	if (cube_shader == NULL) {
 		cube_shader = new Shader("asteroids.vs", "asteroids.fs");
 	}
