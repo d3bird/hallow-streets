@@ -11,6 +11,7 @@ stealth::stealth(){
 	cube3 = NULL;
 	OBJM = NULL;
 	cam = NULL;
+
 }
 
 stealth::~stealth(){

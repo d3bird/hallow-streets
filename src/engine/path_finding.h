@@ -63,6 +63,8 @@ public:
 	void set_key_for_passing_through(bool* key, int amt) { 
 		key_pass_through_key = key; amnt_of_dif_obj = amt;	}
 
+	map_tile** get_map_for_debug(){return terrian_map; }
+
 private:
 
 	bool can_pass(int object_id);

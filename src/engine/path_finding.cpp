@@ -31,7 +31,9 @@ std::vector<glm::vec3>* path_finding::get_pathing(int loc_x, int loc_z, int dest
 		Pair dest = make_pair(dest_z, dest_x);
 
 		aStarSearch(src, dest);
-
+		if (generated_points->empty()) {
+			std::cout << loc_x << "," << loc_z << " to " << dest_x << "," << dest_z<<" is blocked" << std::endl;
+		}
 	}
 	return generated_points;
 }

@@ -29,6 +29,7 @@ city_gen::city_gen() {
 	def_height = 4;
 	pass_key = NULL;
 	obj_count = 43;
+
 }
 
 city_gen::~city_gen() {
@@ -139,6 +140,7 @@ void city_gen::init() {
 	create_height_map();
 	//print_height_map();
 	//print_expanded_layout();
+	print_layout();
 	generate_routes();
 
 	rail_section* rail_s;
@@ -866,6 +868,12 @@ void city_gen::create_road_tile(int start_x, int start_y, int set) {
 			for (int y = 0; y < key; y++) {
 				if (x == 0 && y == 0) {
 					layout_e[(i * key) + x][(h * key) + y] = set;
+					if (set == 10) {
+						waypoint way;
+						way.x = (i * key) + x;
+						way.z = (h * key) + y;
+						outside_waypoint.push_back(way);
+					}
 					set = 1;
 				}
 				else if (!placed_light && layout[i][h] != small_road) {//create the street lights
@@ -898,6 +906,8 @@ void city_gen::create_road_tile(int start_x, int start_y, int set) {
 						if (gen_last_light) {
 							gen_last_light = false;
 							layout_e[(i * key) + x][(h * key) + y] = light_type;
+							//create_stationary_route((i * key) + x-1,(h * key) + y);
+
 						}
 						else {//no light just a normal spot
 							gen_last_light = true;
@@ -932,6 +942,7 @@ void city_gen::generate_routes() {
 	int temp_x;
 	int temp_z;
 
+	//temp moving
 	temp_route = new gen_route;
 	temp_route->name = new std::string("outside_road");
 	//for (int i = 0; i < block_height; i++) {
@@ -959,11 +970,83 @@ void city_gen::generate_routes() {
 
 	generated_routes.push_back(temp_route);
 
+	//test stationary
 	temp_route = new gen_route;
 	temp_route->name = new std::string("stationary");
 	temp_route->x_map.push_back(4);
 	temp_route->z_map.push_back(4);
 	generated_routes.push_back(temp_route);
+
+
+	for (int i = 0; i < outside_waypoint.size(); i++) {
+		create_stationary_route(outside_waypoint[i].x, outside_waypoint[i].z);
+	}
+
+	for (int i = 0; i < block_height * key; i++) {
+		for (int h = 0; h < block_width * key; h++) {
+			switch (layout_e[i][h]) {
+			case 24:
+				if(layout_e[i][h-1] == 1)
+				//create_stationary_route(i, h-1);
+				break;
+			case 25:
+				if (layout_e[i-1][h] == 1)
+				//	create_stationary_route(i-1, h);
+				break;
+			case 26:
+				if (layout_e[i+1][h] == 1)
+				//	create_stationary_route(i+1, h);
+				break;
+			case 27:
+				if (layout_e[i][h+1] == 1)
+				//	create_stationary_route(i, h+1);
+				break;
+
+			}
+			
+		}
+	}
+}
+
+
+void city_gen::test_routines(path_finding* path) {
+	std::cout << "testing routines" << std::endl;
+	int bad = 0;
+	int total = generated_routes.size();
+	std::vector< gen_route*> tested_routes;
+	if (path != NULL) {
+		for (int i = 0; i < generated_routes.size(); i++) {
+			std::vector<int> x_points = generated_routes[i]->x_map;
+			std::vector<int> z_points = generated_routes[i]->z_map;
+			bool good = true;
+
+			for (int q = 0; q < x_points.size(); q++) {
+				std::vector<glm::vec3>* temp = path->get_pathing(0, 0, x_points[q], z_points[q]);
+				if (temp->size() == 0) {
+					bad++;
+					good = false;
+					break;
+				}
+			}
+
+			if (good) {
+				tested_routes.push_back(generated_routes[i]);
+			}
+			else {
+				delete generated_routes[i];
+			}
+		}
+	}
+	else {
+		std::cout << "the given path was null" << std::endl;
+	}
+	generated_routes = tested_routes;
+	std::cout << "getnerated " << total << " paths" << std::endl;
+	std::cout << "found "<<bad<< " bad paths, removing" << std::endl;
+	total = tested_routes.size();
+	std::cout << "new total " << total <<  std::endl;
+	std::cout << "dones testing routines" << std::endl;
+	std::cout << std::endl;
 }
 
 
@@ -1371,6 +1454,7 @@ building* city_gen::generate_building(building_build_data* buiding_data) {
 												if (q == 0 && x == 0) {
 													if (spawn_door && !door_spawned) {
 														cell.expanded_layout_info[q][x] = 27;
+														//create_stationary_route(q, x);
 														cell.type = wall;
 														door_spawned = true;
 														if (number_floors > 1) {
@@ -1432,6 +1516,7 @@ building* city_gen::generate_building(building_build_data* buiding_data) {
 												if (q == key - 1 && x == 0) {
 													if (spawn_door && !door_spawned) {
 														cell.expanded_layout_info[q][x] = 27;
+														//create_stationary_route(q, x);
 														cell.type = wall;
 														door_spawned = true;
 														if (number_floors > 1) {
@@ -1495,6 +1580,7 @@ building* city_gen::generate_building(building_build_data* buiding_data) {
 												if (q == 0 && x == 0) {
 													if (spawn_door && !door_spawned) {
 														cell.expanded_layout_info[q][x] = 26;
+														//create_stationary_route(q, x);
 														door_spawned = true;
 														cell.type = wall;
 														if (number_floors > 1) {
@@ -1570,6 +1656,7 @@ building* city_gen::generate_building(building_build_data* buiding_data) {
 												if (q == 0 && x == key - 1) {
 													if (spawn_door && !door_spawned) {
 														cell.expanded_layout_info[q][x] = 26;
+														//create_stationary_route(q, x);
 														cell.type = wall;
 														door_spawned = true;
 														if (number_floors > 1) {
@@ -1903,4 +1990,14 @@ bool* city_gen::get_pas_key() {
 	}
 
 	return pass_key;
+}
+
+
+void city_gen::create_stationary_route(int x, int z) {
+	std::cout << "creating stationary at " << std::to_string(x) << " " << std::to_string(z) << std::endl;
+	gen_route *temp_route = new gen_route;
+	temp_route->name = new std::string("stationary at "+ std::to_string(x) +" "+ std::to_string(z));
+	temp_route->x_map.push_back(x);
+	temp_route->z_map.push_back(z);
+	generated_routes.push_back(temp_route);
 }

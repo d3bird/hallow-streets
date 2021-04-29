@@ -16,6 +16,7 @@
 #include "model.h"
 #include "shader.h"
 #include "time.h"
+#include "path_finding.h"
 
 /*
 * the city_square is used to define sections of the city
@@ -82,6 +83,11 @@ struct gen_route {
 	std::string* name;
 };
 
+struct waypoint {
+	int x;
+	int z;
+};
+
 class city_gen{
 public:
 	city_gen();
@@ -126,6 +132,8 @@ public:
 
 	std::vector< gen_route*> get_generate_routs() { return generated_routes; }
 
+	void test_routines(path_finding* path);
+
 private:
 
 	void create_city_block(int x1, int y1, int x2, int y2);
@@ -156,6 +164,8 @@ private:
 	void use_premade_map();
 
 	void find_space_for_buildings(int x1, int y1, int x2, int y2);
+
+	void create_stationary_route(int x, int z);
 
 	glm::mat4 view;
 	glm::mat4 projection;
@@ -207,6 +217,7 @@ private:
 	bool* pass_key;
 
 	std::vector< gen_route*> generated_routes;
+	std::vector< waypoint> outside_waypoint;
 };
 
 /* generation key for what each number means on the expanded layout

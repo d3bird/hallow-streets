@@ -1770,9 +1770,9 @@ void animation_manager::update_robots(float* time) {
 				}
 
 				if (Stealth != NULL) {
-					Stealth->set_debug_stealth_test(current_loc, robots[i]->head_angle, 6);
+					//Stealth->set_debug_stealth_test(current_loc, robots[i]->head_angle, 6);
 					if (Stealth->is_cam_in_veiw(cam->get_pos() ,current_loc, robots[i]->head_angle, 6)) {
-						std::cout << "player is in range" << std::endl;
+						std::cout << "player is in range of robot "<<i << std::endl;
 					}
 				}
 				else {
@@ -1834,7 +1834,7 @@ bool animation_manager::generate_points_for_robot(actor_robot* new_robot) {
 			if (!routine->nav_points.empty()&&
 				(new_robot->map_x != new_robot->routine->nav_points[0].x) &&
 				(new_robot->map_z != new_robot->routine->nav_points[0].z)) {
-				//std::cout << "updating stationary points 2" << std::endl;
+				//std::cout << "stationary robot not at his pos" << std::endl;
 				robot_route* routine = new_robot->routine;
 				int x = routine->nav_points[0].x;
 				int z = routine->nav_points[0].z;
