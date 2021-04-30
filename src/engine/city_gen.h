@@ -73,7 +73,11 @@ struct cell_data {
 struct building {
 	building_type build_type;
 	district_type dis_type;
-
+	int layout_cell_start_x = -1;
+	int layout_cell_start_z = -1;
+	int layout_cell_end_x = -1;
+	int layout_cell_end_z = -1;
+	bool need_patral_around_building = true;
 	std::vector<cell_data*> cell_info;
 };
 
@@ -166,6 +170,8 @@ private:
 	void find_space_for_buildings(int x1, int y1, int x2, int y2);
 
 	void create_stationary_route(int x, int z);
+
+	void generate_building_patrals();
 
 	glm::mat4 view;
 	glm::mat4 projection;

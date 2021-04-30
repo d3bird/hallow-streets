@@ -13,6 +13,7 @@ path_finding::path_finding(){
 	generated_points = new std::vector<glm::vec3>;
 	closedList = NULL;
 	cellDetails = NULL;
+	draw_map = false;
 }
 
 path_finding::~path_finding(){
@@ -27,10 +28,10 @@ std::vector<glm::vec3>* path_finding::get_pathing(int loc_x, int loc_z, int dest
 		
 		//the x and z has to be switched for the path finding
 		//Pair src = make_pair(loc_x, loc_z);
-		Pair src = make_pair(loc_z, loc_x);
+		Pair src = make_pair(loc_x, loc_z);
 
 		//Pair dest = make_pair(dest_x, dest_z);
-		Pair dest = make_pair(dest_z, dest_x);
+		Pair dest = make_pair(dest_x, dest_z);
 
 		aStarSearch(src, dest);
 		if (generated_points->empty()) {
@@ -141,18 +142,19 @@ void path_finding::init() {
 	}
 
 	//print the debig map
-	for (int x = 0; x < x_width; x++) {
-		for (int z = 0; z < z_width; z++) {
-			if(isUnBlocked(x, z)){
-				std::cout<<"  ";
+	if (draw_map) {
+		for (int x = 0; x < x_width; x++) {
+			for (int z = 0; z < z_width; z++) {
+				if (isUnBlocked(x, z)) {
+					std::cout << "  ";
+				}
+				else {
+					std::cout << " 1";
+				}
 			}
-			else {
-				std::cout << " 1";
-			}
+			std::cout << std::endl;
 		}
-		std::cout << std::endl;
 	}
-
 	//print_map();
 	// Source is the left-most bottom-most corner 
 	Pair src = make_pair(8, 0);
@@ -168,7 +170,7 @@ void path_finding::init() {
 bool path_finding::can_pass(int object_id) {
 	bool output = false;
 	if (object_id < 0 || object_id >= amnt_of_dif_obj) {
-		std::cout << "object_id is out of bounds" << std::endl;
+		//std::cout << "object_id is out of bounds" << std::endl;
 	}
 	else {
 		output = key_pass_through_key[object_id];
@@ -249,7 +251,7 @@ void path_finding::tracePath(cell** cellDetails, Pair dest)
 	{
 		pair<int, int> p = Path.top();
 		Path.pop();
-		printf("-> (%d,%d) ", p.first, p.second);
+		//printf("-> (%d,%d) ", p.first, p.second);
 		generated_points->push_back(glm::vec3(p.second * 2, 6, p.first * 2));
 	}
 
@@ -404,7 +406,7 @@ void path_finding::aStarSearch(Pair src, Pair dest) {
 				// Set the Parent of the destination cell 
 				cellDetails[i - 1][j].parent_i = i;
 				cellDetails[i - 1][j].parent_j = j;
-				printf("The destination cell is found\n");
+				////printf("The destination cell is found\n");
 				tracePath(cellDetails, dest);
 				foundDest = true;
 				return;
@@ -455,7 +457,7 @@ void path_finding::aStarSearch(Pair src, Pair dest) {
 				// Set the Parent of the destination cell 
 				cellDetails[i + 1][j].parent_i = i;
 				cellDetails[i + 1][j].parent_j = j;
-				printf("The destination cell is found\n");
+				//printf("The destination cell is found\n");
 				tracePath(cellDetails, dest);
 				foundDest = true;
 				return;
@@ -504,7 +506,7 @@ void path_finding::aStarSearch(Pair src, Pair dest) {
 				// Set the Parent of the destination cell 
 				cellDetails[i][j + 1].parent_i = i;
 				cellDetails[i][j + 1].parent_j = j;
-				printf("The destination cell is found\n");
+				//printf("The destination cell is found\n");
 				tracePath(cellDetails, dest);
 				foundDest = true;
 				return;
@@ -556,7 +558,7 @@ void path_finding::aStarSearch(Pair src, Pair dest) {
 				// Set the Parent of the destination cell 
 				cellDetails[i][j - 1].parent_i = i;
 				cellDetails[i][j - 1].parent_j = j;
-				printf("The destination cell is found\n");
+				//printf("The destination cell is found\n");
 				tracePath(cellDetails, dest);
 				foundDest = true;
 				return;
@@ -608,7 +610,7 @@ void path_finding::aStarSearch(Pair src, Pair dest) {
 				// Set the Parent of the destination cell 
 				cellDetails[i - 1][j + 1].parent_i = i;
 				cellDetails[i - 1][j + 1].parent_j = j;
-				printf("The destination cell is found\n");
+				//printf("The destination cell is found\n");
 				tracePath(cellDetails, dest);
 				foundDest = true;
 				return;
@@ -660,7 +662,7 @@ void path_finding::aStarSearch(Pair src, Pair dest) {
 				// Set the Parent of the destination cell 
 				cellDetails[i - 1][j - 1].parent_i = i;
 				cellDetails[i - 1][j - 1].parent_j = j;
-				printf("The destination cell is found\n");
+				//printf("The destination cell is found\n");
 				tracePath(cellDetails, dest);
 				foundDest = true;
 				return;
@@ -710,7 +712,7 @@ void path_finding::aStarSearch(Pair src, Pair dest) {
 				// Set the Parent of the destination cell 
 				cellDetails[i + 1][j + 1].parent_i = i;
 				cellDetails[i + 1][j + 1].parent_j = j;
-				printf("The destination cell is found\n");
+				//printf("The destination cell is found\n");
 				tracePath(cellDetails, dest);
 				foundDest = true;
 				return;
@@ -762,7 +764,7 @@ void path_finding::aStarSearch(Pair src, Pair dest) {
 				// Set the Parent of the destination cell 
 				cellDetails[i + 1][j - 1].parent_i = i;
 				cellDetails[i + 1][j - 1].parent_j = j;
-				printf("The destination cell is found\n");
+				//printf("The destination cell is found\n");
 				tracePath(cellDetails, dest);
 				foundDest = true;
 				return;

@@ -1855,7 +1855,7 @@ bool animation_manager::generate_points_for_robot(actor_robot* new_robot) {
 
 
 	if (new_robot->routine != NULL) {
-		std::cout << "index "<<index<<" size "<< new_robot->routine->nav_points.size() << std::endl;
+		//std::cout << "index "<<index<<" size "<< new_robot->routine->nav_points.size() << std::endl;
 		robot_route* routine = new_robot->routine;
 		if (index >= routine->nav_points.size()) {
 			index = 0;

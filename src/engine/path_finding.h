@@ -92,5 +92,6 @@ private:
 	//map info
 	bool** closedList;
 	cell** cellDetails;
+	bool draw_map;
 };
 

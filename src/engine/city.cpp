@@ -874,11 +874,11 @@ void city::init(object_manger* OBJM, animation_manager* an) {
 		//create a robot for that route
 		if (rout_num != -1) {
 			glm::mat4 trans = glm::mat4(1.0f);
-			trans = glm::translate(trans, glm::vec3((x_temp[0]), 6, (z_temp[0])));
+			trans = glm::translate(trans, glm::vec3((0), 4, (0)));
 			item_info* body = OBJM->spawn_item(ROBOT_BASE_T, 1, 6, 1, trans);
 
 			trans = glm::mat4(1.0f);
-			trans = glm::translate(trans, glm::vec3((x_temp[0]), 6, (z_temp[0])));
+			trans = glm::translate(trans, glm::vec3((0), 4, (0)));
 			item_info* head = OBJM->spawn_item(ROBOT_HEAD_T, 1, 6, 1, trans);
 			//add_object_to_cell(tempdata,cells,i,h);
 			AM->turn_objects_into_actor(body, head, rout_num);

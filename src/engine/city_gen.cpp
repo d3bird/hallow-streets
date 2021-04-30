@@ -978,8 +978,21 @@ void city_gen::generate_routes() {
 //	generated_routes.push_back(temp_route);
 
 
+
+	temp_route = new gen_route;
+	temp_route->name = new std::string("going to edge of map");
+	
+
+	temp_route->z_map.push_back(((block_height-1)*key));
+	temp_route->x_map.push_back(0);
+
+	temp_route->x_map.push_back(1);
+	temp_route->z_map.push_back(0);
+
+	generated_routes.push_back(temp_route);
+
 	for (int i = 0; i < outside_waypoint.size(); i++) {
-		create_stationary_route(outside_waypoint[i].x, outside_waypoint[i].z);
+		//create_stationary_route(outside_waypoint[i].x, outside_waypoint[i].z);
 	}
 
 	temp_route = new gen_route;
@@ -1004,8 +1017,53 @@ void city_gen::generate_routes() {
 		}
 	}
 	generated_routes.push_back(temp_route);
+
+
+	generate_building_patrals();
 }
 
+void city_gen::generate_building_patrals() {
+	std::cout << "geneating building patrals" << std::endl;
+	int total = 0;
+	for (int i = 0; i < buildings.size(); i++) {
+		if (buildings[i]->need_patral_around_building) {
+			if (buildings[i]->layout_cell_end_x != -1 &&
+				buildings[i]->layout_cell_end_z != -1 &&
+				buildings[i]->layout_cell_start_x != -1 &&
+				buildings[i]->layout_cell_start_z != -1) {
+				
+				total++;
+				gen_route* temp_route;
+				temp_route = new gen_route;
+				temp_route->name = new std::string("building movment");
+				int x_spot = ((buildings[i]->layout_cell_start_x) * key);
+				int z_spot = ((buildings[i]->layout_cell_start_z-1) * key);
+				temp_route->x_map.push_back(x_spot);
+				temp_route->z_map.push_back(z_spot);
+
+				x_spot = ((buildings[i]->layout_cell_end_x) * key);
+				z_spot = ((buildings[i]->layout_cell_start_z-1) * key);
+				temp_route->x_map.push_back(x_spot);
+				temp_route->z_map.push_back(z_spot);
+
+				x_spot = ((buildings[i]->layout_cell_end_x) * key);
+				z_spot = ((buildings[i]->layout_cell_end_z + 1) * key);
+				temp_route->x_map.push_back(x_spot);
+				temp_route->z_map.push_back(z_spot);
+
+				x_spot = ((buildings[i]->layout_cell_start_x) * key);
+				z_spot = ((buildings[i]->layout_cell_end_z + 1) * key);
+				temp_route->x_map.push_back(x_spot);
+				temp_route->z_map.push_back(z_spot);
+
+				generated_routes.push_back(temp_route);
+			}
+
+
+		}
+	}
+	std::cout << "geneated "<<total<< " building patrals" << std::endl;
+}
 
 void city_gen::test_routines(path_finding* path) {
 	std::cout << "testing routines" << std::endl;
@@ -1031,6 +1089,7 @@ void city_gen::test_routines(path_finding* path) {
 				tested_routes.push_back(generated_routes[i]);
 			}
 			else {
+				std::cout << *generated_routes[i]->name <<" was a bad route" << std::endl;
 				delete generated_routes[i];
 			}
 		}
@@ -1159,6 +1218,12 @@ building* city_gen::generate_building(building_build_data* buiding_data) {
 
 		std::cout << "generating building" << std::endl;
 		output = new building;
+
+		output->layout_cell_start_x = start_x;
+		output->layout_cell_start_z = start_y;
+		output->layout_cell_end_x = end_x;
+		output->layout_cell_end_z = end_y;
+
 		output->build_type = workshop;
 		output->dis_type = industry;
 
