@@ -14,6 +14,8 @@
 #include "shader.h"
 #include "time.h"
 #include "camera.h"
+#include "animation_manger.h"
+#include "object_manger.h"
 
 class player{
 public:
@@ -47,6 +49,12 @@ public:
 
 	void print_heights_around_player();
 
+	void drop_a_trap();
+	void pick_up_trap() { traps++; }
+	void set_trap_number(int i) { traps = i; }
+	void set_OBJM(object_manger* o) { OBJM = o; }
+	void set_animation_manager(animation_manager* A) { AM = A; }
+
 private:
 
 	enum look_direction {
@@ -66,6 +74,9 @@ private:
 	bool dir_change;
 	double** height_map;//the height for the player at each point
 
+	int traps;
+	object_manger* OBJM;
+	animation_manager* AM;
 	Model* moon;
 	Shader* space;
 	Camera* cam;

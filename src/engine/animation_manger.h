@@ -210,6 +210,8 @@ public:
 
 	void set_stealth(stealth* S) { Stealth = S; }
 
+	void drop_trap(item_info* trap);
+
 private:
 
 	void init_physics();

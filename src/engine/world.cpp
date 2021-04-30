@@ -323,6 +323,8 @@ void world::init(GUI* g,network_manager* net, bool ser) {
     
     OBJM->set_veiw_distance(8);
     Player->did_pos_change();
+    Player->set_OBJM(OBJM);
+    Player->set_animation_manager(AM);
     OBJM->set_player_pos(Player->get_x_cell(), Player->get_z_cell());
     //OBJM->set_look_dir(Player->get_direction());
     OBJM->set_veiw_type(2);

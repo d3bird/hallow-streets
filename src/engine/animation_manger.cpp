@@ -1887,3 +1887,7 @@ bool animation_manager::generate_points_for_robot(actor_robot* new_robot) {
 }
 
 
+void animation_manager::drop_trap(item_info* trap) {
+
+
+}

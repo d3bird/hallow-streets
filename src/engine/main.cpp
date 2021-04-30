@@ -385,6 +385,8 @@ void key_board_input(GLFWwindow* window, int key, int scancode, int action, int 
     if (key == GLFW_KEY_P && action == GLFW_RELEASE)
         Player->print_heights_around_player();
 
+    if (key == GLFW_KEY_Q && action == GLFW_RELEASE)
+        Player->drop_a_trap();
 
     if (network != NULL) {
         if (key == GLFW_KEY_Z && action == GLFW_RELEASE) {
