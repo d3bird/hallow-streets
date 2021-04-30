@@ -68,6 +68,7 @@ struct cell_data {
 	int** expanded_layout_info = NULL;
 	std::vector< item_gen_info*> items_on_ground;
 	std::vector< item_gen_info*> items_on_wall;
+	bool outside = false;
 };
 
 struct building {
@@ -78,7 +79,9 @@ struct building {
 	int layout_cell_end_x = -1;
 	int layout_cell_end_z = -1;
 	bool need_patral_around_building = true;
-	std::vector<cell_data*> cell_info;
+	std::vector<cell_data> cell_info;
+	bool loading_dock = false;
+	int dockside;
 };
 
 struct gen_route {
@@ -210,6 +213,7 @@ private:
 
 	building* generate_building(building_build_data* buiding_data);
 	bool check_buiding_data(building_build_data* buiding_data);
+	void generate_inside_of_building(building_build_data* buiding_gvn_data, building* building_gen);
 
 	std::vector< building_build_data*> build_data;
 	std::vector< building*> buildings;
@@ -275,6 +279,10 @@ private:
  * 42 LOADING_DOOR_T 180 degree trun
  * 43 LOADING_DOOR_T 270 degree trun
  * 
+ * 44 GENERIC_FLOOR_T  0 degree trun
+ * 45 GENERIC_FLOOR_T  90 degree trun
+ * 46 GENERIC_FLOOR_T  180 degree trun
+ * 47 GENERIC_FLOOR_T  270 degree trun
  * 
  * 50 wall blocker
 */

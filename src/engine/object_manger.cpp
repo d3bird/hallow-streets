@@ -15,11 +15,11 @@ object_manger::object_manger() {
 	max_cubes = 0;
 
 	draw_cubes = true;
-	draw_wall = false;
-	draw_wall_with_door = false;
-	draw_wall_loading_area = false;
-	draw_wall_c = false;
-	draw_sidewalk = false;
+	draw_wall = true;
+	draw_wall_with_door = true;
+	draw_wall_loading_area = true;
+	draw_wall_c = true;
+	draw_sidewalk = true;
 	draw_light_post = true;
 	draw_sideroads = true;
 	draw_sky_rail_s = true;
@@ -1916,7 +1916,7 @@ void object_manger::create_wall_loading_door_object() {
 	std::string* item_name_t = new std::string("wall loading door object");
 
 	buffer = 0;
-	buffer_size = 200;
+	buffer_size = 600;
 	amount = 0;
 
 	modelMatrices = new glm::mat4[buffer_size];
@@ -2662,7 +2662,7 @@ item_info* object_manger::spawn_item(item_type type, int x,int y, int z, glm::ma
 		break;
 	case LOADING_DOOR_T:
 		if (items[20]->amount >= items[20]->buffer_size) {
-			std::cout << "there are too many cannon " << std::endl;
+			std::cout << "there are too many LOADING_DOOR_T "<< items[20]->amount <<" buffer_size: "<< items[20]->buffer_size << std::endl;
 			return NULL;
 		}
 		item_id = 20;

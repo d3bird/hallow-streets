@@ -671,7 +671,7 @@ void animation_manager::update_doors(float* time) {
 			temp = diff_btwn_pnt(current_loc.x, nav_point.x);
 
 			if (speed <= temp) {
-				 std::cout << current_loc.x << " " << current_loc.y << " " << current_loc.z << " || " << speed << " <> " << temp << " && " << nav_point.x << std::endl;
+				// std::cout << current_loc.x << " " << current_loc.y << " " << current_loc.z << " || " << speed << " <> " << temp << " && " << nav_point.x << std::endl;
 				if (determin_direction(current_loc.x, nav_point.x)) {
 					current_loc.x += speed;
 				}
@@ -741,6 +741,8 @@ void animation_manager::update_doors(float* time) {
 			update_pac.x_scale = 1;
 			update_pac.y_scale = 1;
 			update_pac.z_scale = 1;
+
+			update_pac.angle = actors_doors[0][i]->obj->angle;
 
 			update_pac.buffer_loc = actors_doors[0][i]->obj->buffer_loc;
 			update_pac.item_id = actors_doors[0][i]->obj->item_id;
@@ -892,16 +894,16 @@ int animation_manager::turn_object_into_door(item_info* obje, routine_designatio
 	new_act->z_end = obje->z;
 
 	switch (direction) {
-	case 0:
+	case 0://east
 		new_act->x_end += 4;
 		break;
-	case 1:
+	case 1://west
 		new_act->x_end -= 4;
 		break;
-	case 2:
+	case 2://south
 		new_act->z_end += 4;
 		break;
-	case 3:
+	case 3://north
 		new_act->z_end -= 4;
 		break;
 	}
@@ -1883,3 +1885,5 @@ bool animation_manager::generate_points_for_robot(actor_robot* new_robot) {
 
 	return false;
 }
+
+

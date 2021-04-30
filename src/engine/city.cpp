@@ -349,6 +349,10 @@ void city::init(object_manger* OBJM, animation_manager* an) {
 
 				temp = glm::translate(temp, glm::vec3(h * 2, 2, i * 2));
 
+				int x =-1;
+				int y = 2;
+				int z = -1;
+
 				switch (layout_expanded[i][h]) {
 				case 14:
 					temp = glm::rotate(temp, glm::radians(90.0f), glm::vec3(0.0, 1.0, 0.0));
@@ -357,6 +361,19 @@ void city::init(object_manger* OBJM, animation_manager* an) {
 				case 15:
 					temp = glm::rotate(temp, glm::radians(180.0f), glm::vec3(0.0, 1.0, 0.0));
 					angle = 180;
+
+					//create a floor underneath it
+					glm::mat4 trans = glm::mat4(1.0f);
+					 x = ((h * 2));
+					 z = (i * 2);
+					trans = glm::translate(trans, glm::vec3(x, y, z));
+
+					trans = glm::rotate(trans, glm::radians(270.0f), glm::vec3(0.0, 1.0, 0.0));
+
+					tempdata = OBJM->spawn_item(GENERIC_FLOOR_T, x, y, z, trans);
+					//std::cout << "creating a floor to draw" << std::endl;
+					add_object_to_cell(tempdata, cells, i, h);
+
 
 					break;
 				case 16:
@@ -373,7 +390,7 @@ void city::init(object_manger* OBJM, animation_manager* an) {
 				tempdata->x = h * 2;
 				tempdata->y = 2;
 				tempdata->z = i * 2;
-				add_object_to_cell(tempdata,cells,i,h);
+				add_object_to_cell(tempdata, cells, i, h);
 
 				//generated_mats_wall_c.push_back(temp);
 			}
@@ -518,16 +535,40 @@ void city::init(object_manger* OBJM, animation_manager* an) {
 				//std::cout << h << " " << i << std::endl;
 				glm::mat4 trans = glm::mat4(1.0f);
 				trans = glm::translate(trans, glm::vec3((h * 2), 2, (i * 2)));
-
+				int x = 0;
+				int y = 2;
+				int z = 0;
 				switch (layout_expanded[i][h]) {
 				case 20:
 					trans = glm::rotate(trans, glm::radians(90.0f), glm::vec3(0.0, 1.0, 0.0));
 					break;
 				case 21:
 					trans = glm::rotate(trans, glm::radians(180.0f), glm::vec3(0.0, 1.0, 0.0));
+					//create a floor underneath it
+					glm::mat4 temp = glm::mat4(1.0f);
+					x = ((h * 2));
+					z = (i * 2);
+					temp = glm::translate(temp, glm::vec3(x, y, z));
+
+					temp = glm::rotate(temp, glm::radians(270.0f), glm::vec3(0.0, 1.0, 0.0));
+
+					tempdata = OBJM->spawn_item(GENERIC_FLOOR_T, x, y, z, temp);
+					//std::cout << "creating a floor to draw" << std::endl;
+					add_object_to_cell(tempdata, cells, i, h);
 					break;
 				case 22:
 					trans = glm::rotate(trans, glm::radians(270.0f), glm::vec3(0.0, 1.0, 0.0));
+					//create a floor underneath it
+					 temp = glm::mat4(1.0f);
+					x = ((h * 2));
+					z = (i * 2);
+					temp = glm::translate(temp, glm::vec3(x, y, z));
+
+					temp = glm::rotate(temp, glm::radians(270.0f), glm::vec3(0.0, 1.0, 0.0));
+
+					tempdata = OBJM->spawn_item(GENERIC_FLOOR_T, x, y, z, temp);
+					//std::cout << "creating a floor to draw" << std::endl;
+					add_object_to_cell(tempdata, cells, i, h);
 					break;
 				}
 
@@ -540,15 +581,31 @@ void city::init(object_manger* OBJM, animation_manager* an) {
 				glm::mat4 trans = glm::mat4(1.0f);
 				trans = glm::translate(trans, glm::vec3((h * 2), 2, (i * 2)));
 
+				int x = 0;
+				int y = 2;
+				int z = 0;
 				switch (layout_expanded[i][h]) {
 				case 25:
 					trans = glm::rotate(trans, glm::radians(90.0f), glm::vec3(0.0, 1.0, 0.0));
 					break;
 				case 26:
 					trans = glm::rotate(trans, glm::radians(180.0f), glm::vec3(0.0, 1.0, 0.0));
+
 					break;
 				case 27:
 					trans = glm::rotate(trans, glm::radians(270.0f), glm::vec3(0.0, 1.0, 0.0));
+
+					//create a floor underneath it
+					glm::mat4 temp = glm::mat4(1.0f);
+					x = ((h * 2));
+					z = (i * 2);
+					temp = glm::translate(temp, glm::vec3(x, y, z));
+
+					temp = glm::rotate(temp, glm::radians(270.0f), glm::vec3(0.0, 1.0, 0.0));
+
+					tempdata = OBJM->spawn_item(GENERIC_FLOOR_T, x, y, z, temp);
+					//std::cout << "creating a floor to draw" << std::endl;
+					add_object_to_cell(tempdata, cells, i, h);
 					break;
 				}
 
@@ -560,13 +617,19 @@ void city::init(object_manger* OBJM, animation_manager* an) {
 				//std::cout << h << " " << i << std::endl;
 				glm::mat4 trans = glm::mat4(1.0f);
 				trans = glm::translate(trans, glm::vec3((h * 2), 2, (i * 2)));
+				int x = -1;
+				int y = 2;
+				int z = -1;
 
 				switch (layout_expanded[i][h]) {
 				case 29:
 					trans = glm::rotate(trans, glm::radians(90.0f), glm::vec3(0.0, 1.0, 0.0));
+
 					break;
 				case 30:
 					trans = glm::rotate(trans, glm::radians(180.0f), glm::vec3(0.0, 1.0, 0.0));
+
+
 					break;
 				case 31:
 					trans = glm::rotate(trans, glm::radians(270.0f), glm::vec3(0.0, 1.0, 0.0));
@@ -627,17 +690,29 @@ void city::init(object_manger* OBJM, animation_manager* an) {
 				int x = (h * 2);
 				int y = 5;
 				int z = (i * 2) - 1;
-				trans = glm::translate(trans, glm::vec3(x, y, z));
-
+				
+				float angle = 0;
 				switch (layout_expanded[i][h]) {
 				case 41:
+					 z = (i * 2);
+					 x = (h * 2)+1;
+					trans = glm::translate(trans, glm::vec3(x, y, z));
 					trans = glm::rotate(trans, glm::radians(90.0f), glm::vec3(0.0, 1.0, 0.0));
+					angle = 90;
 					break;
 				case 42:
+					trans = glm::translate(trans, glm::vec3(x, y, z));
 					trans = glm::rotate(trans, glm::radians(180.0f), glm::vec3(0.0, 1.0, 0.0));
+					angle = 180;
 					break;
 				case 43:
+					x = (h * 2)-1;
+					trans = glm::translate(trans, glm::vec3(x, y, z));
 					trans = glm::rotate(trans, glm::radians(270.0f), glm::vec3(0.0, 1.0, 0.0));
+					angle = 270;
+					break;
+				default:
+					trans = glm::translate(trans, glm::vec3(x, y, z));
 					break;
 				}
 
@@ -645,17 +720,76 @@ void city::init(object_manger* OBJM, animation_manager* an) {
 				tempdata->x = x;
 				tempdata->y = y;
 				tempdata->z = z;
+
+				tempdata->angle = angle;
+				tempdata->x_rot = 0;
+				tempdata->y_rot = 1;
+				tempdata->z_rot = 0;
+
+				int dir =3;
+
+				switch (layout_expanded[i][h]) {
+				case 40:
+					dir = 3;
+					if (one_time) {
+						dir = 2;
+					}
+					break;
+				case 41:
+					dir = 1;
+					if (one_time) {
+						dir = 0;
+					}
+					break;
+				case 42:
+					dir = 3;
+					if (one_time) {
+						dir = 2;
+					}
+					break;
+				case 43:
+					dir = 1;
+					if (one_time) {
+						dir = 0;
+					}
+					break;
+				}
 				if (!one_time) {
-					AM->turn_object_into_door(tempdata, LOADING_DOOR_ROUTINE, 3);
+					AM->turn_object_into_door(tempdata, LOADING_DOOR_ROUTINE, dir);
 					one_time = true;
 				}
 				else {
-					AM->turn_object_into_door(tempdata, LOADING_DOOR_ROUTINE, 2);
+					AM->turn_object_into_door(tempdata, LOADING_DOOR_ROUTINE, dir);
 					one_time = false;
 				}
 				add_object_to_cell(tempdata,cells,i,h);
 
 				std::cout << "creating a loading door" << std::endl;
+			}
+			else if (44 <= layout_expanded[i][h] && layout_expanded[i][h] <= 47) {
+			//std::cout << h << " " << i << std::endl;
+			glm::mat4 trans = glm::mat4(1.0f);
+			int x = ((h * 2));
+			int y = 2;
+			int z = (i * 2);
+			trans = glm::translate(trans, glm::vec3(x, y, z));
+
+			switch (layout_expanded[i][h]) {
+			case 45:
+				trans = glm::rotate(trans, glm::radians(90.0f), glm::vec3(0.0, 1.0, 0.0));
+				break;
+			case 46:
+				trans = glm::rotate(trans, glm::radians(180.0f), glm::vec3(0.0, 1.0, 0.0));
+				break;
+			case 47:
+				trans = glm::rotate(trans, glm::radians(270.0f), glm::vec3(0.0, 1.0, 0.0));
+				break;
+			}
+
+			tempdata = OBJM->spawn_item(GENERIC_FLOOR_T, x, y, z, trans);
+			//std::cout << "creating a floor to draw" << std::endl;
+			add_object_to_cell(tempdata, cells, i, h);
+
 			}
 		}
 	}
