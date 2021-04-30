@@ -284,5 +284,15 @@ private:
  * 46 GENERIC_FLOOR_T  180 degree trun
  * 47 GENERIC_FLOOR_T  270 degree trun
  * 
+ * 48 trap on table
+ * 49 item to steal
+ * 
  * 50 wall blocker
+ * 
+ * 51 TABLE_T  0 degree trun
+ * 52 TABLE_T  90 degree trun
+ * 53 TABLE_T  180 degree trun
+ * 54 TABLE_T  270 degree trun
+ * 55 table space
+ * 56 head on table
 */

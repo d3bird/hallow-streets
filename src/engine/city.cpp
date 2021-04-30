@@ -131,6 +131,7 @@ void city::init(object_manger* OBJM, animation_manager* an) {
 	//z_width = 10;//COL;//collums
 	stealth *Stealth = new stealth();
 	Stealth->set_cam(cam);
+	
 	Stealth->init(OBJM);
 	AM->set_stealth(Stealth);
 
@@ -791,6 +792,45 @@ void city::init(object_manger* OBJM, animation_manager* an) {
 			add_object_to_cell(tempdata, cells, i, h);
 
 			}
+			else if (51 <= layout_expanded[i][h] && layout_expanded[i][h] <= 54) {
+			//std::cout << h << " " << i << std::endl;
+			glm::mat4 trans = glm::mat4(1.0f);
+			int x = ((h * 2));
+			int y = 4;
+			int z = (i * 2);
+			trans = glm::translate(trans, glm::vec3(x, y, z));
+
+			switch (layout_expanded[i][h]) {
+			case 52:
+				trans = glm::rotate(trans, glm::radians(90.0f), glm::vec3(0.0, 1.0, 0.0));
+				break;
+			case 53:
+				trans = glm::rotate(trans, glm::radians(180.0f), glm::vec3(0.0, 1.0, 0.0));
+				break;
+			case 54:
+				trans = glm::rotate(trans, glm::radians(270.0f), glm::vec3(0.0, 1.0, 0.0));
+				break;
+			}
+
+			tempdata = OBJM->spawn_item(TABLE_T, x, y, z, trans);
+			//std::cout << "creating a floor to draw" << std::endl;
+			add_object_to_cell(tempdata, cells, i, h);
+
+			}
+			else if ( layout_expanded[i][h] ==56) {
+			//std::cout << h << " " << i << std::endl;
+			glm::mat4 trans = glm::mat4(1.0f);
+			int x = ((h * 2));
+			int y = 2;
+			int z = (i * 2);
+			trans = glm::translate(trans, glm::vec3(x, y, z));
+
+		
+			tempdata = OBJM->spawn_item(ROBOT_BASE_T, x, y, z, trans);
+			//std::cout << "creating a floor to draw" << std::endl;
+			add_object_to_cell(tempdata, cells, i, h);
+
+			}
 		}
 	}
 
@@ -982,8 +1022,10 @@ void city::init(object_manger* OBJM, animation_manager* an) {
 	pathing->set_cube_amount(cube_amount);
 	pathing->set_expanded_layout(layout_expanded);
 	pathing->set_key_for_passing_through(city_info->get_pas_key(), city_info->get_unq_obj_cnt());
+	
 	pathing->init();
 
+	Stealth->set_veiw_map(pathing->get_map_for_debug());
 
 	//create the routines for the robots
 	city_info->test_routines(pathing);

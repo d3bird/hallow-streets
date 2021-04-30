@@ -37,7 +37,7 @@ object_manger::object_manger() {
 	draw_table = true;
 	draw_computer = true;
 	draw_roofs = true;
-	draw_generic_floor = true;
+	draw_generic_floor = false;
 	draw_robots = true;
 	draw_traps = true;
 

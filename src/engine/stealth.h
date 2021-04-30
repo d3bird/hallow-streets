@@ -31,7 +31,11 @@ public:
 
 	bool is_cam_in_veiw(glm::vec3 cam_loc,glm::vec3 loc, float angle, int distance);
 
+	bool is_cam_in_veiw_line_of_sight(glm::vec3 cam_loc, glm::vec3 loc);
+
 	void set_cam(Camera* c) { cam = c; }
+	void set_veiw_map(bool** v) { veiw_map = v; }
+
 private:
 
 
@@ -53,5 +57,7 @@ private:
 	//debugging
 	item_info* cube2;
 	item_info* cube3;
+
+	bool** veiw_map;
 };
 

@@ -973,9 +973,9 @@ void city_gen::generate_routes() {
 	//test stationary
 	temp_route = new gen_route;
 	temp_route->name = new std::string("stationary");
-	temp_route->x_map.push_back(4);
-	temp_route->z_map.push_back(4);
-//	generated_routes.push_back(temp_route);
+	temp_route->z_map.push_back((3*key)+4);
+	temp_route->x_map.push_back((1 * key) + 4);
+	generated_routes.push_back(temp_route);
 
 
 
@@ -1299,6 +1299,7 @@ building* city_gen::generate_building(building_build_data* buiding_data) {
 			if (dock_side == 2 || dock_side >= 4) {
 				dock_side = 0;
 			}
+			dock_side = 1;
 			output->loading_dock = true;
 			output->dockside = dock_side;
 
@@ -2120,9 +2121,61 @@ void city_gen::generate_inside_of_building(building_build_data* buiding_gvn_data
 							std::cout<< inside_cell.expanded_layout_info[q][h] << " should be a floor" << std::endl;
 						}
 					}
+
+					switch (building_gen->build_type)
+					{
+					case workshop://the ware house
+						if (q == 2 && h == 2) {
+							if (inside_cell.expanded_layout_info[q][h] == 1) {
+								inside_cell.expanded_layout_info[q][h] = 53;
+								
+								inside_cell.expanded_layout_info[q + 1][h] = 55;
+								inside_cell.expanded_layout_info[q + 2][h] = 55;
+								inside_cell.expanded_layout_info[q+3][h] = 55;
+
+								inside_cell.expanded_layout_info[q + 1][h+2] = 55;
+								inside_cell.expanded_layout_info[q + 2][h+2] = 55;
+								inside_cell.expanded_layout_info[q + 3][h+2] = 55;
+
+								inside_cell.expanded_layout_info[q][h+1] = 55;
+								inside_cell.expanded_layout_info[q][h+2] = 55;
+
+								inside_cell.expanded_layout_info[q+3][h + 1] = 55;
+								inside_cell.expanded_layout_info[q+3][h + 2] = 55;
+							}
+						}
+						break;
+					case shop://the guard post
+						if (q == 2 && h == 2) {
+							if (inside_cell.expanded_layout_info[q][h] == 1) {
+								inside_cell.expanded_layout_info[q][h] = 53;
+
+								inside_cell.expanded_layout_info[q + 1][h] = 55;
+								inside_cell.expanded_layout_info[q + 2][h] = 55;
+								inside_cell.expanded_layout_info[q + 3][h] = 56;
+
+								inside_cell.expanded_layout_info[q + 1][h + 2] = 55;
+								inside_cell.expanded_layout_info[q + 2][h + 2] = 55;
+								inside_cell.expanded_layout_info[q + 3][h + 2] = 56;
+
+								inside_cell.expanded_layout_info[q][h + 1] = 55;
+								inside_cell.expanded_layout_info[q][h + 2] = 56;
+
+								inside_cell.expanded_layout_info[q + 3][h + 1] = 55;
+								inside_cell.expanded_layout_info[q + 3][h + 2] = 56;
+							}
+						}
+						break;
+					case residental:// the lab
+					default:
+						break;
+					}
+
 				}
 			}
 		}
+	
+		layout_cells[inside_cell.x_loc][inside_cell.y_loc] = inside_cell;
 	}
 	std::cout << "done" << std::endl;
 }

@@ -11,6 +11,7 @@ stealth::stealth(){
 	cube3 = NULL;
 	OBJM = NULL;
 	cam = NULL;
+	veiw_map = NULL;
 
 }
 
@@ -204,6 +205,53 @@ bool stealth::is_cam_in_veiw(glm::vec3 cam_loc, glm::vec3 loc, float angle, int 
 		point3.x, point3.y,
 		player_loc.x, player_loc.y);
 	//std::cout << "done" << std::endl;
+	if (output) {
+		output = is_cam_in_veiw_line_of_sight(cam_loc, loc);
+	}
+	return output;
+}
+
+bool stealth::is_cam_in_veiw_line_of_sight(glm::vec3 cam_loc, glm::vec3 loc) {
+	bool output = true;
+	if (veiw_map != NULL) {
+		//std::cout << "line of sight check " << std::endl;
+		int robot_x = (loc.x) / 2;
+		int robot_z = (loc.x) / 2;
+
+		int player_x = (cam_loc.x) / 2;
+		int player_z = (cam_loc.x) / 2;
+
+		//std::cout << "robot_x " << robot_x << "robot_z " << robot_z << " || player_x " << player_x << " player_z " << player_z << std::endl;
+		bool seen = false;
+		while (!seen) {
+			if (robot_x < player_x) {
+				robot_x++;
+			}
+			else if (robot_x > player_x) {
+				robot_x--;
+			}
+			if (robot_z < player_z) {
+				robot_z++;
+			}
+			else if (robot_z > player_z) {
+				robot_z--;
+			}
+
+			if (veiw_map[robot_z][robot_x]) {
+				seen = true;
+				std::cout << "player is behind object" << std::endl;
+				output = false;
+			}else
+			if (robot_z == player_z && robot_x == player_x) {
+				seen = true;
+				std::cout << "player was seen" << std::endl;
+			}
+		}
+
+	}
+	else {
+		std::cout << "veiw_map is null" << std::endl;
+	}
 	return output;
 }
 
