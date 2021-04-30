@@ -36,6 +36,9 @@ public:
 	void set_cam(Camera* c) { cam = c; }
 	void set_veiw_map(bool** v) { veiw_map = v; }
 
+	float get_cam_loc_x() { return cam->get_pos().x; }
+	float get_cam_loc_z() { return cam->get_pos().z; }
+
 private:
 
 

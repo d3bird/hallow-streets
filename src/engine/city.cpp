@@ -1069,9 +1069,9 @@ void city::init(object_manger* OBJM, animation_manager* an) {
 
 	OBJM->set_city_layout_cells(cells, city_info->get_height(), city_info->get_width());
 
-	/*OBJM->create_height_map_debig(city_info->get_height_map(),
+	OBJM->create_height_map_debig(city_info->get_height_map(),
 		city_info->get_height()* key, city_info->get_width()* key,
-		city_info->get_def_height());*/
+		city_info->get_def_height());
 
 	//city_info->print_height_map();
 

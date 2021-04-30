@@ -51,6 +51,7 @@ animation_manager::animation_manager() {
 	//robot setters
 	Pathing = NULL;
 	Stealth = NULL;
+	robot_id = 0;
 }
 
 animation_manager::~animation_manager() {
@@ -638,6 +639,7 @@ void animation_manager::update() {
 		}
 	}
 
+	update_distractions(&time_mes);
 }
 
 void animation_manager::update_doors(float* time) {
@@ -1575,8 +1577,10 @@ void animation_manager::update_robots(float* time) {
 		glm::vec3 current_loc = glm::vec3(robots[i]->body->x, robots[i]->body->y, robots[i]->body->z);
 		if (!robots[i]->nav_points.empty()) {
 
-			
-
+		/*	distraction* dist = is_robot_in_range_of_distraction(robots[i]);
+			if (dist != NULL) {
+				generate_points_for_robot(robots[i], dist);
+			}*/
 			float speed = robots[i]->move_speed * (*time);
 
 			//int route_index = get_routine_index(robots[i]->routine);
@@ -1699,6 +1703,20 @@ void animation_manager::update_robots(float* time) {
 			update_pac.item_id = robots[i]->body->item_id;
 
 			OBJM->update_item_matrix(&update_pac);
+
+			
+			//if (robots[i]->made_to_start && Stealth != NULL) {
+			//	//Stealth->set_debug_stealth_test(current_loc, robots[i]->head_angle, 6);
+			//	if (Stealth->is_cam_in_veiw(cam->get_pos(), current_loc, robots[i]->head_angle, 6)) {
+			//		std::cout << "player is in range of robot " << i << std::endl;
+			//		robots[i]->chaseing_player = true;
+			//		generate_points_for_robot(robots[i]);
+			//	}
+			//}
+			//else {
+			//	std::cout << "Stealth was null" << std::endl;
+			//}
+
 			if (robots[i]->routine != NULL && robots[i]->routine->look_around) {
 				update_pac.buffer_loc = robots[i]->head->buffer_loc;
 				update_pac.item_id = robots[i]->head->item_id;
@@ -1718,7 +1736,12 @@ void animation_manager::update_robots(float* time) {
 				update_pac.rox_z = 0;
 				OBJM->update_item_matrix(&update_pac);
 			}
+
 			if (reached_x && reached_z && reached_y) {
+
+				if (!robots[i]->made_to_start) {
+					robots[i]->made_to_start = true;
+				}
 
 				robots[i]->map_x = robots[i]->dest_x;
 				robots[i]->map_z = robots[i]->dest_z;
@@ -1736,6 +1759,11 @@ void animation_manager::update_robots(float* time) {
 			if(generate_points_for_robot(robots[i])){
 				//if the robot is stationary and need to do other things
 			
+				/*distraction* dist = is_robot_in_range_of_distraction(robots[i]);
+				if (dist != NULL) {
+					generate_points_for_robot(robots[i], dist);
+				}*/
+
 				if (robots[i]->routine != NULL && robots[i]->routine->look_around) {
 					robots[i]->body->x = current_loc.x;
 					robots[i]->body->y = current_loc.y;
@@ -1771,10 +1799,16 @@ void animation_manager::update_robots(float* time) {
 					OBJM->update_item_matrix(&update_pac);
 				}
 
-				if (Stealth != NULL) {
+				if (!robots[i]->made_to_start) {
+					robots[i]->made_to_start = true;
+				}
+
+				if (robots[i]->made_to_start && Stealth != NULL) {
 					//Stealth->set_debug_stealth_test(current_loc, robots[i]->head_angle, 6);
 					if (Stealth->is_cam_in_veiw(cam->get_pos() ,current_loc, robots[i]->head_angle, 6)) {
 						std::cout << "player is in range of robot "<<i << std::endl;
+						robots[i]->chaseing_player = true;
+						generate_points_for_robot(robots[i]);
 					}
 				}
 				else {
@@ -1807,6 +1841,8 @@ int animation_manager::create_route(std::vector<int>& x_points, std::vector<int>
 
 void animation_manager::turn_objects_into_actor(item_info* body, item_info* head, int route_id) {
 	actor_robot* new_robot = new  actor_robot;
+	new_robot->id = robot_id;
+	robot_id++;
 	new_robot->head = head;
 	new_robot->body = body;
 	new_robot->routine = NULL;
@@ -1821,73 +1857,162 @@ void animation_manager::turn_objects_into_actor(item_info* body, item_info* head
 	robots.push_back(new_robot);
 }
 
-bool animation_manager::generate_points_for_robot(actor_robot* new_robot) {
+bool animation_manager::generate_points_for_robot(actor_robot* new_robot, distraction* dist) {
 	//std::cout << "generating points" << std::endl;
 	if (new_robot == NULL) {
 		return false;
 	}
-	int index = new_robot->index;
-	index++;
 
-	if (new_robot->routine->stationary) {
-		if (Pathing != NULL && new_robot->routine != NULL) {
-			robot_route* routine = new_robot->routine;
-		//	std::cout << "updating stationary points 1" << std::endl;
-			if (!routine->nav_points.empty()&&
-				(new_robot->map_x != new_robot->routine->nav_points[0].x) &&
-				(new_robot->map_z != new_robot->routine->nav_points[0].z)) {
-				//std::cout << "stationary robot not at his pos" << std::endl;
+	if (new_robot->chaseing_player) {
+		if (Pathing != NULL && cam !=NULL) {
+			glm::vec3 pos = cam->get_pos();
+			int x = pos.x / 2;
+			int z = pos.z / 2;
+			if (x < 0) {
+				x = 0;
+			}
+			if (z < 0) {
+				z = 0;
+			}
+			new_robot->nav_points = *Pathing->get_pathing(new_robot->map_x, new_robot->map_z, z, x);
+			new_robot->index = 0;
+			new_robot->dest_x = z;
+			new_robot->dest_z = x;
+			new_robot->map_x = z;
+			new_robot->map_z = x;
+		}
+	}
+
+	dist = is_robot_in_range_of_distraction(new_robot);
+	if (dist == NULL) {
+		int index = new_robot->index;
+		index++;
+
+		if (new_robot->routine->stationary) {
+			if (Pathing != NULL && new_robot->routine != NULL) {
 				robot_route* routine = new_robot->routine;
-				int x = routine->nav_points[0].x;
-				int z = routine->nav_points[0].z;
-				//std::cout << "updating stationary points 3" << std::endl;
-				new_robot->nav_points = *Pathing->get_pathing(new_robot->map_x, new_robot->map_z, x, z);
-				new_robot->dest_x = x;
-				new_robot->dest_z = z;
+				//	std::cout << "updating stationary points 1" << std::endl;
+				if (!routine->nav_points.empty() &&
+					(new_robot->map_x != new_robot->routine->nav_points[0].x) &&
+					(new_robot->map_z != new_robot->routine->nav_points[0].z)) {
+					//std::cout << "stationary robot not at his pos" << std::endl;
+					robot_route* routine = new_robot->routine;
+					int x = routine->nav_points[0].x;
+					int z = routine->nav_points[0].z;
+					//std::cout << "updating stationary points 3" << std::endl;
+					new_robot->nav_points = *Pathing->get_pathing(new_robot->map_x, new_robot->map_z, x, z);
+					new_robot->dest_x = x;
+					new_robot->dest_z = z;
+				}
+				else {
+					//	std::cout << "no nav points" << std::endl;
+				}
 			}
 			else {
-			//	std::cout << "no nav points" << std::endl;
+				std::cout << "new_robot->routine == NULL" << std::endl;
+			}
+			return true;
+		}
+
+
+		if (new_robot->routine != NULL) {
+			//std::cout << "index "<<index<<" size "<< new_robot->routine->nav_points.size() << std::endl;
+			robot_route* routine = new_robot->routine;
+			if (index >= routine->nav_points.size()) {
+				index = 0;
+			}
+
+			int x = routine->nav_points[index].x;
+			int z = routine->nav_points[index].z;
+
+			if (Pathing != NULL) {
+				new_robot->nav_points = *Pathing->get_pathing(new_robot->map_x, new_robot->map_z, x, z);
+				//glm::vec3 temp_point(x * 2, new_robot->body->y, z * 2);
+				//new_robot->nav_points.push_back(temp_point);
+				new_robot->index = index;
+				new_robot->dest_x = x;
+				new_robot->dest_z = z;
+
+			}
+			else {
+				std::cout << "pathing is null" << std::endl;
 			}
 		}
-		else {
-			std::cout << "new_robot->routine == NULL" << std::endl;
-		}
-		return true;
-	}
-
-
-	if (new_robot->routine != NULL) {
-		//std::cout << "index "<<index<<" size "<< new_robot->routine->nav_points.size() << std::endl;
-		robot_route* routine = new_robot->routine;
-		if (index >= routine->nav_points.size()) {
-			index = 0;
-		}
-
-		int x = routine->nav_points[index].x;
-		int z = routine->nav_points[index].z;
-
-		if (Pathing != NULL) {
-			new_robot->nav_points = *Pathing->get_pathing(new_robot->map_x, new_robot->map_z, x, z);
-			//glm::vec3 temp_point(x * 2, new_robot->body->y, z * 2);
-			//new_robot->nav_points.push_back(temp_point);
-			new_robot->index = index;
-			new_robot->dest_x = x;
-			new_robot->dest_z = z;
+		else {// no routine
 
 		}
-		else {
-			std::cout << "pathing is null" << std::endl;
-		}
-	}
-	else {// no routine
+
 
 	}
+	else {
+		//go to distraction
+		int x = dist->x;
+		int z = dist->z;
 
+		new_robot->nav_points = *Pathing->get_pathing(new_robot->map_x, new_robot->map_z, x, z);
+		new_robot->index = 0;
+		new_robot->dest_x = x;
+		new_robot->dest_z = z;
+		new_robot->map_x = x;
+		new_robot->map_z = z;
+	}
 	return false;
 }
 
+float animation_manager::distance(float x1, float y1, float x2, float y2){
+	return sqrt(pow(x2 - x1, 2) +
+		pow(y2 - y1, 2) * 1.0);
+}
+
+distraction* animation_manager::is_robot_in_range_of_distraction(actor_robot* robot) {
+	float dist;
+	for (int i = 0; i < distractions.size(); i++) {
+		dist = distance(distractions[i]->x, distractions[i]->z, robot->body->x / 2, robot->body->z / 2);
+		//if (dist < distractions[i]->radius) {
+			std::cout << "robot "<< robot->id<<" is in range" << std::endl;
+			return distractions[i];
+		//}
+	}
+	return NULL;
+}
 
 void animation_manager::drop_trap(item_info* trap) {
 
+	int map_x = trap->x/2;
+	int map_z = trap->z/2;
+	std::cout << "dropping a trap map_x: " << map_x << " map_z " << map_z << std::endl;
+	float time_for_trap = 5;
 
+	distraction* temp_dist = new distraction;
+
+	temp_dist->x = map_x;
+	temp_dist->z = map_z;
+	temp_dist->pick_up_return = false;
+	temp_dist->max_time = time_for_trap;
+	temp_dist->time_left = time_for_trap;
+	distractions.push_back(temp_dist);
+}
+
+void animation_manager::update_distractions(float* time) {
+
+	for (int i = 0; i < distractions.size(); i++) {
+		distractions[i]->time_left -= *time;
+		if (distractions[i]->time_left <= 0) {
+			std::cout << "trap ran out of juice" << std::endl;
+			if (distractions.size() == 1) {
+				delete distractions[i];
+				distractions.pop_back();
+			}
+			else {
+				distraction* temp_dist = distractions[i];
+				distractions[i] = distractions[distractions.size() - 1];
+				delete temp_dist;
+				distractions.pop_back();
+				i--;
+				if (i < 0) {
+					i = 0;
+				}
+			}
+		}
+	}
 }

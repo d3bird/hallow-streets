@@ -59,11 +59,15 @@ void player::update() {
 void player::drop_a_trap() {
 	if (traps >= 1) {
 		if (OBJM != NULL && AM != NULL) {
-			std::cout << "dropping a trap" << std::endl;
+			//std::cout << "dropping a trap" << std::endl;
 			glm::mat4 temp = glm::mat4(1.0f);
 			glm::vec3 old_pos = cam->get_pos();
+			if (old_pos.x <= 0 || old_pos.z <= 0) {
+				std::cout << "can not drop a trap outside the map" << std::endl;
+				return;
+			}
 			temp  = glm::translate(temp, glm::vec3(old_pos.x, 4, old_pos.z));
-			item_info* trap =OBJM->spawn_item(SOUND_TRAP_T, -1, -1, -1, temp);
+			item_info* trap =OBJM->spawn_item(SOUND_TRAP_T, old_pos.x, 4, old_pos.z, temp);
 			AM->drop_trap(trap);
 			traps--;
 

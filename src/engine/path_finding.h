@@ -64,8 +64,8 @@ public:
 	bool** get_map_for_debug();
 
 private:
-
-	void aStarSearch(Pair src, Pair dest);
+	//returns if it found the point
+	int aStarSearch(Pair src, Pair dest);
 	void tracePath(cell** cellDetails, Pair dest);
 
 	bool can_pass(int object_id);

@@ -164,6 +164,30 @@ struct actor_robot {
 	float turn_speed_fast = 18;
 
 	bool need_to_turn = true;
+	bool chaseing_player = false;
+	bool made_to_start = false;
+};
+
+struct distraction {
+	bool pick_up_return;//for the chickens
+	int x;
+	int z;
+	float radius = 20;
+	float max_time;
+	float time_left;
+};
+
+struct interactibles {
+	item_info* part1;
+	item_info* part2;
+
+	door_actor* link1;
+	door_actor* link2;
+
+	bool activatible;
+	bool pickup;
+	float x;
+	float y;
 };
 
 class animation_manager {
@@ -225,8 +249,11 @@ private:
 	void update_doors(float *time);
 
 	void update_robots(float* time);
+	void update_distractions(float* time);
 
-	bool generate_points_for_robot(actor_robot* new_robot);
+	float distance(float x1, float y1, float x2, float y2);
+	distraction* is_robot_in_range_of_distraction(actor_robot* robot );
+	bool generate_points_for_robot(actor_robot* new_robot, distraction* dist = NULL);
 
 	timing* Time;
 	float* deltatime;
@@ -288,10 +315,12 @@ private:
 
 	std::vector< actor_robot*> robots;
 	std::vector< robot_route*> robot_routes;
+
+	std::vector< distraction*>distractions;
 	path_finding* Pathing;
 
 	stealth* Stealth;
-
+	int robot_id;
 	//physics
 	bool update_physics;
 	bool init_physics_;

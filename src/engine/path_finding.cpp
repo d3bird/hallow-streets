@@ -25,17 +25,51 @@ std::vector<glm::vec3>* path_finding::get_pathing(int loc_x, int loc_z, int dest
 	if (generated_points != NULL) {
 		generated_points->clear();
 		//std::cout << "from x: " << loc_x << " , " << loc_z << " to " << dest_x << " , " << dest_z << std::endl;
-		
+
 		//the x and z has to be switched for the path finding
 		//Pair src = make_pair(loc_x, loc_z);
 		Pair src = make_pair(loc_x, loc_z);
 
 		//Pair dest = make_pair(dest_x, dest_z);
 		Pair dest = make_pair(dest_x, dest_z);
-
-		aStarSearch(src, dest);
+		if (generated_points == NULL) {
+			generated_points = new std::vector<glm::vec3>();
+		}
+		generated_points->clear();
+		int result = aStarSearch(src, dest);
 		if (generated_points->empty()) {
-			std::cout << loc_x << "," << loc_z << " to " << dest_x << "," << dest_z<<" is blocked" << std::endl;
+			std::cout << loc_x << "," << loc_z << " to " << dest_x << "," << dest_z << " is blocked" << std::endl;
+		}
+	//	std::cout << "result " << result << std::endl;
+		if (result != 0) {
+			std::cout << "result not 0, it is " << result << std::endl;
+			if (result == 2) {//destinationis bad
+				for (int i = 0; i < 4; i++) {
+					switch (i) {
+					case 0:
+						dest = make_pair(dest_x + 1, dest_z);
+						break;
+					case 1:
+						dest = make_pair(dest_x - 1, dest_z);
+						break;
+					case 2:
+						dest = make_pair(dest_x, dest_z + 1);
+						break;
+					case  3:
+						dest = make_pair(dest_x, dest_z - 1);
+						break;
+
+					}
+					generated_points->clear();
+					result = aStarSearch(src, dest);
+					if (result == 0) {
+						return generated_points;
+					}
+				}
+			}
+
+			generated_points->clear();
+			generated_points->push_back(glm::vec3(loc_x, 4, loc_z));
 		}
 	}
 	return generated_points;
@@ -64,7 +98,6 @@ bool** path_finding::get_map_for_debug() {
 	
 	return path_map;
 }
-
 
 void path_finding::init() {
 	std::cout << "" << std::endl;
@@ -261,19 +294,19 @@ void path_finding::tracePath(cell** cellDetails, Pair dest)
 // A Function to find the shortest path between 
 // a given source cell to a destination cell according 
 // to A* Search Algorithm 
-void path_finding::aStarSearch(Pair src, Pair dest) {
+int path_finding::aStarSearch(Pair src, Pair dest) {
 	// If the source is out of range 
 	if (isValid(src.first, src.second) == false)
 	{
 		printf("Source is invalid\n");
-		return;
+		return 1;
 	}
 
 	// If the destination is out of range 
 	if (isValid(dest.first, dest.second) == false)
 	{
 		printf("Destination is invalid\n");
-		return;
+		return 1;
 	}
 
 	// Either the source or the destination is blocked 
@@ -281,14 +314,14 @@ void path_finding::aStarSearch(Pair src, Pair dest) {
 		isUnBlocked(dest.first, dest.second) == false)
 	{
 		printf("Source or the destination is blocked\n");
-		return;
+		return 2;
 	}
 
 	// If the destination cell is the same as source cell 
 	if (isDestination(src.first, src.second, dest) == true)
 	{
 		printf("We are already at the destination\n");
-		return;
+		return 3;
 	}
 
 
@@ -409,7 +442,7 @@ void path_finding::aStarSearch(Pair src, Pair dest) {
 				////printf("The destination cell is found\n");
 				tracePath(cellDetails, dest);
 				foundDest = true;
-				return;
+				return 0;
 			}
 			// If the successor is already on the closed 
 			// list or if it is blocked, then ignore it. 
@@ -460,7 +493,7 @@ void path_finding::aStarSearch(Pair src, Pair dest) {
 				//printf("The destination cell is found\n");
 				tracePath(cellDetails, dest);
 				foundDest = true;
-				return;
+				return 0;
 			}
 			// If the successor is already on the closed 
 			// list or if it is blocked, then ignore it. 
@@ -509,7 +542,7 @@ void path_finding::aStarSearch(Pair src, Pair dest) {
 				//printf("The destination cell is found\n");
 				tracePath(cellDetails, dest);
 				foundDest = true;
-				return;
+				return 0;
 			}
 
 			// If the successor is already on the closed 
@@ -561,7 +594,7 @@ void path_finding::aStarSearch(Pair src, Pair dest) {
 				//printf("The destination cell is found\n");
 				tracePath(cellDetails, dest);
 				foundDest = true;
-				return;
+				return 0;
 			}
 
 			// If the successor is already on the closed 
@@ -613,7 +646,7 @@ void path_finding::aStarSearch(Pair src, Pair dest) {
 				//printf("The destination cell is found\n");
 				tracePath(cellDetails, dest);
 				foundDest = true;
-				return;
+				return 0;
 			}
 
 			// If the successor is already on the closed 
@@ -665,7 +698,7 @@ void path_finding::aStarSearch(Pair src, Pair dest) {
 				//printf("The destination cell is found\n");
 				tracePath(cellDetails, dest);
 				foundDest = true;
-				return;
+				return 0;
 			}
 
 			// If the successor is already on the closed 
@@ -715,7 +748,7 @@ void path_finding::aStarSearch(Pair src, Pair dest) {
 				//printf("The destination cell is found\n");
 				tracePath(cellDetails, dest);
 				foundDest = true;
-				return;
+				return 0;
 			}
 
 			// If the successor is already on the closed 
@@ -767,7 +800,7 @@ void path_finding::aStarSearch(Pair src, Pair dest) {
 				//printf("The destination cell is found\n");
 				tracePath(cellDetails, dest);
 				foundDest = true;
-				return;
+				return 0;
 			}
 
 			// If the successor is already on the closed 
@@ -812,7 +845,7 @@ void path_finding::aStarSearch(Pair src, Pair dest) {
 	if (foundDest == false)
 		printf("Failed to find the Destination Cell\n");
 
-	return;
+	return 4;
 }
 
 //prints the map in respect to the how the path finder sees it
