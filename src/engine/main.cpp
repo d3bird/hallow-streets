@@ -387,6 +387,8 @@ void key_board_input(GLFWwindow* window, int key, int scancode, int action, int 
 
     if (key == GLFW_KEY_Q && action == GLFW_RELEASE)
         Player->drop_a_trap();
+    if (key == GLFW_KEY_E && action == GLFW_RELEASE)
+        Player->activate_item();
 
     if (network != NULL) {
         if (key == GLFW_KEY_Z && action == GLFW_RELEASE) {

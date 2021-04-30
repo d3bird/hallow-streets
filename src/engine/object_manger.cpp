@@ -3577,3 +3577,30 @@ void object_manger::set_path_debug_map(bool** map, int height, int block_width) 
 	std::cout << "done" << std::endl;
 
 }
+
+void object_manger::clear_all_object() {
+
+	if (height_map != NULL) {
+		delete height_map->model;
+		delete height_map->item_name;
+		delete[] height_map->modelMatrices;
+		for (int i = 0; i < height_map->amount; i++) {
+			delete height_map->item_data[i];
+		}
+		delete height_map;
+	}
+
+	if (path_map != NULL) {
+		delete path_map->model;
+		delete path_map->item_name;
+		delete[] path_map->modelMatrices;
+		for (int i = 0; i < path_map->amount; i++) {
+			delete path_map->item_data[i];
+		}
+		delete path_map;
+	}
+
+	for (int i = 0; i < items.size(); i++) {
+		items[i]->amount = 0;
+	}
+}

@@ -82,6 +82,17 @@ void player::drop_a_trap() {
 }
 
 
+void player::activate_item() {
+	if (AM != NULL) {
+		AM->activate_item();
+	}
+	else {
+		std::cout << "AM was null" << std::endl;
+	}
+
+}
+
+
 void player::print_heights_around_player() {
 
 	glm::vec3 old_pos = cam->get_pos();

@@ -178,16 +178,16 @@ struct distraction {
 };
 
 struct interactibles {
-	item_info* part1;
-	item_info* part2;
+	item_info* part;
 
 	door_actor* link1;
 	door_actor* link2;
 
 	bool activatible;
+	bool computer;
 	bool pickup;
 	float x;
-	float y;
+	float z;
 };
 
 class animation_manager {
@@ -213,6 +213,8 @@ public:
 
 	void print_routines();
 
+	void create_interactible(item_info* p, bool activatible, bool comp, door_actor* link1 = NULL, door_actor* link2 = NULL);
+
 	//setters
 	void set_cam(Camera* c) { cam = c; }
 	void set_time(timing* i) { Time = i; }
@@ -235,6 +237,10 @@ public:
 	void set_stealth(stealth* S) { Stealth = S; }
 
 	void drop_trap(item_info* trap);
+
+	item_info* activate_item();
+
+	void clear_all_object();
 
 private:
 
@@ -317,6 +323,7 @@ private:
 	std::vector< robot_route*> robot_routes;
 
 	std::vector< distraction*>distractions;
+	std::vector<interactibles*> activatible_items;
 	path_finding* Pathing;
 
 	stealth* Stealth;

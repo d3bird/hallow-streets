@@ -55,6 +55,8 @@ public:
 	void set_OBJM(object_manger* o) { OBJM = o; }
 	void set_animation_manager(animation_manager* A) { AM = A; }
 
+	void activate_item();
+
 private:
 
 	enum look_direction {

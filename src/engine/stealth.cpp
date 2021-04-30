@@ -243,7 +243,7 @@ bool stealth::is_cam_in_veiw_line_of_sight(glm::vec3 cam_loc, glm::vec3 loc) {
 			if (veiw_map[robot_z][robot_x]) {
 				seen = true;
 				std::cout << "player is behind object" << std::endl;
-				//output = false;
+				output = false;
 			}
 			
 		}

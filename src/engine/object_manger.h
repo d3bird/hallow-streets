@@ -202,6 +202,8 @@ public:
 	void draw_pathfinding_map_degbug();
 	void set_path_debug_map(bool** map, int height, int block_width);
 
+	void clear_all_object();
+
 	//setting
 	direction_offsets* get_east_off() { return east_off; }
 	direction_offsets* get_west_off() { return west_off; }

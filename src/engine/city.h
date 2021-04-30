@@ -50,6 +50,7 @@ public:
 
 	void init(object_manger* OBJM, animation_manager* an);
 
+	void regen(object_manger* OBJM, animation_manager* an);
 
 
 	//misc functions

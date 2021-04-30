@@ -2016,3 +2016,111 @@ void animation_manager::update_distractions(float* time) {
 		}
 	}
 }
+
+item_info* animation_manager::activate_item() {
+	float pick_up_range = 7;
+	glm::vec3 pos = cam->get_pos();
+	for (int i = 0; i < activatible_items.size(); i++) {
+		if (pick_up_range >distance(pos.x, pos.z,
+			activatible_items[i]->x, activatible_items[i]->z)) {
+
+			std::cout << "active item found" << std::endl;
+			if (activatible_items[i]->activatible) {
+				if (activatible_items[i]->computer) {
+					std::cout << "it is a computer" << std::endl;
+				}
+				else {
+					std::cout << "it is a leaver" << std::endl;
+				}
+			}
+			else if (activatible_items[i]->pickup) {
+				std::cout << "it is a pickup" << std::endl;
+			}
+			break;
+		}
+		else {
+			std::cout << "dist " << distance(pos.x, pos.z,
+				activatible_items[i]->x, activatible_items[i]->z) << std::endl;
+		}
+	}
+	return NULL;
+}
+
+
+
+void animation_manager::create_interactible(item_info* p, bool activatible, bool comp, door_actor* link1, door_actor* link2 ) {
+	interactibles* temp = new interactibles;
+	if (p == NULL) {
+		delete temp;
+		return;
+	}
+	temp->part = p;
+	temp->link1 = link1;
+	temp->link2 = link2;
+	temp->x = p->x;
+	temp->z = p->z;
+	if (activatible) {
+		temp->activatible = activatible;
+		temp->pickup = false;
+		temp->computer = comp;
+	}
+	else {
+		temp->activatible = false;
+		temp->computer = false;
+		temp->pickup = true;
+	}
+	activatible_items.push_back(temp);
+}
+
+void animation_manager::clear_all_object() {
+
+	distractions.clear();
+	activatible_items.clear();
+	delete routines;
+	delete actors_doors;
+	delete actors;
+	openIDs.clear();
+
+	actors = new std::vector<actor*>();
+	actors_doors = new std::vector<door_actor*>();
+	routines = new std::vector<routine*>();
+
+	flying_chicken = NULL;
+	//misc vars
+	ready_for_next = true;
+	flush = false;
+	sending_chicken_to_platform = false;
+	lowering = false;
+	raising = true;
+	ready_to_lower = false;
+	platform = NULL;
+
+	first_plat_cord = true;
+
+	//zap vars
+	lower_zap = false;
+	ready_to_zap = false;
+	zapping = false;
+	animation_time = 0;
+	animation_time_max = 2;
+
+	play_sound = false;
+	create_angle_to_fire = false;
+	cannon_og = glm::vec3(-1, -1, -1);
+	server = true;
+
+	//physics setters
+
+	update_physics = false;
+	init_physics_ = false;
+
+	//robot setters
+	robot_id = 0;
+
+	routine* def_routine;
+
+	for (int i = 0; i < routine_total_predefined; i++) {
+		def_routine = new routine;
+		routines[0].push_back(def_routine);
+	}
+}
