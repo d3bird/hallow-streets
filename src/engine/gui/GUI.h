@@ -48,6 +48,8 @@ public:
 	void set_network_manager(network_manager* i) { network = i; }
 
 	void send_message();
+	void draw_computer();
+
 private:
 
 	void spawn_object();
@@ -165,5 +167,7 @@ private:
 	bool frustum_win;
 	int veiw_disance;
 	int veiw_width;
+
+	bool show_computer;
 };
 

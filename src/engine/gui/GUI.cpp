@@ -103,9 +103,27 @@ GUI::~GUI() {
 void GUI::draw() {
     update_values();
     debug_info();
+    draw_computer();
     //draw_demo_window();
 }
 
+void GUI::draw_computer() {
+
+    show_computer = AM->show_comp();
+    if (show_computer) {
+        ImGui::Begin("computer moniter", &show_computer);
+        if (AM->are_doors_open()) {
+            if (ImGui::Button("close doors")) {
+                AM->close_doors();
+            }
+        }else{
+            if (ImGui::Button("open doors")) {
+                AM->open_doors();
+            }
+        }
+        ImGui::End();
+    }
+}
 
 void GUI::update_values() {
     if (passed_time > record_check_point) {

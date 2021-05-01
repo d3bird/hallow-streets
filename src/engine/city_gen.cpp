@@ -1299,7 +1299,7 @@ building* city_gen::generate_building(building_build_data* buiding_data) {
 			if (dock_side == 2 || dock_side >= 4) {
 				dock_side = 0;
 			}
-			dock_side = 1;
+			//dock_side = 1;
 			output->loading_dock = true;
 			output->dockside = dock_side;
 
@@ -2121,11 +2121,33 @@ void city_gen::generate_inside_of_building(building_build_data* buiding_gvn_data
 							std::cout<< inside_cell.expanded_layout_info[q][h] << " should be a floor" << std::endl;
 						}
 					}
-
+bool skip = false;
 					switch (building_gen->build_type)
 					{
 					case workshop://the ware house
-						if (q == 2 && h == 2) {
+
+						
+						
+					
+						if (inside_cell.x_loc == building_gen->layout_cell_start_x &&
+							inside_cell.y_loc == building_gen->layout_cell_start_z) {
+							skip = true;
+							}
+						if (inside_cell.x_loc == building_gen->layout_cell_start_x &&
+							inside_cell.y_loc == building_gen->layout_cell_end_z) {
+							skip = true;
+						}
+
+						if (inside_cell.x_loc == building_gen->layout_cell_end_x &&
+							inside_cell.y_loc == building_gen->layout_cell_start_z) {
+							skip = true;
+						}
+						if (inside_cell.x_loc == building_gen->layout_cell_end_x &&
+							inside_cell.y_loc == building_gen->layout_cell_end_z) {
+							skip = true;
+						}
+
+						if (!skip && q == 2 && h == 2) {
 							if (inside_cell.expanded_layout_info[q][h] == 1) {
 								inside_cell.expanded_layout_info[q][h] = 53;
 								

@@ -242,8 +242,14 @@ public:
 
 	void clear_all_object();
 
-private:
+	bool show_comp() { return comp_on; }
 
+	void open_doors();
+	void close_doors();
+
+	bool are_doors_open() { return doors_open; }
+private:
+	bool doors_open;
 	void init_physics();
 
 	void create_nav_points(actor* act, bool wipe_old_points = false);
@@ -325,7 +331,7 @@ private:
 	std::vector< distraction*>distractions;
 	std::vector<interactibles*> activatible_items;
 	path_finding* Pathing;
-
+	bool comp_on;
 	stealth* Stealth;
 	int robot_id;
 	//physics

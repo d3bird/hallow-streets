@@ -52,6 +52,8 @@ animation_manager::animation_manager() {
 	Pathing = NULL;
 	Stealth = NULL;
 	robot_id = 0;
+	comp_on = false;
+	doors_open = false;
 }
 
 animation_manager::~animation_manager() {
@@ -753,7 +755,7 @@ void animation_manager::update_doors(float* time) {
 
 			if (reached_z && reached_x && reached_y) {
 				actors_doors[0][i]->toend = !actors_doors[0][i]->toend;
-				//actors_doors[0][i]->activated = false;
+				actors_doors[0][i]->activated = false;
 			}
 		}
 	}
@@ -883,7 +885,7 @@ int animation_manager::turn_object_into_door(item_info* obje, routine_designatio
 	new_act->id = door_id;
 	door_id++;
 	new_act->designation = route;
-	new_act->activated = true;
+	new_act->activated = false;
 	new_act->obj = obje;
 	new_act->soun = soun;
 
@@ -2028,6 +2030,7 @@ item_info* animation_manager::activate_item() {
 			if (activatible_items[i]->activatible) {
 				if (activatible_items[i]->computer) {
 					std::cout << "it is a computer" << std::endl;
+					comp_on = !comp_on;
 				}
 				else {
 					std::cout << "it is a leaver" << std::endl;
@@ -2123,4 +2126,16 @@ void animation_manager::clear_all_object() {
 		def_routine = new routine;
 		routines[0].push_back(def_routine);
 	}
+}
+
+void animation_manager::open_doors() {
+	doors_open = true;
+	for (int i = 0; i < actors_doors[0].size(); i++) {
+		actors_doors[0][i]->activated = true;
+	}
+}
+
+void animation_manager::close_doors() {
+	open_doors();
+	doors_open = false;
 }

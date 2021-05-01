@@ -142,6 +142,7 @@ int main() {
         
     }
     else {
+
         server = true;
     }
 
