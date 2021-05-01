@@ -32,7 +32,7 @@ object_manger::object_manger() {
 	draw_loading_area_floor = true;
 	draw_wall_clock_ang = true;
 	draw_leaver_object = true;
-	draw_door_object = false;
+	draw_door_object = true;
 	draw_loading_door = true;
 	draw_table = true;
 	draw_computer = true;

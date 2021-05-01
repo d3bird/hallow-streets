@@ -880,7 +880,7 @@ int animation_manager::turn_object_into_actor(item_info* obje, routine_designati
 	}
 }
 
-int animation_manager::turn_object_into_door(item_info* obje, routine_designation route, int direction, sound* soun) {
+door_actor* animation_manager::turn_object_into_door(item_info* obje, routine_designation route, int direction, sound* soun) {
 	door_actor* new_act = new door_actor;
 	new_act->id = door_id;
 	door_id++;
@@ -916,7 +916,7 @@ int animation_manager::turn_object_into_door(item_info* obje, routine_designatio
 	std::cout << "start loc x: "<< new_act->x_start<<" y: "<< new_act->y_start<<" z: "<< new_act->z_start << std::endl;
 	std::cout << "end loc x: " << new_act->x_end << " y: " << new_act->y_end << " z: " << new_act->z_end << std::endl;
 	actors_doors->push_back(new_act);
-	return new_act->id;
+	return new_act;
 }
 
 void animation_manager::define_routine(routine_designation route, std::vector< rail_check_point*> points) {
@@ -2034,6 +2034,12 @@ item_info* animation_manager::activate_item() {
 				}
 				else {
 					std::cout << "it is a leaver" << std::endl;
+					if (activatible_items[i]->link1 != NULL) {
+						activatible_items[i]->link1->activated = true;
+					}
+					if (activatible_items[i]->link2 != NULL) {
+						activatible_items[i]->link2->activated = true;
+					}
 				}
 			}
 			else if (activatible_items[i]->pickup) {

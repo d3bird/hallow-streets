@@ -37,6 +37,15 @@ struct rail_track {
 };
 
 
+struct door_temp {
+	door_actor* door1 = NULL;
+	int i1;
+	int h1;
+	door_actor* door2 = NULL;
+	int i2;
+	int h2;
+};
+
 class city
 {
 public:
@@ -124,5 +133,6 @@ private:
 	unsigned int z_width = 10;//COL;//collums
 
 	double** height_map;
+
 };
 

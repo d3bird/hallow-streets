@@ -198,7 +198,7 @@ public:
 	void update();
 	void update_from_server();
 	int turn_object_into_actor(item_info* obje, routine_designation route = DEFF_ERROR_ROUTINE, bool physics = false, sound* soun = NULL);
-	int turn_object_into_door(item_info* obje, routine_designation route,int direction, sound* soun = NULL);
+	door_actor* turn_object_into_door(item_info* obje, routine_designation route,int direction, sound* soun = NULL);
 
 	void define_routine(routine_designation route, int x_min, int z_min, int x_max, int z_max);
 	void define_routine(routine_designation route, std::vector< rail_check_point*> points);

@@ -302,6 +302,8 @@ void city::init(object_manger* OBJM, animation_manager* an) {
 
 	std::cout << "spawning in objects" << std::endl;
 	bool  one_time = false;
+	std::vector< door_temp> doors_creator;
+
 	for (int i = 0; i < x_width; i++) {
 		for (int h = 0; h < z_width; h++) {
 			item_info* tempdata;
@@ -727,6 +729,8 @@ void city::init(object_manger* OBJM, animation_manager* an) {
 				tempdata->y_rot = 1;
 				tempdata->z_rot = 0;
 
+				
+
 				int dir =3;
 
 				switch (layout_expanded[i][h]) {
@@ -755,15 +759,40 @@ void city::init(object_manger* OBJM, animation_manager* an) {
 					}
 					break;
 				}
+				door_actor* new_door_ = NULL;
 				if (!one_time) {
-					AM->turn_object_into_door(tempdata, LOADING_DOOR_ROUTINE, dir);
+					new_door_ = AM->turn_object_into_door(tempdata, LOADING_DOOR_ROUTINE, dir);
 					one_time = true;
 				}
 				else {
-					AM->turn_object_into_door(tempdata, LOADING_DOOR_ROUTINE, dir);
+					new_door_ = AM->turn_object_into_door(tempdata, LOADING_DOOR_ROUTINE, dir);
 					one_time = false;
 				}
-				add_object_to_cell(tempdata,cells,i,h);
+				add_object_to_cell(tempdata, cells, i, h);
+
+				bool found_match_door = false;
+				for (int c = 0; c < doors_creator.size(); c++) {
+					if (doors_creator[c].door2 == NULL) {
+						if ((doors_creator[c].i1 == i - 2 && doors_creator[c].h1 == h) ||
+							(doors_creator[c].i1 == i + 2 && doors_creator[c].h1 == h) ||
+							(doors_creator[c].i1 == i && doors_creator[c].h1 == h - 2) ||
+							(doors_creator[c].i1 == i && doors_creator[c].h1 == h + 2)) {
+							found_match_door = true;
+							doors_creator[c].door2 = new_door_;
+							doors_creator[c].i2 = i;
+							doors_creator[c].h2 = h;
+						}
+
+					}
+				}
+
+				if (!found_match_door) {
+					door_temp new_match;
+					new_match.door1 = new_door_;
+					new_match.i1 = i;
+					new_match.h1 = h;
+					doors_creator.push_back(new_match);
+				}
 
 				std::cout << "creating a loading door" << std::endl;
 			}
@@ -817,7 +846,7 @@ void city::init(object_manger* OBJM, animation_manager* an) {
 			add_object_to_cell(tempdata, cells, i, h);
 
 			}
-			else if ( layout_expanded[i][h] ==56) {
+			else if (layout_expanded[i][h] == 56) {
 			//std::cout << h << " " << i << std::endl;
 			glm::mat4 trans = glm::mat4(1.0f);
 			int x = ((h * 2));
@@ -825,13 +854,40 @@ void city::init(object_manger* OBJM, animation_manager* an) {
 			int z = (i * 2);
 			trans = glm::translate(trans, glm::vec3(x, y, z));
 
-		
+
 			tempdata = OBJM->spawn_item(ROBOT_BASE_T, x, y, z, trans);
 			//std::cout << "creating a floor to draw" << std::endl;
 			add_object_to_cell(tempdata, cells, i, h);
 
 			}
 		}
+	}
+
+
+	std::cout << "there are " << doors_creator.size() << " door pais" << std::endl;
+
+	for (int a = 0; a < doors_creator.size(); a++) {
+		if (doors_creator[a].door1 != NULL && doors_creator[a].door2 != NULL) {
+			int x = 0;
+			int z = 0;
+
+			if (doors_creator[a].i1 != doors_creator[a].i2) {
+				x = doors_creator[a].i1;
+				z = doors_creator[a].h1 + 1;
+			}
+			else if (doors_creator[a].h1 != doors_creator[a].h2) {
+				x = doors_creator[a].h1;
+				z = doors_creator[a].i1 + 1;
+			}
+			glm::mat4 trans = glm::translate(glm::mat4(1.0f), glm::vec3((x*2), 6, (z*2)));
+			tempdata = OBJM->spawn_item(LEAVER_BOX_T, x, 6, z, trans);
+			tempdata = OBJM->spawn_item(LEAVER_T, x, 6, z, trans);
+			AM->create_interactible(tempdata, true, false, doors_creator[a].door1, doors_creator[a].door2);
+		}
+		else {
+			std::cout << "there is a door without a pari " << std::endl;
+		}
+
 	}
 
 	//spwning in items that does not affect path finding
