@@ -285,7 +285,7 @@ void path_finding::tracePath(cell** cellDetails, Pair dest)
 		pair<int, int> p = Path.top();
 		Path.pop();
 		//printf("-> (%d,%d) ", p.first, p.second);
-		generated_points->push_back(glm::vec3(p.second * 2, 6, p.first * 2));
+		generated_points->push_back(glm::vec3(p.second * 2, 4, p.first * 2));
 	}
 
 	return;

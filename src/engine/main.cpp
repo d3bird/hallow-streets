@@ -70,11 +70,11 @@ bool online_play;
 bool take_input = true;;
 
 player* Player;
-bool freecam = true;
+bool freecam = false;
 
 int main() {
 
-    camera= new Camera(glm::vec3(4, 29.3491, 4), glm::vec3(0.0f, 1.0f, 0.0f), -89.2999, -71.7001);//looking at the whole World
+    camera= new Camera(glm::vec3(4, 6, 4), glm::vec3(0.0f, 1.0f, 0.0f), -89.2999, -71.7001);//looking at the whole World
     keys = new keyboard_manger();
     typing = false;
     glfwInit();
@@ -280,9 +280,9 @@ void process_movement(GLFWwindow* window) {
         Player->projected_movement(LEFT, *deltaTime);
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
         Player->projected_movement(RIGHT, *deltaTime);
-    if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {}
+    if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
          Player->projected_movement(UP, *deltaTime);
-    if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS) {}
+    if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
          Player->projected_movement(DOWN, *deltaTime);
 
 
