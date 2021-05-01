@@ -299,6 +299,10 @@ void city_gen::find_space_for_buildings(int x1, int y1, int x2, int y2) {
 	int i_t;
 	int h_t;
 
+	bool has_residental = false;
+	bool has_workshop = false;
+	bool has_shop = false;
+
 	building_build_data* temp_data;
 	//reserve the spot for the buildings
 	for (int i = x1; i < x2; i++) {
@@ -336,6 +340,9 @@ void city_gen::find_space_for_buildings(int x1, int y1, int x2, int y2) {
 					<< " x_e " << x_end << " y_e " << y_end << " ( " << size << " cells" << std::endl;
 				
 				temp_data = new building_build_data;
+
+				temp_data->type = workshop;
+
 				temp_data->x_start = x_start;
 				temp_data->y_start = y_start;
 				temp_data->x_end = x_end;
@@ -1202,6 +1209,33 @@ bool city_gen::check_buiding_data(building_build_data* buiding_data) {
 	return output;
 }
 
+
+int city_gen::get_roof_style() {
+	if (roof_styles.empty()) {
+		roof_styles.push_back(0);
+		roof_styles.push_back(1);
+		roof_styles.push_back(2);
+		roof_styles.push_back(3);
+	}
+
+	int output = 0;
+	if (roof_styles.size() == 1) {
+		output = roof_styles[0];
+		roof_styles.clear();
+		return output;
+	}
+
+	std::random_device rd;
+	std::mt19937 mt(rd());
+	std::uniform_real_distribution<double> distribution(0, roof_styles.size()-1);
+	output = (int)distribution(mt);
+	int temp = roof_styles[output];
+	roof_styles[output] = roof_styles[roof_styles.size()-1];
+	roof_styles.pop_back();
+	output = temp;
+	return output;
+}
+
 static int number_floors = 1;
 building* city_gen::generate_building(building_build_data* buiding_data) {
 
@@ -1226,7 +1260,7 @@ building* city_gen::generate_building(building_build_data* buiding_data) {
 	output->layout_cell_end_x = end_x;
 	output->layout_cell_end_z = end_y;
 
-	output->build_type = workshop;
+	output->build_type = buiding_data->type;
 	output->dis_type = industry;
 
 	//the different generation types vars
@@ -1247,6 +1281,24 @@ building* city_gen::generate_building(building_build_data* buiding_data) {
 	//roof type
 	bool has_roof = true;
 	int roof_type;//0 = wavy 1 = traditional slant, 2 pointing roof, 3 = flat  
+
+	switch (output->build_type)
+	{
+	case workshop:
+		roof_type = 2;
+		break;
+	case shop:
+		roof_type = 3;
+		break;
+	case residental:
+		roof_type = 1;
+		break;
+	case blanks:
+		break;
+	default:
+		break;
+	}
+	roof_type = 0;
 	int roof_subtype = 0;//changes the direction the roof is facing
 	roof_type = 2;
 	//int number_floors =1;
@@ -1375,6 +1427,13 @@ building* city_gen::generate_building(building_build_data* buiding_data) {
 	int y_remaining_roofs = y_number_between_walls;
 	int int_temp = 0;
 
+
+	std::random_device rd;
+	std::mt19937 mt(rd());
+	std::uniform_real_distribution<double> distribution(1, 5);
+	number_floors= (int)distribution(mt);
+
+	roof_type = get_roof_style();
 	for (int i = start_x; i < end_x; i++) {
 		for (int h = start_y; h < end_y; h++) {
 			layout[i][h] = reserverd;
@@ -1901,6 +1960,7 @@ building* city_gen::generate_building(building_build_data* buiding_data) {
 					temp_data->item = roof_place;
 					temp_data->roof = true;
 					bool add_filler = false;
+
 					switch (roof_type)
 					{
 					case 1://traditional

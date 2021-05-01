@@ -35,7 +35,10 @@ enum city_square {
 enum district_type {industry, town_center, docks};
 
 //what kind of building
-enum building_type { workshop, shop, residental, blanks };
+enum building_type { workshop,//warhouse
+	shop, //guard post
+	residental,//the lab
+	blanks };
 
 
 struct rail_section {
@@ -204,6 +207,7 @@ private:
 	//cell data 
 
 	struct building_build_data {
+		building_type type;
 		int x_start = -1;
 		int y_start = -1;
 		int x_end = -1;
@@ -228,6 +232,9 @@ private:
 
 	std::vector< gen_route*> generated_routes;
 	std::vector< waypoint> outside_waypoint;
+	
+	int get_roof_style();
+	std::vector <int> roof_styles;
 };
 
 /* generation key for what each number means on the expanded layout
